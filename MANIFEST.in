@@ -1,0 +1,5 @@
+recursive-include freitag *
+recursive-include doc *
+include *
+exclude .installed.cfg
+global-exclude *.pyc
