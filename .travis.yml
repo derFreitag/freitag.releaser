@@ -1,0 +1,19 @@
+language: python
+python:
+  - 2.7
+  - 3.3
+  - 3.4
+  - pypy
+  - pypy3
+matrix:
+  allow_failures:
+    - python: pypy3
+before_install:
+  - git config --global user.name "Temp user"
+  - git config --global user.email "temp@example.com"
+install:
+  - python bootstrap.py
+  - bin/buildout
+script:
+  - bin/code-analysis
+  - bin/test
