@@ -16,3 +16,4 @@ htmlcov
 doc/build/
 
 .tox/
+src
