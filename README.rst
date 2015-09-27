@@ -24,8 +24,8 @@ What's in?
 ==========
 A few zest.releaser plugins that:
 
+- check that the git repository is updated *update_git_branch*
 - **(TODO)**: check translation files are updated *check_translations*
-- **(TODO)**: check that the git repository is updated *update_git_branch*
 - **(TODO)**: check that a new release is actually needed *check_current_versions*
 - **(TODO)**: check that the next release version number is higher *check_new_version*
 - **(TODO)**: check that the changelog is not empty *check_changelog*
