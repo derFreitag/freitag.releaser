@@ -60,4 +60,14 @@ setup(
         'setuptools',
         'zest.releaser[recommended]',
     ],
+    extras_require={
+        'test': [
+            'testfixtures',
+        ],
+    },
+    entry_points={
+        'zest.releaser.prereleaser.before': [
+            'vcs_updated = freitag.releaser.prerelease:vcs_updated',
+        ],
+    },
 )
