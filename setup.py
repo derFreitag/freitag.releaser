@@ -69,5 +69,8 @@ setup(
         'zest.releaser.prereleaser.before': [
             'vcs_updated = freitag.releaser.prerelease:vcs_updated',
         ],
+        'zest.releaser.postreleaser.after': [
+            'update_branches = freitag.releaser.postrelease:update_branches'
+        ],
     },
 )
