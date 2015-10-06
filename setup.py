@@ -56,6 +56,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'gocept.zestreleaser.customupload',
         'plone.releaser',
         'setuptools',
         'zest.releaser[recommended]',

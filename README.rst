@@ -27,12 +27,6 @@ A few zest.releaser plugins that:
 - check that the git repository is updated *update_git_branch*
 - update development branches after a release *update_develop_branches*
 - **(TODO)**: check translation files are updated *check_translations*
-- **(TODO)**: check that a new release is actually needed *check_current_versions*
-- **(TODO)**: check that the next release version number is higher *check_new_version*
-- **(TODO)**: check that the changelog is not empty *check_changelog*
-- **(TODO)**: update setup.py and CHANGES.rst *update_versions*
-- **(TODO)**: create egg and upload it to private pypi *create_new_eggs*
-- **(TODO)**: push commits and tags *push_git_repository*
 - (TODO):
 
 Additions to plone.releaser:
