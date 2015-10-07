@@ -26,7 +26,7 @@ A few zest.releaser plugins that:
 
 - check that the git repository is updated *update_git_branch*
 - update development branches after a release *update_develop_branches*
-- **(TODO)**: check translation files are updated *check_translations*
+- check translation files are updated *check_translations*
 - (TODO):
 
 Additions to plone.releaser:
