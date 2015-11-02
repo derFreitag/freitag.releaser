@@ -27,7 +27,6 @@ A few zest.releaser plugins that:
 - check that the git repository is updated *update_git_branch*
 - update development branches after a release *update_develop_branches*
 - check translation files are updated *check_translations*
-- (TODO):
 
 Additions to plone.releaser:
 
@@ -39,7 +38,6 @@ Additions to plone.releaser:
 - **(TODO)**: create a new release of the parent project *create_new_buildout_release*
 - **(TODO)**: gather the changes on distributions (more than only *collect_changelog*)
 - **(TODO)**: push cfg files *publish_cfg_files*
-- (TODO):
 
 .. _`der Freitag`: https://www.freitag.de
 .. _`plone.releaser`: https://pypi.python.org/pypi/plone.releaser
