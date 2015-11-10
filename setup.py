@@ -67,6 +67,9 @@ setup(
         ],
     },
     entry_points={
+        'console_scripts': [
+            'freitag_manage = freitag.releaser.manage:manage',
+        ],
         'zest.releaser.prereleaser.before': [
             'vcs_updated = freitag.releaser.prerelease:vcs_updated',
             'i18n = freitag.releaser.prerelease:check_translations',
