@@ -34,7 +34,6 @@ Additions to plone.releaser:
 
   - check to ensure the correct branch on the parent project is used *check_zope_branch*
   - check that the distribution about to release exists *check_folders*
-  - check that release exists on versions.cfg *check_versions_cfg*
   - update versions.cfg with the new released version *update_versions_cfg*
 
 - **(TODO)**: create a new release of the parent project *create_new_buildout_release*
