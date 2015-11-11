@@ -31,13 +31,16 @@ A few zest.releaser plugins that:
 Additions to plone.releaser:
 
 - **(TODO)**: ability to release a distribution within the parent (buildout) project
-- **(TODO)**: pre-check to ensure the correct branch on the parent project is used *check_zope_branch*
-- **(TODO)**: check that the distribution about to release exists *check_folders*
-- **(TODO)**: check that release exists on versions.cfg *check_versions_cfg*
-- **(TODO)**: update versions.cfg with the new released version *update_versions_cfg*
+
+  - check to ensure the correct branch on the parent project is used *check_zope_branch*
+  - check that the distribution about to release exists *check_folders*
+  - check that release exists on versions.cfg *check_versions_cfg*
+  - update versions.cfg with the new released version *update_versions_cfg*
+
 - **(TODO)**: create a new release of the parent project *create_new_buildout_release*
 - **(TODO)**: gather the changes on distributions (more than only *collect_changelog*)
 - **(TODO)**: push cfg files *publish_cfg_files*
+- **(TODO)**: update batou version pins (components/{plone,zeo}/versions/versions.cfg
 
 .. _`der Freitag`: https://www.freitag.de
 .. _`plone.releaser`: https://pypi.python.org/pypi/plone.releaser
