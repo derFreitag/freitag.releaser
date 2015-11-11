@@ -6,6 +6,9 @@ Changelog
 0.2 (unreleased)
 ----------------
 
+- 0.1 was never released, due to not being registered on PyPI.
+  [gforcada]
+
 0.1 (2015-11-11)
 ----------------
 - add zest.releaser plugins:
@@ -19,10 +22,14 @@ Changelog
   - update_branches: the oposite from vcs_updated,
     rebased develop branch on top of master (which was used to make the release)
 
+  [gforcada]
+
 - emulate ``plone.releaser`` and create a ``freitag_manage`` command with:
 
   - publish_cfg_files: send two specific files to a specific server
   - release: releases a distribution (with ``zest.releaser``)
+
+  [gforcada]
 
 - initial release
   [gforcada]
