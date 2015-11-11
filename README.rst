@@ -39,7 +39,7 @@ Additions to plone.releaser:
 
 - **(TODO)**: create a new release of the parent project *create_new_buildout_release*
 - **(TODO)**: gather the changes on distributions (more than only *collect_changelog*)
-- **(TODO)**: push cfg files *publish_cfg_files*
+- push cfg files *publish_cfg_files*
 - **(TODO)**: update batou version pins (components/{plone,zeo}/versions/versions.cfg
 
 .. _`der Freitag`: https://www.freitag.de
