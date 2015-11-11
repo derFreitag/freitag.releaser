@@ -57,8 +57,10 @@ setup(
     zip_safe=False,
     install_requires=[
         'gocept.zestreleaser.customupload',
+        'paramiko',
         'plone.recipe.codeanalysis[recommended]',
         'plone.releaser',
+        'scp',
         'setuptools',
         'zest.releaser[recommended]',
     ],
