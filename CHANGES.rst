@@ -3,7 +3,7 @@
 Changelog
 =========
 
-0.2 (unreleased)
+0.2 (2015-11-11)
 ----------------
 
 - 0.1 was never released, due to not being registered on PyPI.
