@@ -3,10 +3,6 @@ from argh import ArghParser
 from git import Repo
 from paramiko import SSHClient
 from plone.releaser.buildout import Buildout
-from plone.releaser.manage import checkAllPackagesForUpdates
-from plone.releaser.manage import checkPackageForUpdates
-from plone.releaser.manage import jenkins_report
-from plone.releaser.manage import set_package_version
 from scp import SCPClient
 from zest.releaser import fullrelease
 
@@ -109,10 +105,6 @@ class Manage(object):
         parser = ArghParser()
 
         commands = [
-            checkAllPackagesForUpdates,
-            checkPackageForUpdates,
-            jenkins_report,
-            set_package_version,
             release,
             collect_changelog,
             publish_cfg_files,
