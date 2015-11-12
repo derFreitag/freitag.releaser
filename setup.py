@@ -56,6 +56,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'gitpython',
         'gocept.zestreleaser.customupload',
         'paramiko',
         'plone.recipe.codeanalysis[recommended]',

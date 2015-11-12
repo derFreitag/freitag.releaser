@@ -11,6 +11,73 @@ DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
 
 
+class FullRelease(object):
+    """Releases all distributions that have changes and want to be released
+
+    Does lots of QA before and after any release actually happens as well as
+    another bunch of boring tasks worth automating.
+    """
+
+    #: system path where to look for distributions to be released
+    path = 'src'
+
+    #: distributions that will be released
+    distributions = []
+
+    #: plone.releaser.buildout.Buildout instance to get distribution's info
+    #: and save new versions
+    buildout = None
+
+    #: git branches that will be updated/checked, etc
+    branches = (
+        'master',
+        'develop',
+    )
+
+    def __init__(self, path='src'):
+        self.path = path
+        self.buildout = Buildout(
+            sources_file='develop.cfg',
+            checkouts_file='develop.cfg',
+        )
+
+    def __call__(self):
+        """Go through all distributions and release them if needed *and* wanted
+        """
+        self.get_all_distributions()
+        self.check_pending_local_changes()
+        self.check_changes_to_be_released()
+        self.ask_what_to_release()
+        self.release_all()
+        self.gather_changelogs()
+        self.update_buildout()
+        self.update_batou()
+
+    def get_all_distributions(self):
+        pass
+
+    def check_pending_local_changes(self):
+        pass
+
+    def check_changes_to_be_released(self):
+        pass
+
+    def ask_what_to_release(self):
+        pass
+
+    def release_all(self):
+        pass
+
+    def gather_changelogs(self):
+        pass
+
+    def update_buildout(self):
+        pass
+
+    def update_batou(self):
+        pass
+
+
 class ReleaseDistribution(object):
     """Release a single distribution with zest.releaser
 

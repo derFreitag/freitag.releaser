@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 from argh import ArghParser
+from freitag.releaser.release import FullRelease
 from freitag.releaser.release import ReleaseDistribution
 from paramiko import SSHClient
 from scp import SCPClient
+
+
+def full_release(path='src'):
+    """Release all distribution found on src/"""
+    release_all = FullRelease(path=path)
+    release_all()
 
 
 def release(path):
@@ -43,8 +50,8 @@ class Manage(object):
 
     def __call__(self, **kwargs):
         parser = ArghParser()
-
         commands = [
+            full_release,
             release,
             collect_changelog,
             publish_cfg_files,
