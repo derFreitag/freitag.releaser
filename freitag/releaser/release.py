@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import is_everything_pushed
 from git import InvalidGitRepositoryError
 from git import Repo
 from plone.releaser.buildout import Buildout
 from zest.releaser import fullrelease
+from zest.releaser.utils import ask
 
 import os
 import sys
@@ -69,7 +71,32 @@ class FullRelease(object):
             self.distributions.append(path)
 
     def check_pending_local_changes(self):
-        pass
+        """Check that the distributions do not have local changes"""
+        clean_distributions = []
+        for distribution_path in self.distributions:
+            repo = Repo(distribution_path)
+
+            dirty = False
+            local_changes = False
+
+            if repo.is_dirty():
+                dirty = True
+
+            if is_everything_pushed(repo, branches=self.branches):
+                local_changes = True
+
+            if dirty or local_changes:
+                print('{0} has non-committed/unpushed changes.')
+
+                msg = 'Do you want to continue? {0} will NOT be released '
+                if not ask(msg, default=True):
+                    exit(0)
+
+                continue
+
+            clean_distributions.append(distribution_path)
+
+        self.distributions = clean_distributions
 
     def check_changes_to_be_released(self):
         pass
