@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from git import InvalidGitRepositoryError
 from git import Repo
 from plone.releaser.buildout import Buildout
 from zest.releaser import fullrelease
@@ -54,7 +55,18 @@ class FullRelease(object):
         self.update_batou()
 
     def get_all_distributions(self):
-        pass
+        """Get all distributions that are found in self.path"""
+        for folder in sorted(os.listdir(self.path)):
+            path = '{0}/{1}'.format(self.path, folder)
+            if not os.path.isdir(path):
+                continue
+
+            try:
+                Repo(path)
+            except InvalidGitRepositoryError:
+                continue
+
+            self.distributions.append(path)
 
     def check_pending_local_changes(self):
         pass
