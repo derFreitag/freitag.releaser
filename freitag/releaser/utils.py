@@ -51,3 +51,41 @@ def _update_branch(repo, branch):
     else:
         repo.git.rebase('origin/{0}'.format(branch))
         print('Updated {0} branch to latest commits.'.format(branch))
+
+
+def is_everything_pushed(repo, branches=()):
+    """Check if the branches on the given repository have local commits
+
+    :param repo: the repository that will be used to check the branches
+    :type repo: git.Repo
+    :param branches: the branches that will be checked to see if they have
+      unpushed commits
+    :type branches: tuple
+    """
+    # get new code, if any
+    remote = repo.remote()
+    remote.fetch()
+
+    for branch in branches:
+        try:
+            local_branch = repo.refs[branch]
+        except IndexError:
+            print('{0} branch does not exist locally')
+            # no problem then, all commits are pushed
+            continue
+
+        try:
+            remote_branch = remote.refs[branch]
+        except IndexError:
+            print('{0} branch does not exist remotely')
+            # it's pointless to check if a branch has local commits if it does
+            # not exist remotely
+            return False
+
+        local_commit = local_branch.commit.hexsha
+        remote_commit = remote_branch.commit.hexsha
+
+        if local_commit != remote_commit:
+            return False
+
+    return True
