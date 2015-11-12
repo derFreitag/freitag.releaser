@@ -2,7 +2,9 @@
 from freitag.releaser.utils import is_everything_pushed
 from git import InvalidGitRepositoryError
 from git import Repo
+from git.exc import GitCommandError
 from plone.releaser.buildout import Buildout
+from plone.releaser.package import git_repo
 from zest.releaser import fullrelease
 from zest.releaser.utils import ask
 
@@ -99,7 +101,33 @@ class FullRelease(object):
         self.distributions = clean_distributions
 
     def check_changes_to_be_released(self):
-        pass
+        """Check which distributions have changes that could need a release"""
+        need_a_release = []
+        for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
+            dist_clone = self.buildout.sources.get(dist_name)
+
+            with git_repo(dist_clone) as repo:
+                # get the latest tag
+                try:
+                    latest_tag = repo.git.describe('--abbrev=0', '--tags')
+                except GitCommandError:
+                    # if there is no tag it definitely needs a release
+                    need_a_release.append(distribution_path)
+                    continue
+
+                tag = repo.tags[latest_tag]
+                tag_sha = tag.commit.hexsha
+
+                for branch in self.branches:
+                    branch_sha = repo.refs[branch].commit.hexsha
+
+                    if tag_sha != branch_sha:
+                        # a branch is ahead of the last tag: needs a release
+                        need_a_release.append(distribution_path)
+                        break
+
+        self.distributions = need_a_release
 
     def ask_what_to_release(self):
         pass
