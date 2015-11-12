@@ -27,7 +27,7 @@ A few zest.releaser plugins that:
 
 Additions to plone.releaser:
 
-- **(TODO)**: ability to release a distribution within the parent (buildout) project
+- ability to release a distribution within the parent (buildout) project
 
   - check to ensure the correct branch on the parent project is used *check_zope_branch*
   - check that the distribution about to release exists *check_folders*
