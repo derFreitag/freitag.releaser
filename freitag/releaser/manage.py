@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from argh import ArghParser
 from freitag.releaser.changelog import GatherChangelog
+from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
 from freitag.releaser.release import ReleaseDistribution
 from paramiko import SSHClient
@@ -17,6 +18,12 @@ def release(path):
     """Release the distribution found on the given path"""
     release_distribution = ReleaseDistribution(path)
     release_distribution()
+
+
+def update_distribution_changelog(path):
+    """Update CHANGES.rst with the git changelog"""
+    changelog = UpdateDistChangelog(path)
+    changelog()
 
 
 def collect_changelog():
@@ -58,6 +65,7 @@ class Manage(object):
             collect_changelog,
             publish_cfg_files,
             sync_batou,
+            update_distribution_changelog,
         ]
 
         parser.add_commands(commands)

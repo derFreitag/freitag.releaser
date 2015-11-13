@@ -6,8 +6,8 @@ Changelog
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Add update distribution ``CHANGES.rst``.
+  [gforcada]
 
 0.4 (2015-11-13)
 ----------------

@@ -133,3 +133,33 @@ class GatherChangelog(object):
                     other_commits = other_commits + msg + '\n'
 
         return new_releases + other_commits
+
+
+class UpdateDistChangelog(object):
+    """Update CHANGES.rst on the given distribution"""
+
+    #: system path where the distribution should be found
+    path = None
+
+    def __init__(self, path):
+        self.path = path
+
+    def __call__(self):
+        if not os.path.exists(self.path):
+            print('{0} does not exist'.format(self.path))
+
+        path = '{0}/CHANGES.rst'.format(self.path)
+        if not os.path.exists(path):
+            print('{0} does not exist'.format(path))
+
+        repo = Repo(self.path)
+        history = repo.git.log('--oneline', '--graph', 'master~1..develop')
+
+        with open(path) as changes:
+            current_data = changes.read()
+
+        with open(path, 'w') as changes:
+            changes.write(history)
+            changes.write('\n')
+            changes.write('\n')
+            changes.write(current_data)
