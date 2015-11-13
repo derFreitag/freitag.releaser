@@ -6,8 +6,12 @@ Changelog
 0.6.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- More verbose and more string formatting fixes.
+  [gforcada]
 
+- Check that a distribution has a source defined on buildout before trying
+  to clone it.
+  [gforcada]
 
 0.6.1 (2015-11-13)
 ------------------
