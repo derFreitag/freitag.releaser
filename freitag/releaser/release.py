@@ -74,9 +74,11 @@ class FullRelease(object):
 
     def get_all_distributions(self):
         """Get all distributions that are found in self.path"""
+        msg = 'Gather distributions'
+        print(msg)
+        print('-' * len(msg))
         for folder in sorted(os.listdir(self.path)):
             path = '{0}/{1}'.format(self.path, folder)
-            print(path)
             if not os.path.isdir(path):
                 continue
 
@@ -89,6 +91,9 @@ class FullRelease(object):
 
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
+        msg = 'Check pending local changes'
+        print(msg)
+        print('-' * len(msg))
         clean_distributions = []
         for distribution_path in self.distributions:
             print(distribution_path)
@@ -106,9 +111,10 @@ class FullRelease(object):
             if dirty or local_changes:
                 print('{0} has non-committed/unpushed changes.')
 
-                msg = 'Do you want to continue? {0} will NOT be released '
-                if not ask(msg, default=True):
-                    exit(0)
+                if not self.dry_run:
+                    msg = 'Do you want to continue? {0} will NOT be released '
+                    if not ask(msg.format(distribution_path), default=True):
+                        exit(0)
 
                 continue
 
@@ -120,6 +126,9 @@ class FullRelease(object):
 
     def check_changes_to_be_released(self):
         """Check which distributions have changes that could need a release"""
+        msg = 'Check changes to be released'
+        print(msg)
+        print('-' * len(msg))
         need_a_release = []
         for distribution_path in self.distributions:
             print(distribution_path)
@@ -152,6 +161,9 @@ class FullRelease(object):
 
     def ask_what_to_release(self):
         """Check that develop branch can be rebased on top of master branch"""
+        msg = 'What to release'
+        print(msg)
+        print('-' * len(msg))
         to_release = []
         for distribution_path in self.distributions:
             print(distribution_path)
@@ -190,6 +202,9 @@ class FullRelease(object):
 
     def release_all(self):
         """Release all distributions"""
+        msg = 'Release!'
+        print(msg)
+        print('-' * len(msg))
         for distribution_path in self.distributions:
             print(distribution_path)
             dist_name = distribution_path.split('/')[-1]
@@ -204,6 +219,9 @@ class FullRelease(object):
 
     def update_buildout(self):
         """Commit the changes on buildout"""
+        msg = 'Update buildout'
+        print(msg)
+        print('-' * len(msg))
         msg = ['New releases:', '', ]
         changelogs = ['', 'Changelogs:', '', ]
         for dist in sorted(self.versions.keys()):
