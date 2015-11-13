@@ -6,8 +6,11 @@ Changelog
 0.6.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Adapt git_repo context manager from plone.releaser.
+  [gforcada]
 
+- Adjust verbosity.
+  [gforcada]
 
 0.6.2 (2015-11-13)
 ------------------
