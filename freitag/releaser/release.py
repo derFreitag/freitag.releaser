@@ -44,6 +44,9 @@ class FullRelease(object):
     #: changelog for each released distribution
     changelogs = {}
 
+    #: version for each released distribution
+    versions = {}
+
     def __init__(self, path='src'):
         self.path = path
         self.buildout = Buildout(
@@ -171,7 +174,17 @@ class FullRelease(object):
         self.distributions = to_release
 
     def release_all(self):
-        pass
+        """Release all distributions"""
+        for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
+            dist_clone = self.buildout.sources.get(dist_name)
+
+            with git_repo(dist_clone) as repo:
+                release = ReleaseDistribution(repo.working_tree_dir)
+                new_version = release()
+                self.versions[dist_name] = new_version
+
+                self.buildout.set_version(dist_name, new_version)
 
     def update_buildout(self):
         pass
@@ -222,11 +235,7 @@ class ReleaseDistribution(object):
         self._check_distribution_exists()
         self._zest_releaser()
 
-        self.buildout = Buildout(
-            sources_file='develop.cfg',
-            checkouts_file='develop.cfg',
-        )
-        self.buildout.set_version(self.name, self.get_version())
+        return self.get_version()
 
     def _check_parent_branch(self):
         self.parent_repo = Repo(os.path.curdir)
