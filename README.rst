@@ -33,12 +33,10 @@ Additions to plone.releaser:
   - check that the distribution about to release exists *check_folders*
   - update versions.cfg with the new released version *update_versions_cfg*
 
-- **(TODO)**: gather the changes on distributions (more than only *collect_changelog*)
+- gather the changes on distributions (more than only *collect_changelog*)
 - push cfg files *publish_cfg_files*
+- check which distributions need a release
 - **(TODO)**: update batou version pins (components/{plone,zeo}/versions/versions.cfg
-- **(TODO)**: check which distributions need a release
-- **(TODO)**: add git changelog to CHANGES.rst
-
 
 .. _`der Freitag`: https://www.freitag.de
 .. _`plone.releaser`: https://pypi.python.org/pypi/plone.releaser
