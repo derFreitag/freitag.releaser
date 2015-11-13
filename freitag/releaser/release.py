@@ -136,6 +136,11 @@ class FullRelease(object):
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
+            if dist_clone is None:
+                msg = '{0} has no source defined in buildout'
+                print(msg.format(distribution_path))
+                continue
+
             with git_repo(dist_clone) as repo:
                 # get the latest tag
                 try:
