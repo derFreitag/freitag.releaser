@@ -109,7 +109,8 @@ class FullRelease(object):
                 local_changes = True
 
             if dirty or local_changes:
-                print('{0} has non-committed/unpushed changes.')
+                msg = '{0} has non-committed/unpushed changes.'
+                print(msg.format(distribution_path))
 
                 if not self.dry_run:
                     msg = 'Do you want to continue? {0} will NOT be released '
