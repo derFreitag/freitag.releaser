@@ -70,14 +70,14 @@ def is_everything_pushed(repo, branches=()):
         try:
             local_branch = repo.refs[branch]
         except IndexError:
-            print('{0} branch does not exist locally')
+            print('{0} branch does not exist locally'.format(branch))
             # no problem then, all commits are pushed
             continue
 
         try:
             remote_branch = remote.refs[branch]
         except IndexError:
-            print('{0} branch does not exist remotely')
+            print('{0} branch does not exist remotely'.format(branch))
             # it's pointless to check if a branch has local commits if it does
             # not exist remotely
             return False
