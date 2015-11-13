@@ -101,9 +101,6 @@ class FullRelease(object):
 
     def get_all_distributions(self):
         """Get all distributions that are found in self.path"""
-        msg = 'Gather distributions'
-        print(msg)
-        print('-' * len(msg))
         for folder in sorted(os.listdir(self.path)):
             path = '{0}/{1}'.format(self.path, folder)
             if not os.path.isdir(path):
@@ -123,7 +120,6 @@ class FullRelease(object):
         print('-' * len(msg))
         clean_distributions = []
         for distribution_path in self.distributions:
-            print(distribution_path)
             repo = Repo(distribution_path)
 
             dirty = False
