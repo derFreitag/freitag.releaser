@@ -3,7 +3,7 @@
 Changelog
 =========
 
-0.6.3 (unreleased)
+0.6.3 (2015-11-13)
 ------------------
 
 - Adapt git_repo context manager from plone.releaser.
