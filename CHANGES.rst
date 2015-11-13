@@ -3,7 +3,7 @@
 Changelog
 =========
 
-0.6.2 (unreleased)
+0.6.2 (2015-11-13)
 ------------------
 
 - More verbose and more string formatting fixes.
