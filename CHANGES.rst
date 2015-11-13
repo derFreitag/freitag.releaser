@@ -3,11 +3,14 @@
 Changelog
 =========
 
-0.7 (unreleased)
-----------------
+0.6.1 (unreleased)
+------------------
 
-- Nothing changed yet.
+- Be more verbose, so one know about which distribution the output is about.
+  [gforcada]
 
+- Fix two strings that were not formatted.
+  [gforcada]
 
 0.6 (2015-11-13)
 ----------------
