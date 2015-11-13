@@ -28,6 +28,10 @@ class FullRelease(object):
     #: system path where to look for distributions to be released
     path = 'src'
 
+    #: if actual releases have to happen or only gathering an overview of
+    #: what's pending to be released
+    dry_run = None
+
     #: distributions that will be released
     distributions = []
 
@@ -47,8 +51,9 @@ class FullRelease(object):
     #: version for each released distribution
     versions = {}
 
-    def __init__(self, path='src'):
+    def __init__(self, path='src', dry_run=False):
         self.path = path
+        self.dry_run = dry_run
         self.buildout = Buildout(
             sources_file='develop.cfg',
             checkouts_file='develop.cfg',
@@ -61,9 +66,11 @@ class FullRelease(object):
         self.check_pending_local_changes()
         self.check_changes_to_be_released()
         self.ask_what_to_release()
-        self.release_all()
-        self.update_buildout()
-        self.update_batou()
+
+        if not self.dry_run:
+            self.release_all()
+            self.update_buildout()
+            self.update_batou()
 
     def get_all_distributions(self):
         """Get all distributions that are found in self.path"""
@@ -105,7 +112,9 @@ class FullRelease(object):
 
             clean_distributions.append(distribution_path)
 
-        self.distributions = clean_distributions
+        # if nothing is about to be released, do not filter the distributions
+        if not self.dry_run:
+            self.distributions = clean_distributions
 
     def check_changes_to_be_released(self):
         """Check which distributions have changes that could need a release"""
@@ -134,7 +143,9 @@ class FullRelease(object):
                         need_a_release.append(distribution_path)
                         break
 
-        self.distributions = need_a_release
+        # if nothing is about to be released, do not filter the distributions
+        if not self.dry_run:
+            self.distributions = need_a_release
 
     def ask_what_to_release(self):
         """Check that develop branch can be rebased on top of master branch"""

@@ -8,9 +8,9 @@ from paramiko import SSHClient
 from scp import SCPClient
 
 
-def full_release(path='src'):
+def full_release(path='src', dry_run=False):
     """Release all distribution found on src/"""
-    release_all = FullRelease(path=path)
+    release_all = FullRelease(path=path, dry_run=dry_run)
     release_all()
 
 

@@ -6,8 +6,8 @@ Changelog
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Add dry-run mode to fullrelease command.
+  [gforcada]
 
 0.5 (2015-11-13)
 ----------------
