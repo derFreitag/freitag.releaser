@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from contextlib import contextmanager
 from freitag.releaser.utils import create_branch_locally
 from freitag.releaser.utils import is_everything_pushed
 from git import InvalidGitRepositoryError
 from git import Repo
 from git.exc import GitCommandError
 from plone.releaser.buildout import Buildout
-from plone.releaser.package import git_repo
+from shutil import rmtree
+from tempfile import mkdtemp
 from zest.releaser import fullrelease
 from zest.releaser.utils import ask
 
@@ -16,6 +18,31 @@ import sys
 
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
+
+
+@contextmanager
+def git_repo(source):
+    """Handle temporal git repositories.
+
+    It ensures that a git repository is cloned on a temporal folder that is
+    removed after being used.
+
+    See an example of this kind of context managers here:
+    http://preshing.com/20110920/the-python-with-statement-by-example/
+    """
+    tmp_dir = mkdtemp()
+    repo = Repo.clone_from(
+        source.url,
+        tmp_dir,
+        depth=100
+    )
+
+    # give the control back
+    yield repo
+
+    # cleanup
+    del repo
+    rmtree(tmp_dir)
 
 
 class FullRelease(object):
