@@ -6,8 +6,8 @@ Changelog
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Add gather changelog command.
+  [gforcada]
 
 0.3 (2015-11-13)
 ----------------

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from argh import ArghParser
+from freitag.releaser.changelog import GatherChangelog
 from freitag.releaser.release import FullRelease
 from freitag.releaser.release import ReleaseDistribution
 from paramiko import SSHClient
@@ -20,7 +21,8 @@ def release(path):
 
 def collect_changelog():
     """Collect changes made on distributions between a commit time frame."""
-    pass
+    changelog = GatherChangelog()
+    changelog()
 
 
 def publish_cfg_files():
