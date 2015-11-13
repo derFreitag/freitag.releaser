@@ -3,7 +3,7 @@
 Changelog
 =========
 
-0.3 (unreleased)
+0.3 (2015-11-13)
 ----------------
 
 - Cleanups and code reorganization.
