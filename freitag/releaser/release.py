@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import create_branch_locally
 from freitag.releaser.utils import is_everything_pushed
 from git import InvalidGitRepositoryError
 from git import Repo
@@ -9,6 +10,7 @@ from zest.releaser import fullrelease
 from zest.releaser.utils import ask
 
 import os
+import re
 import sys
 
 
@@ -39,6 +41,9 @@ class FullRelease(object):
         'develop',
     )
 
+    #: changelog for each released distribution
+    changelogs = {}
+
     def __init__(self, path='src'):
         self.path = path
         self.buildout = Buildout(
@@ -54,7 +59,6 @@ class FullRelease(object):
         self.check_changes_to_be_released()
         self.ask_what_to_release()
         self.release_all()
-        self.gather_changelogs()
         self.update_buildout()
         self.update_batou()
 
@@ -130,12 +134,43 @@ class FullRelease(object):
         self.distributions = need_a_release
 
     def ask_what_to_release(self):
-        pass
+        """Check that develop branch can be rebased on top of master branch"""
+        to_release = []
+        for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
+            dist_clone = self.buildout.sources.get(dist_name)
+
+            with git_repo(dist_clone) as repo:
+                create_branch_locally(repo, 'develop')
+                repo.heads['develop'].checkout()
+                try:
+                    repo.git.rebase('master')
+                except GitCommandError:
+                    msg = '{0} Could not rebase develop on top of master.'
+                    print(msg.format(dist_name))
+                    if not ask('Would you like to continue?', default=False):
+                        exit(1)
+
+                git_changes = repo.git.log(
+                    '--oneline',
+                    '--graph',
+                    'origin/master~1..develop'
+                )
+
+                change_log_path = '{0}/CHANGES.rst'.format(
+                    repo.working_tree_dir
+                )
+                changes = self._grab_changelog(change_log_path)
+                self.changelogs[dist_name] = changes
+
+                print(git_changes)
+                print(changes)
+                if ask('Is the change log ready for release?'):
+                    to_release.append(distribution_path)
+
+        self.distributions = to_release
 
     def release_all(self):
-        pass
-
-    def gather_changelogs(self):
         pass
 
     def update_buildout(self):
@@ -143,6 +178,21 @@ class FullRelease(object):
 
     def update_batou(self):
         pass
+
+    def _grab_changelog(self, changelog_path):
+        release_regex = re.compile(r'^([0-9]{1,3}.){1,2}[0-9]{1,3} ')
+        lines = []
+        with open(changelog_path) as changelog:
+            release_counter = 0
+            for line in changelog:
+                if release_regex.search(line):
+                    release_counter += 1
+                    if release_counter == 2:
+                        break
+
+                if release_counter == 1:
+                    lines.append(line)
+        return lines
 
 
 class ReleaseDistribution(object):

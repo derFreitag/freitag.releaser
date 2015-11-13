@@ -10,7 +10,7 @@ def update_repo(repo):
     if branch in remote.refs:
         # the branch does not exist locally, check it out
         if branch not in repo.heads:
-            _checkout_branch(repo, branch)
+            create_branch_locally(repo, branch)
         else:
             _update_branch(repo, branch)
 
@@ -18,7 +18,7 @@ def update_repo(repo):
     if branch in remote.refs:
         # the branch does not exist locally, check it out
         if branch not in repo.heads:
-            _checkout_branch(repo, branch)
+            create_branch_locally(repo, branch)
         else:
             _update_branch(repo, branch)
 
@@ -33,7 +33,7 @@ def update_repo(repo):
                 print('Rebased master branch on top of develop.')
 
 
-def _checkout_branch(repo, branch):
+def create_branch_locally(repo, branch):
     remote = repo.remote()
     new_branch = repo.create_head(branch, remote.refs[branch])
     new_branch.set_tracking_branch(remote.refs[branch])
