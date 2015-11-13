@@ -3,7 +3,7 @@
 Changelog
 =========
 
-0.6.1 (unreleased)
+0.6.1 (2015-11-13)
 ------------------
 
 - Be more verbose, so one know about which distribution the output is about.
