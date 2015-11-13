@@ -6,8 +6,11 @@ Changelog
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Cleanups and code reorganization.
+  [gforcada]
 
+- Add full-release command.
+  [gforcada]
 
 0.2 (2015-11-11)
 ----------------
