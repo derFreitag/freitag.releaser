@@ -187,7 +187,25 @@ class FullRelease(object):
                 self.buildout.set_version(dist_name, new_version)
 
     def update_buildout(self):
-        pass
+        """Commit the changes on buildout"""
+        msg = ['New releases:', '', ]
+        changelogs = ['', 'Changelogs:', '', ]
+        for dist in sorted(self.versions.keys()):
+            tmp_msg = '{0} {1}'.format(
+                dist,
+                self.versions[dist]
+            )
+            msg.append(tmp_msg)
+
+            changelogs.append(dist)
+            changelogs.append('-' * len(dist))
+            changelogs.append(self.changelogs[dist])
+
+        commit_message = '\n'.join(msg + changelogs)
+
+        repo = Repo(os.path.curdir)
+        repo.git.add('versions.cfg')
+        repo.git.commit(message=commit_message)
 
     def update_batou(self):
         pass
