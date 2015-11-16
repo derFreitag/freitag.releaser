@@ -251,7 +251,8 @@ class FullRelease(object):
                 print('')
                 print('')
                 print(''.join(changes))
-                if ask('Is the change log ready for release?'):
+                if not self.dry_run and \
+                        ask('Is the change log ready for release?'):
                     to_release.append(distribution_path)
 
         self.distributions = to_release
