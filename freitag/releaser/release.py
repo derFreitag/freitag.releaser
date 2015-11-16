@@ -210,6 +210,8 @@ class FullRelease(object):
                 need_a_release.append(distribution_path)
                 continue
 
+            # TODO: handle repositories that still do not have a tag
+            # (i.e. the try except above)
             self.last_tags[dist_name] = latest_tag
             # get the commit where the latest tag is on
             tag = repo.tags[latest_tag]
