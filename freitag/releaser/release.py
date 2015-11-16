@@ -21,7 +21,7 @@ BRANCH = PATH = '\033[1;30m{0}\033[0m'
 
 
 @contextmanager
-def git_repo(source):
+def git_repo(source, shallow=True):
     """Handle temporal git repositories.
 
     It ensures that a git repository is cloned on a temporal folder that is
@@ -31,12 +31,18 @@ def git_repo(source):
     http://preshing.com/20110920/the-python-with-statement-by-example/
     """
     tmp_dir = mkdtemp()
-    repo = Repo.clone_from(
-        source.url,
-        tmp_dir,
-        depth=100,
-        no_single_branch=True,
-    )
+    if shallow:
+        repo = Repo.clone_from(
+            source.url,
+            tmp_dir,
+            depth=100,
+            no_single_branch=True,
+        )
+    else:
+        repo = Repo.clone_from(
+            source.url,
+            tmp_dir
+        )
 
     # give the control back
     yield repo
@@ -283,7 +289,7 @@ class FullRelease(object):
             if dist_clone is None:
                 continue
 
-            with git_repo(dist_clone) as repo:
+            with git_repo(dist_clone, shallow=False) as repo:
                 release = ReleaseDistribution(repo.working_tree_dir)
                 new_version = release()
                 self.versions[dist_name] = new_version
