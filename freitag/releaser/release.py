@@ -85,6 +85,9 @@ class FullRelease(object):
     #: version for each released distribution
     versions = {}
 
+    #: last tag for each released distribution (before the new release)
+    last_tags = {}
+
     def __init__(self, path='src', dry_run=False):
         self.path = path
         self.dry_run = dry_run
@@ -172,6 +175,7 @@ class FullRelease(object):
         print('-' * len(msg))
         need_a_release = []
         for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
             print(DISTRIBUTION.format(distribution_path))
             repo = Repo(distribution_path)
             remote = repo.remote()
@@ -189,6 +193,7 @@ class FullRelease(object):
                 need_a_release.append(distribution_path)
                 continue
 
+            self.last_tags[dist_name] = latest_master_commit
             # get the commit where the latest tag is on
             tag = repo.tags[latest_tag]
             tag_sha = tag.commit.hexsha
