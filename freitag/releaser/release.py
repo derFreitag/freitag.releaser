@@ -134,7 +134,7 @@ class FullRelease(object):
             if repo.is_dirty():
                 dirty = True
 
-            if is_everything_pushed(repo, branches=self.branches):
+            if not is_everything_pushed(repo, branches=self.branches):
                 local_changes = True
 
             if dirty or local_changes:
