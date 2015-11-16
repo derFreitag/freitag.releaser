@@ -3,8 +3,8 @@
 Changelog
 =========
 
-0.6.4 (unreleased)
-------------------
+0.7 (2015-11-16)
+----------------
 
 - Lots of minor fixes here and there,
   too small and too many of them to list here.
