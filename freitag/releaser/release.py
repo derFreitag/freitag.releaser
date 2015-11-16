@@ -368,7 +368,8 @@ class FullRelease(object):
     def update_batou(self):
         pass
 
-    def _grab_changelog(self, changelog_path):
+    @staticmethod
+    def _grab_changelog(changelog_path):
         unreleased_regex = re.compile(r' \(unreleased\)$')
         release = re.compile(r' \(\d+-\d+-\d+\)$')
         lines = []
