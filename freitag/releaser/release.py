@@ -114,6 +114,9 @@ class FullRelease(object):
 
             self.distributions.append(path)
 
+        print('Distributions: ')
+        print('\n'.join(self.distributions))
+
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
         print('')
@@ -150,6 +153,9 @@ class FullRelease(object):
         # if nothing is about to be released, do not filter the distributions
         if not self.dry_run:
             self.distributions = clean_distributions
+
+        print('Distributions: ')
+        print('\n'.join(self.distributions))
 
     def check_changes_to_be_released(self):
         """Check which distributions have changes that could need a release"""
@@ -259,6 +265,8 @@ class FullRelease(object):
                     to_release.append(distribution_path)
 
         self.distributions = to_release
+        print('Distributions: ')
+        print('\n'.join(self.distributions))
 
     def release_all(self):
         """Release all distributions"""
