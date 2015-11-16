@@ -32,6 +32,10 @@ def git_repo(source, shallow=True):
     http://preshing.com/20110920/the-python-with-statement-by-example/
     """
     tmp_dir = mkdtemp()
+    url = source.url
+    if source.push_url is not None:
+        url = source.push_url
+
     if shallow:
         repo = Repo.clone_from(
             source.url,
@@ -41,7 +45,7 @@ def git_repo(source, shallow=True):
         )
     else:
         repo = Repo.clone_from(
-            source.url,
+            url,
             tmp_dir
         )
 
