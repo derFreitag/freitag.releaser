@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
 from freitag.releaser.utils import create_branch_locally
+from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import is_everything_pushed
 from git import InvalidGitRepositoryError
 from git import Repo
@@ -254,10 +255,10 @@ class FullRelease(object):
                                    default=False):
                             exit(1)
 
-                git_changes = repo.git.log(
-                    '--oneline',
-                    '--graph',
-                    'origin/master~1..{0}'.format(branch)
+                git_changes = get_compact_git_history(
+                    repo,
+                    self.last_tags[dist_name],
+                    branch
                 )
 
                 change_log_path = '{0}/CHANGES.rst'.format(
