@@ -297,17 +297,19 @@ class FullRelease(object):
         pass
 
     def _grab_changelog(self, changelog_path):
-        release_regex = re.compile(r'^([0-9]{1,3}.){1,2}[0-9]{1,3} ')
+        unreleased_regex = re.compile(r' \(unreleased\)$')
+        release = re.compile(r' \(\d+-\d+-\d+\)$')
         lines = []
         with open(changelog_path) as changelog:
-            release_counter = 0
+            on_changelog = False
             for line in changelog:
-                if release_regex.search(line):
-                    release_counter += 1
-                    if release_counter == 2:
-                        break
+                if unreleased_regex.search(line):
+                    on_changelog = True
 
-                if release_counter == 1:
+                if release.search(line):
+                    break
+
+                if on_changelog:
                     lines.append(line)
         return lines
 
