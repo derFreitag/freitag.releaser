@@ -191,7 +191,12 @@ class FullRelease(object):
             self.distributions = need_a_release
 
     def ask_what_to_release(self):
-        """Check that develop branch can be rebased on top of master branch"""
+        """Show changes both in CHANGES.rst and on git history
+
+        For that checkout the repository, check that rebasing develop on top
+        of master is possible and then show both changes to see if everything
+        worth writing in CHANGES.rst from git history is already there.
+        """
         msg = 'What to release'
         print(msg)
         print('-' * len(msg))
