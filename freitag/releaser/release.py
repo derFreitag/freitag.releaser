@@ -34,7 +34,8 @@ def git_repo(source):
     repo = Repo.clone_from(
         source.url,
         tmp_dir,
-        depth=100
+        depth=100,
+        no_single_branch=True,
     )
 
     # give the control back
