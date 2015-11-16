@@ -38,6 +38,11 @@ def git_repo(source, shallow=True):
 
     See an example of this kind of context managers here:
     http://preshing.com/20110920/the-python-with-statement-by-example/
+
+    :param source: the configuration to clone the repository
+    :type source: plone.releaser.buildout.Source
+    :param shallow: if the clone needs to be trimmed or a complete clone
+    :type shallow: bool
     """
     tmp_dir = mkdtemp()
     url = source.url
