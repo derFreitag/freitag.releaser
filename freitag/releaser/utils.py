@@ -12,7 +12,7 @@ def update_repo(repo):
         if branch not in repo.heads:
             create_branch_locally(repo, branch)
         else:
-            _update_branch(repo, branch)
+            update_branch(repo, branch)
 
     branch = 'master'
     if branch in remote.refs:
@@ -20,7 +20,7 @@ def update_repo(repo):
         if branch not in repo.heads:
             create_branch_locally(repo, branch)
         else:
-            _update_branch(repo, branch)
+            update_branch(repo, branch)
 
         if 'develop' in repo.heads:
             # add all commits from develop to master
@@ -40,7 +40,7 @@ def create_branch_locally(repo, branch):
     print('{0} branch did not exist locally, checked out.'.format(branch))
 
 
-def _update_branch(repo, branch):
+def update_branch(repo, branch):
     # update develop branch to its latest commit
     remote = repo.remote()
     repo.heads[branch].checkout()

@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from freitag.releaser.utils import create_branch_locally
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import is_everything_pushed
+from freitag.releaser.utils import update_branch
 from git import InvalidGitRepositoryError
 from git import Repo
 from git.exc import GitCommandError
@@ -305,6 +306,14 @@ class FullRelease(object):
                 self.versions[dist_name] = new_version
 
                 self.buildout.set_version(dist_name, new_version)
+
+            # update the local repository
+            repo = Repo(distribution_path)
+            remote = repo.remote()
+            remote.fetch()
+            for branch in self.branches:
+                if branch in repo.heads:
+                    update_branch(repo, branch)
 
     def update_buildout(self):
         """Commit the changes on buildout"""
