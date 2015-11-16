@@ -312,7 +312,7 @@ class FullRelease(object):
 
             changelogs.append(dist)
             changelogs.append('-' * len(dist))
-            changelogs.append(self.changelogs[dist])
+            changelogs.append(''.join(self.changelogs[dist]))
 
         commit_message = '\n'.join(msg + changelogs)
 
