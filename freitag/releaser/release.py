@@ -21,6 +21,13 @@ import sys
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
 
+IGNORE_COMMIT_MESSAGES = (
+    'Back to development',
+    'Bump version',
+    'Update CHANGES',
+    'New version:'
+)
+
 
 @contextmanager
 def git_repo(source, shallow=True):
@@ -265,6 +272,21 @@ class FullRelease(object):
                     self.last_tags[dist_name],
                     branch
                 )
+
+                cleaned_git_changes = []
+                for line in git_changes.split('\n'):
+                    found = False
+                    for ignore_message in IGNORE_COMMIT_MESSAGES:
+                        if line.find(ignore_message) != -1:
+                            found = True
+                            break
+                    if not found:
+                        cleaned_git_changes.append(line)
+
+                # a git history without any meaningful commit should not be
+                # released
+                if len(cleaned_git_changes) == 0:
+                    continue
 
                 change_log_path = '{0}/CHANGES.rst'.format(
                     repo.working_tree_dir
