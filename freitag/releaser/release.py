@@ -206,7 +206,7 @@ class FullRelease(object):
                 need_a_release.append(distribution_path)
                 continue
 
-            self.last_tags[dist_name] = latest_master_commit
+            self.last_tags[dist_name] = latest_tag
             # get the commit where the latest tag is on
             tag = repo.tags[latest_tag]
             tag_sha = tag.commit.hexsha
