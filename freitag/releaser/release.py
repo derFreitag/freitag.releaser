@@ -121,6 +121,7 @@ class FullRelease(object):
         print('-' * len(msg))
         clean_distributions = []
         for distribution_path in self.distributions:
+            # TODO: add some sort of progress bar like plone.releaser
             repo = Repo(distribution_path)
 
             dirty = False
