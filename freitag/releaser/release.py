@@ -206,21 +206,31 @@ class FullRelease(object):
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
+            develop = True
+            branch = 'develop'
             with git_repo(dist_clone) as repo:
-                create_branch_locally(repo, 'develop')
-                repo.heads['develop'].checkout()
                 try:
-                    repo.git.rebase('master')
-                except GitCommandError:
-                    msg = '{0} Could not rebase develop on top of master.'
-                    print(msg.format(dist_name))
-                    if not ask('Would you like to continue?', default=False):
-                        exit(1)
+                    repo.remote().refs['develop']
+                except IndexError:
+                    develop = False
+                    branch = 'master'
+
+                if develop:
+                    create_branch_locally(repo, 'develop')
+                    repo.heads['develop'].checkout()
+                    try:
+                        repo.git.rebase('master')
+                    except GitCommandError:
+                        msg = '{0} Could not rebase develop on top of master.'
+                        print(msg.format(dist_name))
+                        if not ask('Would you like to continue?',
+                                   default=False):
+                            exit(1)
 
                 git_changes = repo.git.log(
                     '--oneline',
                     '--graph',
-                    'origin/master~1..develop'
+                    'origin/master~1..{0}'.format(branch)
                 )
 
                 change_log_path = '{0}/CHANGES.rst'.format(
