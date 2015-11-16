@@ -165,7 +165,7 @@ class FullRelease(object):
         print('-' * len(msg))
         need_a_release = []
         for distribution_path in self.distributions:
-            print(distribution_path)
+            print(DISTRIBUTION.format(distribution_path))
             repo = Repo(distribution_path)
             remote = repo.remote()
 
@@ -214,7 +214,7 @@ class FullRelease(object):
         print('-' * len(msg))
         to_release = []
         for distribution_path in self.distributions:
-            print(distribution_path)
+            print(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
@@ -237,7 +237,7 @@ class FullRelease(object):
                         repo.git.rebase('master')
                     except GitCommandError:
                         msg = '{0} Could not rebase develop on top of master.'
-                        print(msg.format(dist_name))
+                        print(msg.format(DISTRIBUTION.format(dist_name)))
                         if not ask('Would you like to continue?',
                                    default=False):
                             exit(1)
@@ -275,7 +275,7 @@ class FullRelease(object):
         print(msg)
         print('-' * len(msg))
         for distribution_path in self.distributions:
-            print(distribution_path)
+            print(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
