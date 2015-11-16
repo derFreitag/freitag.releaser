@@ -176,8 +176,7 @@ class FullRelease(object):
         # if nothing is about to be released, do not filter the distributions
         if not self.dry_run:
             if len(self.distributions) != clean_distributions:
-                msg = 'Do you want to continue?'
-                if not ask(msg.format(distribution_path), default=True):
+                if not ask('Do you want to continue?', default=True):
                     exit(0)
 
             self.distributions = clean_distributions
