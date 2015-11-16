@@ -209,6 +209,9 @@ class FullRelease(object):
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
+            if dist_clone is None:
+                continue
+
             develop = True
             branch = 'develop'
             with git_repo(dist_clone) as repo:
@@ -261,6 +264,9 @@ class FullRelease(object):
             print(distribution_path)
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
+
+            if dist_clone is None:
+                continue
 
             with git_repo(dist_clone) as repo:
                 release = ReleaseDistribution(repo.working_tree_dir)
