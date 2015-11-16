@@ -138,13 +138,9 @@ class FullRelease(object):
                 local_changes = True
 
             if dirty or local_changes:
-                msg = '{0} has non-committed/unpushed changes.'
-                print(msg.format(distribution_path))
-
-                if not self.dry_run:
-                    msg = 'Do you want to continue? {0} will NOT be released '
-                    if not ask(msg.format(distribution_path), default=True):
-                        exit(0)
+                msg = '{0} has non-committed/unpushed changes, ' \
+                      'it will not be released.'
+                print(msg.format(DISTRIBUTION.format(distribution_path)))
 
                 continue
 
@@ -152,6 +148,11 @@ class FullRelease(object):
 
         # if nothing is about to be released, do not filter the distributions
         if not self.dry_run:
+            if len(self.distributions) != clean_distributions:
+                msg = 'Do you want to continue?'
+                if not ask(msg.format(distribution_path), default=True):
+                    exit(0)
+
             self.distributions = clean_distributions
 
         print('Distributions: ')
