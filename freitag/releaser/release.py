@@ -259,7 +259,7 @@ class FullRelease(object):
                     repo.working_tree_dir
                 )
                 changes = self._grab_changelog(change_log_path)
-                self.changelogs[dist_name] = changes
+                self.changelogs[dist_name] = changes[2:]
 
                 # TODO: show them side-by-side
                 print('')
