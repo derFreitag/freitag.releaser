@@ -26,6 +26,7 @@ IGNORE_COMMIT_MESSAGES = (
     'Bump version',
     'Update CHANGES',
     'New version:'
+    'Preparing release '
 )
 
 
