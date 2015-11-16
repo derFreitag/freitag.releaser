@@ -116,6 +116,7 @@ class FullRelease(object):
 
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
+        print('')
         msg = 'Check pending local changes'
         print(msg)
         print('-' * len(msg))
@@ -152,6 +153,7 @@ class FullRelease(object):
 
     def check_changes_to_be_released(self):
         """Check which distributions have changes that could need a release"""
+        print('')
         msg = 'Check changes to be released'
         print(msg)
         print('-' * len(msg))
@@ -200,6 +202,7 @@ class FullRelease(object):
         of master is possible and then show both changes to see if everything
         worth writing in CHANGES.rst from git history is already there.
         """
+        print('')
         msg = 'What to release'
         print(msg)
         print('-' * len(msg))
@@ -259,6 +262,7 @@ class FullRelease(object):
 
     def release_all(self):
         """Release all distributions"""
+        print('')
         msg = 'Release!'
         print(msg)
         print('-' * len(msg))
