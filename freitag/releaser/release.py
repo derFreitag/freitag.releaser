@@ -158,33 +158,36 @@ class FullRelease(object):
         need_a_release = []
         for distribution_path in self.distributions:
             print(distribution_path)
-            dist_name = distribution_path.split('/')[-1]
-            dist_clone = self.buildout.sources.get(dist_name)
+            repo = Repo(distribution_path)
+            remote = repo.remote()
 
-            if dist_clone is None:
-                msg = '{0} has no source defined in buildout'
-                print(msg.format(distribution_path))
+            # get the latest tag reachable from remote master
+            latest_master_commit = remote.refs['master'].commit.hexsha
+            try:
+                latest_tag = repo.git.describe(
+                    '--abbrev=0',
+                    '--tags',
+                    latest_master_commit
+                )
+            except GitCommandError:
+                # if there is no tag it definitely needs a release
+                need_a_release.append(distribution_path)
                 continue
 
-            with git_repo(dist_clone) as repo:
-                # get the latest tag
-                try:
-                    latest_tag = repo.git.describe('--abbrev=0', '--tags')
-                except GitCommandError:
-                    # if there is no tag it definitely needs a release
-                    need_a_release.append(distribution_path)
+            # get the commit where the latest tag is on
+            tag = repo.tags[latest_tag]
+            tag_sha = tag.commit.hexsha
+
+            # finally check if there is any branch ahead of that last tag
+            for branch in self.branches:
+                if branch not in remote.refs:
                     continue
 
-                tag = repo.tags[latest_tag]
-                tag_sha = tag.commit.hexsha
-
-                for branch in self.branches:
-                    branch_sha = repo.refs[branch].commit.hexsha
-
-                    if tag_sha != branch_sha:
-                        # a branch is ahead of the last tag: needs a release
-                        need_a_release.append(distribution_path)
-                        break
+                branch_sha = remote.refs[branch].commit.hexsha
+                if tag_sha != branch_sha:
+                    # a branch is ahead of the last tag: needs a release
+                    need_a_release.append(distribution_path)
+                    break
 
         # if nothing is about to be released, do not filter the distributions
         if not self.dry_run:
