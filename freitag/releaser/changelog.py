@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import get_compact_git_history
 from git import Repo
+from git.exc import GitCommandError
 
 import os
 
@@ -153,7 +155,24 @@ class UpdateDistChangelog(object):
             print('{0} does not exist'.format(path))
 
         repo = Repo(self.path)
-        history = repo.git.log('--oneline', '--graph', 'master~1..develop')
+        remote = repo.remote()
+        latest_master_commit = remote.refs['master'].commit.hexsha
+        try:
+            latest_tag = repo.git.describe(
+                '--abbrev=0',
+                '--tags',
+                latest_master_commit
+            )
+        except GitCommandError:
+            latest_tag = repo.commit().hexsha
+
+        branch = 'develop'
+        if branch not in repo.heads:
+            branch = 'master'
+
+        history = get_compact_git_history(repo, latest_tag, branch)
+
+        print(history)
 
         with open(path) as changes:
             current_data = changes.read()
