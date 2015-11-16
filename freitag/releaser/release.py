@@ -242,8 +242,11 @@ class FullRelease(object):
                 changes = self._grab_changelog(change_log_path)
                 self.changelogs[dist_name] = changes
 
+                # TODO: show them side-by-side
                 print(git_changes)
-                print(changes)
+                print('')
+                print('')
+                print(''.join(changes))
                 if ask('Is the change log ready for release?'):
                     to_release.append(distribution_path)
 
