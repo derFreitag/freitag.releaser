@@ -95,7 +95,7 @@ class FullRelease(object):
         self.check_changes_to_be_released()
         self.ask_what_to_release()
 
-        if not self.dry_run:
+        if not self.dry_run and len(self.distributions) > 0:
             self.release_all()
             self.update_buildout()
             self.update_batou()
