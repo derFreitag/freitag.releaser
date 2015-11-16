@@ -303,7 +303,7 @@ class FullRelease(object):
 
                 # TODO: show them side-by-side
                 print('')
-                print(git_changes)
+                print(''.join(cleaned_git_changes))
                 print('')
                 print('')
                 print(''.join(changes))
