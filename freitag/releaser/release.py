@@ -246,6 +246,7 @@ class FullRelease(object):
                 self.changelogs[dist_name] = changes
 
                 # TODO: show them side-by-side
+                print('')
                 print(git_changes)
                 print('')
                 print('')
