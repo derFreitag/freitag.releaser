@@ -5,6 +5,14 @@ Changelog
 
 0.8 (unreleased)
 ----------------
+- Clone a pushable repository.
+  [gforcada]
+
+- Update the local branches after release.
+  [gforcada]
+
+- Filter distributions to release.
+  [gforcada]
 
 0.7 (2015-11-16)
 ----------------
