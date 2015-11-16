@@ -6,8 +6,9 @@ Changelog
 0.6.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Lots of minor fixes here and there,
+  too small and too many of them to list here.
+  [gforcada]
 
 0.6.3 (2015-11-13)
 ------------------
