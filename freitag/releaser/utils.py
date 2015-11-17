@@ -11,12 +11,29 @@ import sys
 
 
 def update_branch(repo, branch):
+    """Update the given branch on the given repository
+
+    :param  repo: git repository where the branch should exist
+    :type repo: git.Repo
+    :param branch: branch that will be updated
+    :type branch: str
+    :return: whether updating the branch was successful or not
+    :rtype: bool
+    """
     remote = repo.remote()
-    repo.heads[branch].checkout()
+    remote.fetch()
+    try:
+        repo.heads[branch].checkout()
+    except IndexError:
+        print('branch {0} does not exist remotely'.format(branch))
+        return False
+
     local_commit = repo.head.commit
     remote_commit = remote.refs[branch].commit
     if local_commit != remote_commit:
         repo.git.rebase('origin/{0}'.format(branch))
+
+    return True
 
 
 def is_everything_pushed(repo):
