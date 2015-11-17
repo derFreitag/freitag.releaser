@@ -372,8 +372,6 @@ class ReleaseDistribution(object):
 
     #: parent repository which will be updated with the new release
     parent_repo = None
-    #: plone.releaser.buildout.Buildout instance of the parent repository
-    buildout = None
 
     def __init__(self, path):
         self.path = path
