@@ -109,7 +109,7 @@ def push_cfg_files():
 
 
 @contextmanager
-def git_repo(source, shallow=True):
+def git_repo(source, shallow=True, depth=100):
     """Handle temporal git repositories.
 
     It ensures that a git repository is cloned on a temporal folder that is
@@ -122,6 +122,10 @@ def git_repo(source, shallow=True):
     :type source: plone.releaser.buildout.Source
     :param shallow: if the clone needs to be trimmed or a complete clone
     :type shallow: bool
+    :param depth: how many commits will be fetched
+    :type depth: int
+    :return: the cloned repository
+    :rtype: git.Repo
     """
     tmp_dir = mkdtemp()
     url = source.url
@@ -132,7 +136,7 @@ def git_repo(source, shallow=True):
         repo = Repo.clone_from(
             source.url,
             tmp_dir,
-            depth=100,
+            depth=depth,
             no_single_branch=True,
         )
     else:

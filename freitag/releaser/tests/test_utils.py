@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.utils import get_compact_git_history
+from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import update_branch
 from git import Repo
+from plone.releaser.buildout import Source
 from tempfile import mkdtemp
 from testfixtures import OutputCapture
 
@@ -15,10 +17,19 @@ class TestUtils(unittest.TestCase):
 
     def setUp(self):
         self.upstream_repo = Repo.init(mkdtemp(), bare=True)
+
         self.remote_repo = self.upstream_repo.clone(mkdtemp())
         self._commit(self.remote_repo, msg='First commit')
         self.remote_repo.remote().push('master:refs/heads/master')
+
         self.user_repo = self.upstream_repo.clone(mkdtemp())
+
+        # create a Source
+        self.source = Source(
+            protocol='git',
+            url='file://{0}'.format(self.upstream_repo.working_dir),
+            branch='master'
+        )
 
     def tearDown(self):
         shutil.rmtree(self.upstream_repo.working_dir)
@@ -158,3 +169,44 @@ class TestUtils(unittest.TestCase):
             'First commit',
             git_history
         )
+
+    def test_git_repo_context_manager_shallow(self):
+        """Check that the context manager returns a shallow clone"""
+        # make some commits
+        for i in range(1, 5):
+            self._commit(self.user_repo, msg='Commit {0}'.format(i))
+        self.user_repo.remote().push()
+
+        # use the context manager to check that only some commits are fetched
+        with git_repo(self.source, depth=2) as repo:
+            commits = [
+                c
+                for c in repo.iter_commits()
+            ]
+            self.assertEqual(
+                len(commits),
+                2
+            )
+
+    def test_git_repo_context_manager_full(self):
+        """Check that the context manager returns a full clone"""
+        # make some commits
+        for i in range(1, 5):
+            self._commit(self.user_repo, msg='Commit {0}'.format(i))
+        self.user_repo.remote().push()
+
+        total_commits = len([
+            c
+            for c in self.user_repo.iter_commits()
+        ])
+
+        # use the context manager to check that only some commits are fetched
+        with git_repo(self.source, shallow=False) as repo:
+            commits = [
+                c
+                for c in repo.iter_commits()
+            ]
+            self.assertEqual(
+                len(commits),
+                total_commits
+            )
