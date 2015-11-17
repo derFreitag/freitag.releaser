@@ -36,13 +36,16 @@ def update_branch(repo, branch):
     return True
 
 
-def is_everything_pushed(repo):
-    """Check if the branches on the given repository have local commits
+def is_branch_synced(repo, branch='master'):
+    """Check if master branch on the given repository has local commits
 
     :param repo: the repository that will be used to check the branches
     :type repo: git.Repo
+    :param branch: the branch that needs to be checked if it is synced
+    :type branch: str
+    :return: whether the given repo's master branch is in sync with upstream
+    :rtype: bool
     """
-    branch = 'master'
     # get new code, if any
     remote = repo.remote()
     remote.fetch()
@@ -50,14 +53,14 @@ def is_everything_pushed(repo):
     try:
         local_branch = repo.refs[branch]
     except IndexError:
-        print('master branch does not exist locally')
+        print('{0} branch does not exist locally'.format(branch))
         # no problem then, all commits are pushed
         return True
 
     try:
         remote_branch = remote.refs[branch]
     except IndexError:
-        print('master branch does not exist remotely')
+        print('{0} branch does not exist remotely'.format(branch))
         # it's pointless to check if a branch has local commits if it does
         # not exist remotely
         return False

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import git_repo
-from freitag.releaser.utils import is_everything_pushed
+from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
 from freitag.releaser.utils import update_branch
 from freitag.releaser.utils import wrap_folder
@@ -129,7 +129,7 @@ class FullRelease(object):
             if repo.is_dirty():
                 dirty = True
 
-            if not is_everything_pushed(repo):
+            if not is_branch_synced(repo):
                 local_changes = True
 
             if dirty or local_changes:

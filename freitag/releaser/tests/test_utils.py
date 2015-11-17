@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import update_branch
 from git import Repo
 from tempfile import mkdtemp
@@ -69,3 +70,61 @@ class TestUtils(unittest.TestCase):
             result = update_branch(self.user_repo, 'non-existing-branch')
 
         self.assertFalse(result)
+
+    def test_is_branch_synced_in_sync(self):
+        """Check that synchronicity is tested correctly"""
+        with OutputCapture() as output:
+            result = is_branch_synced(self.user_repo)
+
+        self.assertTrue(result)
+        self.assertEqual(
+            output.captured,
+            ''
+        )
+
+    def test_is_branch_synced_out_of_sync(self):
+        """Check that synchronicity is tested correctly"""
+        # add a remote commit
+        self._commit(self.remote_repo, msg='Second commit')
+        self.remote_repo.remote().push()
+
+        with OutputCapture() as output:
+            result = is_branch_synced(self.user_repo)
+
+        self.assertFalse(result)
+        self.assertEqual(
+            output.captured,
+            ''
+        )
+
+    def test_is_branch_synced_non_existing_local_branch(self):
+        """Check that if a branch does not exist locally it reports so"""
+        with OutputCapture() as output:
+            result = is_branch_synced(
+                self.user_repo,
+                'non-existing-branch'
+            )
+        self.assertTrue(result)
+        self.assertIn(
+            'non-existing-branch branch does not exist locally',
+            output.captured
+        )
+
+    def test_is_branch_synced_non_existing_remote_branch(self):
+        """Check that if a branch does not exist remotely it reports so"""
+        # create a local branch
+        branch_name = 'local-branch'
+        self.user_repo.create_head(branch_name)
+        self.user_repo.heads[branch_name].checkout()
+
+        with OutputCapture() as output:
+            result = is_branch_synced(
+                self.user_repo,
+                branch_name
+            )
+
+        self.assertFalse(result)
+        self.assertIn(
+            '{0} branch does not exist remotely'.format(branch_name),
+            output.captured
+        )
