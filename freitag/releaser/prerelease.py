@@ -1,24 +1,9 @@
 # -*- coding: utf-8 -*-
-from freitag.releaser.utils import update_repo
-from git import InvalidGitRepositoryError
-from git import Repo
 from zest.releaser.utils import ask
 
 import os
 import subprocess
 import sys
-
-
-def vcs_updated(data):
-    try:
-        repo = Repo(data['workingdir'])
-    except InvalidGitRepositoryError:
-        return
-
-    if not ask('Do you want to update develop and master branches?'):
-        return
-
-    update_repo(repo)
 
 
 def check_translations(data):
