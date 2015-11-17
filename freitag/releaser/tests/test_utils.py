@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import update_branch
 from git import Repo
@@ -127,4 +128,33 @@ class TestUtils(unittest.TestCase):
         self.assertIn(
             '{0} branch does not exist remotely'.format(branch_name),
             output.captured
+        )
+
+    def test_get_compact_git_history(self):
+        """Check that the history is retrieved properly"""
+        self._commit(self.user_repo, msg='Second commit')
+        tag_name = 'my-tag'
+        self.user_repo.create_tag(tag_name)
+        self._commit(self.user_repo, msg='Third commit')
+        self._commit(self.user_repo, msg='Forth commit')
+
+        git_history = get_compact_git_history(
+            self.user_repo,
+            tag_name
+        )
+        self.assertIn(
+            'Forth commit',
+            git_history
+        )
+        self.assertIn(
+            'Third commit',
+            git_history
+        )
+        self.assertIn(
+            'Second commit',
+            git_history
+        )
+        self.assertNotIn(
+            'First commit',
+            git_history
         )

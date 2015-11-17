@@ -75,6 +75,15 @@ def is_branch_synced(repo, branch='master'):
 
 
 def get_compact_git_history(repo, tag):
+    """Gets all the commits between the tag and master
+
+    :param repo: the repository that will be used to get the history
+    :type repo: git.Repo
+    :param tag: the tag that will be used as a base from where to get commits
+    :type tag: str
+    :return: whether the given repo's master branch is in sync with upstream
+    :rtype: str
+    """
     return repo.git.log(
         '--oneline',
         '--graph',
