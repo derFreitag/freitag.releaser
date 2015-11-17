@@ -39,12 +39,6 @@ class TestUtils(unittest.TestCase):
         shutil.rmtree(self.remote_repo.working_dir)
         shutil.rmtree(self.user_repo.working_dir)
 
-    def _add_commit_on_branch(self, repo, branch='master'):
-        if branch not in repo.heads:
-            repo.create_head(branch)
-        repo.heads[branch].checkout()
-        self._commit(repo)
-
     def _commit(self, repo, msg='Random commit'):
         dummy_file = os.path.join(repo.working_tree_dir, 'dummy')
         open(dummy_file, 'wb').close()
