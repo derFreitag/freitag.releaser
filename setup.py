@@ -78,8 +78,5 @@ setup(
             'vcs_updated = freitag.releaser.prerelease:vcs_updated',
             'i18n = freitag.releaser.prerelease:check_translations',
         ],
-        'zest.releaser.postreleaser.after': [
-            'update_branches = freitag.releaser.postrelease:update_branches'
-        ],
     },
 )
