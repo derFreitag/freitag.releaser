@@ -91,9 +91,9 @@ def is_everything_pushed(repo, branches=()):
     return True
 
 
-def get_compact_git_history(repo, tag, branch):
+def get_compact_git_history(repo, tag):
     return repo.git.log(
         '--oneline',
         '--graph',
-        '{0}~1..{1}'.format(tag, branch)
+        '{0}~1..master'.format(tag)
     )

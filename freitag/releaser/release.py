@@ -277,7 +277,6 @@ class FullRelease(object):
                 git_changes = get_compact_git_history(
                     repo,
                     self.last_tags[dist_name],
-                    branch
                 )
 
                 cleaned_git_changes = []

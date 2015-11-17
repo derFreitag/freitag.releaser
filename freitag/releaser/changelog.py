@@ -166,11 +166,7 @@ class UpdateDistChangelog(object):
         except GitCommandError:
             latest_tag = repo.commit().hexsha
 
-        branch = 'develop'
-        if branch not in repo.heads:
-            branch = 'master'
-
-        history = get_compact_git_history(repo, latest_tag, branch)
+        history = get_compact_git_history(repo, latest_tag)
 
         print(history)
 
