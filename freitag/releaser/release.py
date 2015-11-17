@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
-from freitag.releaser.utils import create_branch_locally
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import is_everything_pushed
 from freitag.releaser.utils import update_branch
@@ -92,12 +91,6 @@ class FullRelease(object):
     #: and save new versions
     buildout = None
 
-    #: git branches that will be updated/checked, etc
-    branches = (
-        'master',
-        'develop',
-    )
-
     #: changelog for each released distribution
     changelogs = {}
 
@@ -162,7 +155,7 @@ class FullRelease(object):
             if repo.is_dirty():
                 dirty = True
 
-            if not is_everything_pushed(repo, branches=self.branches):
+            if not is_everything_pushed(repo):
                 local_changes = True
 
             if dirty or local_changes:
@@ -219,15 +212,14 @@ class FullRelease(object):
             tag_sha = tag.commit.hexsha
 
             # finally check if there is any branch ahead of that last tag
-            for branch in self.branches:
-                if branch not in remote.refs:
-                    continue
+            if 'master' not in remote.refs:
+                continue
 
-                branch_sha = remote.refs[branch].commit.hexsha
-                if tag_sha != branch_sha:
-                    # a branch is ahead of the last tag: needs a release
-                    need_a_release.append(distribution_path)
-                    break
+            branch_sha = remote.refs['master'].commit.hexsha
+            if tag_sha != branch_sha:
+                # master is ahead of the last tag: needs a release
+                need_a_release.append(distribution_path)
+                break
 
         # if nothing is about to be released, do not filter the distributions
         if not self.dry_run:
@@ -236,9 +228,9 @@ class FullRelease(object):
     def ask_what_to_release(self):
         """Show changes both in CHANGES.rst and on git history
 
-        For that checkout the repository, check that rebasing develop on top
-        of master is possible and then show both changes to see if everything
-        worth writing in CHANGES.rst from git history is already there.
+        For that checkout the repository, show both changes to see if
+        everything worth writing in CHANGES.rst from git history is already
+        there.
         """
         print('')
         msg = 'What to release'
@@ -253,27 +245,7 @@ class FullRelease(object):
             if dist_clone is None:
                 continue
 
-            develop = True
-            branch = 'develop'
             with git_repo(dist_clone) as repo:
-                try:
-                    repo.remote().refs['develop']
-                except IndexError:
-                    develop = False
-                    branch = 'master'
-
-                if develop:
-                    create_branch_locally(repo, 'develop')
-                    repo.heads['develop'].checkout()
-                    try:
-                        repo.git.rebase('master')
-                    except GitCommandError:
-                        msg = '{0} Could not rebase develop on top of master.'
-                        print(msg.format(DISTRIBUTION.format(dist_name)))
-                        if not ask('Would you like to continue?',
-                                   default=False):
-                            exit(1)
-
                 git_changes = get_compact_git_history(
                     repo,
                     self.last_tags[dist_name],
@@ -337,11 +309,7 @@ class FullRelease(object):
 
             # update the local repository
             repo = Repo(distribution_path)
-            remote = repo.remote()
-            remote.fetch()
-            for branch in self.branches:
-                if branch in repo.heads:
-                    update_branch(repo, branch)
+            update_branch(repo, 'master')
 
     def update_buildout(self):
         """Commit the changes on buildout"""
