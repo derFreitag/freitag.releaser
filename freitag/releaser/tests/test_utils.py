@@ -3,6 +3,7 @@ from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import update_branch
+from freitag.releaser.utils import wrap_folder
 from git import Repo
 from plone.releaser.buildout import Source
 from tempfile import mkdtemp
@@ -210,3 +211,19 @@ class TestUtils(unittest.TestCase):
                 len(commits),
                 total_commits
             )
+
+    def test_wrap_folder_context_manager(self):
+        """Check that wrap_folder context manager changes the current folder"""
+        current_dir = os.getcwd()
+        test_folder = self.user_repo.working_tree_dir
+
+        with wrap_folder(test_folder):
+            self.assertEqual(
+                os.getcwd(),
+                test_folder
+            )
+
+        self.assertEqual(
+            os.getcwd(),
+            current_dir
+        )

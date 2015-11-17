@@ -159,7 +159,7 @@ def wrap_folder(new_folder):
 
     :param new_folder: path to the folder one wants to move to
     :type new_folder: str
-    :return:
+    :return: nothing, gives the control back
     """
     current_directory = os.getcwd()
     os.chdir(new_folder)
