@@ -2,6 +2,7 @@
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_everything_pushed
+from freitag.releaser.utils import push_cfg_files
 from freitag.releaser.utils import update_branch
 from freitag.releaser.utils import wrap_folder
 from freitag.releaser.utils import wrap_sys_argv
@@ -87,6 +88,7 @@ class FullRelease(object):
         if not self.dry_run and len(self.distributions) > 0:
             self.release_all()
             self.update_buildout()
+            push_cfg_files()
             self.update_batou()
 
     def get_all_distributions(self):
