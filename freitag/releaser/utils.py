@@ -173,7 +173,7 @@ def wrap_folder(new_folder):
 def wrap_sys_argv():
     """Context manager to temporally save sys.argv and restore if afterwards"""
     original_args = sys.argv
-    sys.argv = ['']
+    sys.argv = ['', ]
 
     yield
 

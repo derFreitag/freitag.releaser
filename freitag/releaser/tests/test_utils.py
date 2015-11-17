@@ -4,6 +4,7 @@ from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import update_branch
 from freitag.releaser.utils import wrap_folder
+from freitag.releaser.utils import wrap_sys_argv
 from git import Repo
 from plone.releaser.buildout import Source
 from tempfile import mkdtemp
@@ -11,6 +12,7 @@ from testfixtures import OutputCapture
 
 import os
 import shutil
+import sys
 import unittest
 
 
@@ -226,4 +228,29 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(
             os.getcwd(),
             current_dir
+        )
+
+    def test_wrap_sys_argv_context_manager(self):
+        """Check that wrap_sys_argv context manager saves and restores
+        sys.argv
+        """
+        current_sys_argv = sys.argv = ['one', 'two', 'three']
+
+        with wrap_sys_argv():
+            self.assertIsInstance(
+                sys.argv,
+                list
+            )
+            self.assertEqual(
+                len(sys.argv),
+                1
+            )
+            self.assertEqual(
+                sys.argv[0],
+                ''
+            )
+
+        self.assertEqual(
+            sys.argv,
+            current_sys_argv
         )
