@@ -177,7 +177,6 @@ class FullRelease(object):
             if tag_sha != branch_sha:
                 # master is ahead of the last tag: needs a release
                 need_a_release.append(distribution_path)
-                break
 
         # if nothing is about to be released, do not filter the distributions
         if not self.dry_run:
