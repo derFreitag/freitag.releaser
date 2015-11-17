@@ -4,8 +4,7 @@ from freitag.releaser.changelog import GatherChangelog
 from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
 from freitag.releaser.release import ReleaseDistribution
-from paramiko import SSHClient
-from scp import SCPClient
+from freitag.releaser.utils import push_cfg_files
 
 
 def full_release(path='src', dry_run=False, filter=''):
@@ -49,20 +48,7 @@ def collect_changelog():
 
 def publish_cfg_files():
     """Push buildout .cfg files on a remote server."""
-    ssh = SSHClient()
-    ssh.load_system_host_keys()
-
-    ssh.connect(
-        'docs.freitag-verlag.de',
-        username='service',
-    )
-
-    with SCPClient(ssh.get_transport()) as scp:
-        files = [
-            'versions.cfg',
-            'buildout.standalone.d/distribution-qa.cfg',
-        ]
-        scp.put(files, remote_path='sphinx')
+    push_cfg_files()
 
 
 def sync_batou():

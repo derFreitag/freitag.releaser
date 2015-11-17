@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
 from git import Repo
+from paramiko import SSHClient
+from scp import SCPClient
 from shutil import rmtree
 from tempfile import mkdtemp
 
@@ -58,6 +60,23 @@ def get_compact_git_history(repo, tag):
         '--graph',
         '{0}~1..master'.format(tag)
     )
+
+
+def push_cfg_files():
+    ssh = SSHClient()
+    ssh.load_system_host_keys()
+
+    ssh.connect(
+        'docs.freitag-verlag.de',
+        username='service',
+    )
+
+    with SCPClient(ssh.get_transport()) as scp:
+        files = [
+            'versions.cfg',
+            'buildout.standalone.d/distribution-qa.cfg',
+        ]
+        scp.put(files, remote_path='sphinx')
 
 
 @contextmanager
