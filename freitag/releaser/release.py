@@ -231,7 +231,7 @@ class FullRelease(object):
 
                 # TODO: show them side-by-side
                 print('')
-                print(''.join(cleaned_git_changes))
+                print('\n'.join(cleaned_git_changes))
                 print('')
                 print('')
                 print(''.join(changes))
