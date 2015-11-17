@@ -62,6 +62,10 @@ class FullRelease(object):
     #: last tag for each released distribution (before the new release)
     last_tags = {}
 
+    #: global commit message for zope and deployment repositories which lists
+    #: all distributions released and their changelog
+    commit_message = ''
+
     def __init__(self, path='src', dry_run=False, filter=''):
         self.path = path
         self.dry_run = dry_run
@@ -87,6 +91,7 @@ class FullRelease(object):
 
         if not self.dry_run and len(self.distributions) > 0:
             self.release_all()
+            self._create_commit_message()
             self.update_buildout()
             push_cfg_files()
             self.update_batou()
@@ -280,11 +285,7 @@ class FullRelease(object):
             repo = Repo(distribution_path)
             update_branch(repo, 'master')
 
-    def update_buildout(self):
-        """Commit the changes on buildout"""
-        msg = 'Update buildout'
-        print(msg)
-        print('-' * len(msg))
+    def _create_commit_message(self):
         msg = ['New releases:', '', ]
         changelogs = ['', 'Changelogs:', '', ]
         for dist in sorted(self.versions.keys()):
@@ -298,11 +299,17 @@ class FullRelease(object):
             changelogs.append('-' * len(dist))
             changelogs.append(''.join(self.changelogs[dist]))
 
-        commit_message = '\n'.join(msg + changelogs)
+        self.commit_message = '\n'.join(msg + changelogs)
+
+    def update_buildout(self):
+        """Commit the changes on buildout"""
+        msg = 'Update buildout'
+        print(msg)
+        print('-' * len(msg))
 
         repo = Repo(os.path.curdir)
         repo.git.add('versions.cfg')
-        repo.git.commit(message=commit_message)
+        repo.git.commit(message=self.commit_message)
 
     def update_batou(self):
         pass
