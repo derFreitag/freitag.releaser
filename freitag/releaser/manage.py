@@ -8,10 +8,24 @@ from paramiko import SSHClient
 from scp import SCPClient
 
 
-def full_release(path='src', dry_run=False):
-    """Release all distribution found on src/"""
+def full_release(path='src', dry_run=False, filter=''):
+    """Release all distribution found on src/
+
+    :param path: where to look for filter to release
+    :type path: str
+    :param dry_run: if filter will be released or only an overview
+      about what's pending to be released
+    :type dry_run: bool
+    :param filter: only filter that match the given string will
+      be considered to release
+    :type filter: str
+    """
     # TODO: add verbosity control (-v -vv and -vvv ?)
-    release_all = FullRelease(path=path, dry_run=dry_run)
+    release_all = FullRelease(
+        path=path,
+        dry_run=dry_run,
+        filter=filter
+    )
     release_all()
 
 

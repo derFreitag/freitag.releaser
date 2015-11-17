@@ -42,6 +42,9 @@ class FullRelease(object):
     #: what's pending to be released
     dry_run = None
 
+    #: only release the distributions that their name match with this string
+    filter = None
+
     #: distributions that will be released
     distributions = []
 
@@ -58,9 +61,10 @@ class FullRelease(object):
     #: last tag for each released distribution (before the new release)
     last_tags = {}
 
-    def __init__(self, path='src', dry_run=False):
+    def __init__(self, path='src', dry_run=False, filter=''):
         self.path = path
         self.dry_run = dry_run
+        self.filter = filter
         self.buildout = Buildout(
             sources_file='develop.cfg',
             checkouts_file='develop.cfg',
@@ -70,6 +74,12 @@ class FullRelease(object):
         """Go through all distributions and release them if needed *and* wanted
         """
         self.get_all_distributions()
+        if self.filter != '':
+            self.distributions = [
+                d
+                for d in self.distributions
+                if d.find(self.filter) != -1
+            ]
         self.check_pending_local_changes()
         self.check_changes_to_be_released()
         self.ask_what_to_release()
