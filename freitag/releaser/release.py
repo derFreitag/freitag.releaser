@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-from contextlib import contextmanager
 from freitag.releaser.utils import get_compact_git_history
+from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_everything_pushed
 from freitag.releaser.utils import update_branch
+from freitag.releaser.utils import wrap_folder
+from freitag.releaser.utils import wrap_sys_argv
 from git import InvalidGitRepositoryError
 from git import Repo
 from git.exc import GitCommandError
 from plone.releaser.buildout import Buildout
-from shutil import rmtree
-from tempfile import mkdtemp
 from zest.releaser import fullrelease
 from zest.releaser.utils import ask
 
 import os
 import re
-import sys
 
 
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
@@ -27,47 +26,6 @@ IGNORE_COMMIT_MESSAGES = (
     'New version:',
     'Preparing release '
 )
-
-
-@contextmanager
-def git_repo(source, shallow=True):
-    """Handle temporal git repositories.
-
-    It ensures that a git repository is cloned on a temporal folder that is
-    removed after being used.
-
-    See an example of this kind of context managers here:
-    http://preshing.com/20110920/the-python-with-statement-by-example/
-
-    :param source: the configuration to clone the repository
-    :type source: plone.releaser.buildout.Source
-    :param shallow: if the clone needs to be trimmed or a complete clone
-    :type shallow: bool
-    """
-    tmp_dir = mkdtemp()
-    url = source.url
-    if source.push_url is not None:
-        url = source.push_url
-
-    if shallow:
-        repo = Repo.clone_from(
-            source.url,
-            tmp_dir,
-            depth=100,
-            no_single_branch=True,
-        )
-    else:
-        repo = Repo.clone_from(
-            url,
-            tmp_dir
-        )
-
-    # give the control back
-    yield repo
-
-    # cleanup
-    del repo
-    rmtree(tmp_dir)
 
 
 class FullRelease(object):
@@ -409,17 +367,9 @@ class ReleaseDistribution(object):
         # remove arguments so zest.releaser is not confused
         # will most probably *not* be fixed by zest.releaser itself:
         # https://github.com/zestsoftware/zest.releaser/issues/146
-        original_args = sys.argv
-        sys.argv = ['']
-
-        # change to the distribution root folder
-        original_path = os.getcwd()
-        os.chdir(self.path)
-
-        fullrelease.main()
-
-        os.chdir(original_path)
-        sys.argv = original_args
+        with wrap_folder(self.path):
+            with wrap_sys_argv():
+                fullrelease.main()
 
     def get_version(self):
         self.repo = Repo(self.path)
