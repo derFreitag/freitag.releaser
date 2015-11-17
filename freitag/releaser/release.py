@@ -93,7 +93,6 @@ class FullRelease(object):
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
-            push_cfg_files()
             self.update_batou()
 
     def get_all_distributions(self):
@@ -310,6 +309,10 @@ class FullRelease(object):
         repo = Repo(os.path.curdir)
         repo.git.add('versions.cfg')
         repo.git.commit(message=self.commit_message)
+        # push the changes
+        repo.remote().push()
+        # push cfg files so that jenkins gets them already
+        push_cfg_files()
 
     def update_batou(self):
         pass
