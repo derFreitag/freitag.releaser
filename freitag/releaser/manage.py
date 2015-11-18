@@ -7,7 +7,7 @@ from freitag.releaser.release import ReleaseDistribution
 from freitag.releaser.utils import push_cfg_files
 
 
-def full_release(path='src', dry_run=False, filter=''):
+def full_release(path='src', dry_run=False, filter_distributions=''):
     """Release all distribution found on src/
 
     :param path: where to look for filter to release
@@ -15,15 +15,15 @@ def full_release(path='src', dry_run=False, filter=''):
     :param dry_run: if filter will be released or only an overview
       about what's pending to be released
     :type dry_run: bool
-    :param filter: only filter that match the given string will
+    :param filter_distributions: only filter that match the given string will
       be considered to release
-    :type filter: str
+    :type filter_distributions: str
     """
     # TODO: add verbosity control (-v -vv and -vvv ?)
     release_all = FullRelease(
         path=path,
         dry_run=dry_run,
-        filter=filter
+        filter_distributions=filter_distributions
     )
     release_all()
 

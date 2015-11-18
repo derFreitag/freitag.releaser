@@ -66,10 +66,10 @@ class FullRelease(object):
     #: all distributions released and their changelog
     commit_message = ''
 
-    def __init__(self, path='src', dry_run=False, filter=''):
+    def __init__(self, path='src', dry_run=False, filter_distributions=''):
         self.path = path
         self.dry_run = dry_run
-        self.filter = filter
+        self.filter = filter_distributions
         self.buildout = Buildout(
             sources_file='develop.cfg',
             checkouts_file='develop.cfg',
