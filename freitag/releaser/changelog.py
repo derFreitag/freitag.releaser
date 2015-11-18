@@ -4,6 +4,7 @@ from git import Repo
 from git.exc import GitCommandError
 
 import os
+import sys
 
 
 class VersionException(Exception):
@@ -149,10 +150,12 @@ class UpdateDistChangelog(object):
     def __call__(self):
         if not os.path.exists(self.path):
             print('{0} does not exist'.format(self.path))
+            sys.exit(1)
 
         path = '{0}/CHANGES.rst'.format(self.path)
         if not os.path.exists(path):
             print('{0} does not exist'.format(path))
+            sys.exit(1)
 
         repo = Repo(self.path)
         remote = repo.remote()
@@ -164,7 +167,14 @@ class UpdateDistChangelog(object):
                 latest_master_commit
             )
         except GitCommandError:
-            latest_tag = repo.commit().hexsha
+            # get the second to last commit
+            # for the way get_compact_git_history gets the commit before the
+            # earliest you pass
+            commits = [
+                c
+                for c in repo.iter_commits()
+            ]
+            latest_tag = commits[-2].hexsha
 
         history = get_compact_git_history(repo, latest_tag)
 
