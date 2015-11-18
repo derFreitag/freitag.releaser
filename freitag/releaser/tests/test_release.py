@@ -29,6 +29,11 @@ Changelog
 - change log entry 1
 
 - change log entry 2
+
+0.0.1 (2015-11-12)
+------------------
+
+- Initial release
 """
 
 # Hack for testing questions
