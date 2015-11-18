@@ -15,6 +15,7 @@ from zest.releaser.utils import ask
 
 import os
 import re
+import sys
 
 
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
@@ -145,7 +146,7 @@ class FullRelease(object):
         if not self.dry_run:
             if len(self.distributions) != clean_distributions:
                 if not ask('Do you want to continue?', default=True):
-                    exit(0)
+                    sys.exit()
 
             self.distributions = clean_distributions
 
