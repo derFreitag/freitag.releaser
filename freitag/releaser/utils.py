@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+from freitag.releaser import IGNORE_COMMIT_MESSAGES
 from git import Repo
 from paramiko import SSHClient
 from scp import SCPClient
@@ -106,6 +107,27 @@ def push_cfg_files():
             'buildout.standalone.d/distribution-qa.cfg',
         ]
         scp.put(files, remote_path='sphinx')
+
+
+def filter_git_history(changes):
+    """Removes administrative/boilerplate commits from the given git history.
+
+    :param changes: the git changes that need to be filtered
+    :type changes: str
+    :return: the original git changes without any uninteresting commit message
+    :rtype: str
+    """
+    cleaned_changes = []
+    for line in changes.split('\n'):
+        found = False
+        for ignore_message in IGNORE_COMMIT_MESSAGES:
+            if line.find(ignore_message) != -1:
+                found = True
+                break
+        if not found:
+            cleaned_changes.append(line)
+
+    return '\n'.join(cleaned_changes)
 
 
 @contextmanager

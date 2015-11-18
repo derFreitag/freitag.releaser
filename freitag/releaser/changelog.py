@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from git import Repo
 from git.exc import GitCommandError
@@ -177,8 +178,8 @@ class UpdateDistChangelog(object):
             latest_tag = commits[-2].hexsha
 
         history = get_compact_git_history(repo, latest_tag)
-
-        print(history)
+        cleaned_git_changes = filter_git_history(history)
+        print(cleaned_git_changes)
 
         with open(path) as changes:
             current_data = changes.read()

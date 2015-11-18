@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
@@ -20,14 +21,6 @@ import sys
 
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
-
-IGNORE_COMMIT_MESSAGES = (
-    'Back to development',
-    'Bump version',
-    'Update CHANGES',
-    'New version:',
-    'Preparing release '
-)
 
 
 class FullRelease(object):
@@ -233,20 +226,11 @@ class FullRelease(object):
                     repo,
                     self.last_tags[dist_name],
                 )
-
-                cleaned_git_changes = []
-                for line in git_changes.split('\n'):
-                    found = False
-                    for ignore_message in IGNORE_COMMIT_MESSAGES:
-                        if line.find(ignore_message) != -1:
-                            found = True
-                            break
-                    if not found:
-                        cleaned_git_changes.append(line)
+                cleaned_git_changes = filter_git_history(git_changes)
 
                 # a git history without any meaningful commit should not be
                 # released
-                if len(cleaned_git_changes) == 0:
+                if cleaned_git_changes == '':
                     continue
 
                 change_log_path = '{0}/CHANGES.rst'.format(
@@ -257,7 +241,7 @@ class FullRelease(object):
 
                 # nice to have: show them side-by-side
                 print('')
-                print('\n'.join(cleaned_git_changes))
+                print(cleaned_git_changes)
                 print('')
                 print('')
                 print(''.join(changes))
