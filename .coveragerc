@@ -9,3 +9,4 @@ omit =
     eggs/*
     */test*
     */bin/*
+    /opt/*
