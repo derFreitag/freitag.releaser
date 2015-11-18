@@ -8,6 +8,8 @@ python:
 matrix:
   allow_failures:
     - python: pypy3
+    - python: 3.3
+    - python: 3.4
 before_install:
   - git config --global user.name "Temp user"
   - git config --global user.email "temp@example.com"
