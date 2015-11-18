@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.release import FullRelease
+from freitag.releaser.utils import wrap_folder
 from git import Repo
 from tempfile import mkdtemp
 from testfixtures import OutputCapture
@@ -14,6 +15,20 @@ BUILDOUT_FILE_CONTENTS = """
 [versions]
 
 [sources]
+{0}
+"""
+
+CHANGES = """
+
+Changelog
+=========
+
+0.1 (unreleased)
+----------------
+
+- change log entry 1
+
+- change log entry 2
 """
 
 # Hack for testing questions
@@ -28,7 +43,7 @@ class TestFullRelease(unittest.TestCase):
         self.remote_buildout_repo = self.buildout_repo.clone(mkdtemp())
         self._commit(
             self.remote_buildout_repo,
-            content=BUILDOUT_FILE_CONTENTS,
+            content=BUILDOUT_FILE_CONTENTS.format(''),
             filename='develop.cfg',
             msg='First commit'
         )
@@ -47,6 +62,27 @@ class TestFullRelease(unittest.TestCase):
             afile.write(content)
         repo.index.add([dummy_file, ])
         repo.index.commit(msg)
+
+        return repo.commit().hexsha
+
+    def _add_source(self, repo):
+        source_line = 'my.distribution = git file://{0}'.format(
+            repo.working_tree_dir
+        )
+        self._commit(
+            repo,
+            content=BUILDOUT_FILE_CONTENTS.format(source_line),
+            filename='develop.cfg',
+            msg='Add source'
+        )
+
+    def _add_changes(self, repo):
+        self._commit(
+            self.user_buildout_repo,
+            content=CHANGES,
+            filename='CHANGES.rst',
+            msg='Update changes'
+        )
 
     def test_create_instance(self):
         """Check that the values passed on creation are safed"""
@@ -434,4 +470,218 @@ class TestFullRelease(unittest.TestCase):
         self.assertEqual(
             len(commit),
             1
+        )
+
+    def test_ask_what_to_release_no_source(self):
+        """Check that if the distribution has no source defined it will not be
+        released
+        """
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        repo_folder = '{0}/my.distribution'.format(path)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture():
+                full_release.ask_what_to_release()
+
+        # check that the distribution is not going to be released
+        self.assertEqual(
+            full_release.distributions,
+            []
+        )
+
+    def test_ask_what_to_release_clean_some_lines_of_git_history(self):
+        """Check that if the some commits are administrative they are not
+        shown to the user, the other non-administrative are shown
+        """
+        repo = self.user_buildout_repo
+
+        # add some commits
+        # save the sha to make the git history go as back as to this commit
+        first_commit_sha = self._commit(repo, msg='Random commit 1')
+        self._commit(repo, msg='Random commit 2')
+        self._commit(repo, msg='Random commit 3')
+        # this one will be filtered
+        self._commit(repo, msg='Bump version this is not kept')
+
+        # add source, CHANGES.rst and push the repo
+        self._add_source(repo)
+        self._add_changes(repo)
+        self.user_buildout_repo.remote().push()
+
+        # clone the repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+        full_release.last_tags['my.distribution'] = first_commit_sha
+
+        utils.test_answer_book.set_answers(['Y', ])
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture() as output:
+                full_release.ask_what_to_release()
+
+        self.assertIn(
+            'Random commit 2',
+            output.captured
+        )
+
+        self.assertNotIn(
+            'Bump version',
+            output.captured
+        )
+
+        self.assertIn(
+            'Add source',
+            output.captured
+        )
+
+    def test_ask_what_to_release_clean_all_lines_of_git_history(self):
+        """Check that if the commits on the distribution are only
+        administrative ones, the distribution is discarded
+        """
+        repo = self.user_buildout_repo
+
+        # add source, CHANGES.rst, commits and push the repo
+        self._add_source(repo)
+        self._add_changes(repo)
+        first_commit_sha = self._commit(repo, msg='Back to development')
+        self._commit(repo, msg='New version:')
+        self._commit(repo, msg='Preparing release la la')
+
+        self.user_buildout_repo.remote().push()
+
+        # clone the repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+        full_release.last_tags['my.distribution'] = first_commit_sha
+
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture():
+                full_release.ask_what_to_release()
+
+        # check that the distribution is not going to be released
+        self.assertEqual(
+            full_release.distributions,
+            []
+        )
+
+    def test_ask_what_to_release_changes_rst_is_shown(self):
+        """Check that the CHANGES.rst are shown to the user"""
+        repo = self.user_buildout_repo
+
+        # add source, CHANGES.rst, commits and push the repo
+        self._add_source(repo)
+        self._add_changes(repo)
+        first_commit_sha = self._commit(repo, msg='Random commit 1')
+        self.user_buildout_repo.remote().push()
+
+        # clone the repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+        full_release.last_tags['my.distribution'] = first_commit_sha
+
+        utils.test_answer_book.set_answers(['Y', ])
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture() as output:
+                full_release.ask_what_to_release()
+
+        self.assertIn(
+            'change log entry 1',
+            output.captured
+        )
+        self.assertIn(
+            'change log entry 2',
+            output.captured
+        )
+
+    def test_ask_what_to_release_dry_run(self):
+        """Check that in dry_run mode no question is asked"""
+        repo = self.user_buildout_repo
+
+        # add source, CHANGES.rst, commits and push the repo
+        self._add_source(repo)
+        self._add_changes(repo)
+        first_commit_sha = self._commit(repo, msg='Random commit 1')
+        self.user_buildout_repo.remote().push()
+
+        # clone the repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path, dry_run=True)
+        full_release.distributions = [repo_folder, ]
+        full_release.last_tags['my.distribution'] = first_commit_sha
+
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture() as output:
+                full_release.ask_what_to_release()
+
+        self.assertEqual(
+            full_release.distributions,
+            [repo_folder, ]
+        )
+        self.assertNotIn(
+            'Is the change log ready for release?',
+            output.captured
+        )
+
+    def test_ask_what_to_release_user_can_not_release_a_distribution(self):
+        """Check that even if the distribution meets all the criteria,
+        the user can still decide not to release it
+        """
+        repo = self.user_buildout_repo
+
+        # add source, CHANGES.rst, commits and push the repo
+        self._add_source(repo)
+        self._add_changes(repo)
+        first_commit_sha = self._commit(repo, msg='Random commit 1')
+        self.user_buildout_repo.remote().push()
+
+        # clone the repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+        full_release.last_tags['my.distribution'] = first_commit_sha
+
+        utils.test_answer_book.set_answers(['n', ])
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture() as output:
+                full_release.ask_what_to_release()
+
+        self.assertEqual(
+            full_release.distributions,
+            []
+        )
+        self.assertIn(
+            'Is the change log ready for release?',
+            output.captured
         )
