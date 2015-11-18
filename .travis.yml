@@ -1,4 +1,9 @@
 language: python
+sudo: false
+cache:
+  pip: true
+  directories:
+    - $HOME/buildout-cache
 python:
   - 2.7
   - 3.3
@@ -13,6 +18,11 @@ matrix:
 before_install:
   - git config --global user.name "Temp user"
   - git config --global user.email "temp@example.com"
+  - mkdir -p $HOME/buildout-cache/{eggs,downloads}
+  - mkdir $HOME/.buildout
+  - echo "[buildout]" > $HOME/.buildout/default.cfg
+  - echo "download-cache = $HOME/buildout-cache/downloads" >> $HOME/.buildout/default.cfg
+  - echo "eggs-directory = $HOME/buildout-cache/eggs" >> $HOME/.buildout/default.cfg
 install:
   - python bootstrap.py
   - bin/buildout
