@@ -252,7 +252,7 @@ class FullRelease(object):
                 changes = self._grab_changelog(change_log_path)
                 self.changelogs[dist_name] = changes[2:]
 
-                # TODO: show them side-by-side
+                # nice to have: show them side-by-side
                 print('')
                 print('\n'.join(cleaned_git_changes))
                 print('')
