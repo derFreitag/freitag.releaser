@@ -812,3 +812,73 @@ class TestReleaseDistribution(BaseTest):
             release.name,
             'path'
         )
+
+    def test_check_parent_branch_on_master(self):
+        """Check that the parent repository is on master branch"""
+        folder = self.user_buildout_repo.working_tree_dir
+        release = ReleaseDistribution(folder)
+
+        with wrap_folder(folder):
+            release._check_parent_branch()
+
+        self.assertEqual(
+            self.user_buildout_repo.active_branch.name,
+            'master'
+        )
+
+    def test_check_parent_branch_no_master(self):
+        """Check that the parent repository is not on master branch"""
+        folder = self.user_buildout_repo.working_tree_dir
+        release = ReleaseDistribution(folder)
+
+        self.user_buildout_repo.create_head('another-branch')
+        self.user_buildout_repo.heads['another-branch'].checkout()
+
+        with OutputCapture():
+            with wrap_folder(folder):
+                self.assertRaises(
+                    ValueError,
+                    release._check_parent_branch
+                )
+
+        self.assertEqual(
+            self.user_buildout_repo.active_branch.name,
+            'another-branch'
+        )
+
+    def test_check_distribution_does_not_exists(self):
+        """Check that if a distribution does not exist it raises an error"""
+        folder = self.user_buildout_repo.working_tree_dir
+        release = ReleaseDistribution('{0}/lala'.format(folder))
+
+        self.assertRaises(
+            IOError,
+            release._check_distribution_exists
+        )
+
+    def test_check_distribution_exists(self):
+        """Check that the parent repository is not on master branch"""
+        folder = self.user_buildout_repo.working_tree_dir
+        release = ReleaseDistribution(folder)
+
+        release._check_distribution_exists()
+
+        self.assertTrue(
+            os.path.exists(folder)
+        )
+
+    def test_get_version(self):
+        """Check that the latest tag is returned"""
+        folder = self.user_buildout_repo.working_tree_dir
+        release = ReleaseDistribution(folder)
+
+        self._commit(self.user_buildout_repo)
+        self.user_buildout_repo.create_tag('first-tag')
+
+        self._commit(self.user_buildout_repo)
+        self.user_buildout_repo.create_tag('last-tag')
+
+        self.assertEqual(
+            release.get_version(),
+            'last-tag'
+        )
