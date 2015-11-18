@@ -3,6 +3,9 @@
 .. image:: https://travis-ci.org/derFreitag/freitag.releaser.svg?branch=master
    :target: https://travis-ci.org/derFreitag/freitag.releaser
 
+.. image:: https://coveralls.io/repos/derFreitag/freitag.releaser/badge.svg?branch=master&service=github
+   :target: https://coveralls.io/github/derFreitag/freitag.releaser?branch=master
+
 ================
 freitag.releaser
 ================
