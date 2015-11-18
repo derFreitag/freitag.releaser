@@ -182,6 +182,30 @@ class TestFullRelease(unittest.TestCase):
             []
         )
 
+    def test_check_pending_local_changes_exit(self):
+        """Check that if a repository has local commits you are given the
+        option to quit.
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # make a commit on the repo
+        self._commit(repo)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        utils.test_answer_book.set_answers(['n', ])
+        with OutputCapture():
+            self.assertRaises(
+                SystemExit,
+                full_release.check_pending_local_changes
+            )
+
     def test_check_pending_local_changes_unpushed_dry_run(self):
         """Check that a repository with local commits is *not* removed from
         the list of distributions to be released if dry_run is True
@@ -202,7 +226,31 @@ class TestFullRelease(unittest.TestCase):
         with OutputCapture():
             full_release.check_pending_local_changes()
 
-        # check the distribution is removed
+        # check the distribution is not removed
+        self.assertEqual(
+            full_release.distributions,
+            [repo_folder, ]
+        )
+
+    def test_check_pending_local_changes_clean(self):
+        """Check that a clean repository is not removed from the list of
+        distributions to be released
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        utils.test_answer_book.set_answers(['Y', ])
+        with OutputCapture():
+            full_release.check_pending_local_changes()
+
+        # check the distribution is not removed
         self.assertEqual(
             full_release.distributions,
             [repo_folder, ]
