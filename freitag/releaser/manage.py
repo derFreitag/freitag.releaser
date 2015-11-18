@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from argh import ArghParser
+from argh.decorators import named
 from freitag.releaser.changelog import GatherChangelog
 from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
@@ -34,6 +35,7 @@ def release(path):
     release_distribution()
 
 
+@named('update-changelog')
 def update_distribution_changelog(path):
     """Update CHANGES.rst with the git changelog"""
     changelog = UpdateDistChangelog(path)
