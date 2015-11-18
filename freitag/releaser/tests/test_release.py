@@ -161,6 +161,32 @@ class TestFullRelease(unittest.TestCase):
             [repo1.working_tree_dir, repo2.working_tree_dir, ]
         )
 
+    def test_filter_distros_no_filter(self):
+        """Check that if no filter is applied all distributions are used"""
+        full_release = FullRelease()
+        full_release.distributions = ['one', 'two', 'three', ]
+        with OutputCapture():
+            full_release.filter_distros()
+
+        self.assertEqual(
+            full_release.distributions,
+            ['one', 'two', 'three', ]
+        )
+
+    def test_filter_distros_filter(self):
+        """Check that if a filter is applied only the matching distributions
+        are kept
+        """
+        full_release = FullRelease(filter_distributions='w')
+        full_release.distributions = ['one', 'two', 'three', ]
+        with OutputCapture():
+            full_release.filter_distros()
+
+        self.assertEqual(
+            full_release.distributions,
+            ['two', ]
+        )
+
     def test_check_pending_local_changes_dirty(self):
         """Check that a repository with local changes (uncommitted) is removed
         from the list of distributions to be released

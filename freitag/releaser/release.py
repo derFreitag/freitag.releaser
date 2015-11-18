@@ -80,12 +80,7 @@ class FullRelease(object):
         """Go through all distributions and release them if needed *and* wanted
         """
         self.get_all_distributions()
-        if self.filter != '':
-            self.distributions = [
-                d
-                for d in self.distributions
-                if d.find(self.filter) != -1
-            ]
+        self.filter_distros()
         self.check_pending_local_changes()
         self.check_changes_to_be_released()
         self.ask_what_to_release()
@@ -112,6 +107,14 @@ class FullRelease(object):
 
         print('Distributions: ')
         print('\n'.join(self.distributions))
+
+    def filter_distros(self):
+        if self.filter != '':
+            self.distributions = [
+                d
+                for d in self.distributions
+                if d.find(self.filter) != -1
+            ]
 
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
