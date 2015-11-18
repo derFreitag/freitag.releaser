@@ -11,3 +11,4 @@ omit =
     */bin/*
     /opt/*
     /home/travis/virtualenv/*
+    */buildout-cache/*
