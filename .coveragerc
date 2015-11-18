@@ -10,4 +10,4 @@ omit =
     */test*
     */bin/*
     /opt/*
-    /home/travis/*
+    /home/travis/virtualenv/*
