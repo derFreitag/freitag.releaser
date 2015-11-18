@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.release import FullRelease
+from freitag.releaser.release import ReleaseDistribution
 from freitag.releaser.utils import wrap_folder
 from git import Repo
 from tempfile import mkdtemp
@@ -40,7 +41,7 @@ Changelog
 utils.TESTMODE = True
 
 
-class TestFullRelease(unittest.TestCase):
+class BaseTest(unittest.TestCase):
 
     def setUp(self):
         self.buildout_repo = Repo.init(mkdtemp(), bare=True)
@@ -88,6 +89,9 @@ class TestFullRelease(unittest.TestCase):
             filename='CHANGES.rst',
             msg='Update changes'
         )
+
+
+class TestFullRelease(BaseTest):
 
     def test_create_instance(self):
         """Check that the values passed on creation are safed"""
@@ -792,4 +796,19 @@ class TestFullRelease(unittest.TestCase):
                 '  [someone else]',
                 '',
             ])
+        )
+
+
+class TestReleaseDistribution(BaseTest):
+
+    def test_create_instance(self):
+        """Check that path and name are set properly"""
+        release = ReleaseDistribution('some/random/path')
+        self.assertEqual(
+            release.path,
+            'some/random/path'
+        )
+        self.assertEqual(
+            release.name,
+            'path'
         )

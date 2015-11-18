@@ -367,7 +367,7 @@ class ReleaseDistribution(object):
 
     def __init__(self, path):
         self.path = path
-        self.name = path.split('/')[1]
+        self.name = path.split('/')[-1]
 
     def __call__(self):
         self._check_parent_branch()
