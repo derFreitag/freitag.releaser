@@ -716,3 +716,80 @@ class TestFullRelease(unittest.TestCase):
             'Is the change log ready for release?',
             output.captured
         )
+
+    def test_create_commit_message(self):
+        """Check that the commit message is generated correctly"""
+        full_release = FullRelease()
+        full_release.versions['my.distribution'] = '3.4.5'
+        full_release.versions['my.other'] = '5.4.3'
+        full_release.versions['last.one'] = '1.2'
+
+        full_release.changelogs['my.distribution'] = '\n'.join([
+            '- one change',
+            '  [gforcada]',
+            '',
+            '- second change',
+            '  [someone else]'
+            ''
+        ])
+        full_release.changelogs['my.other'] = '\n'.join([
+            '- third change',
+            '  [gforcada]',
+            '',
+            '- related one',
+            '  [someone else]'
+            ''
+        ])
+        full_release.changelogs['last.one'] = '\n'.join([
+            '- one more change',
+            '  [gforcada]',
+            '',
+            '- really last change',
+            '  [someone else]'
+            ''
+        ])
+
+        self.assertEqual(
+            full_release.commit_message,
+            ''
+        )
+
+        full_release._create_commit_message()
+
+        self.assertEqual(
+            full_release.commit_message,
+            '\n'.join([
+                'New releases:',
+                '',
+                'last.one 1.2',
+                'my.distribution 3.4.5',
+                'my.other 5.4.3',
+                '',
+                'Changelogs:',
+                '',
+                'last.one',
+                '--------',
+                '- one more change',
+                '  [gforcada]',
+                '',
+                '- really last change',
+                '  [someone else]',
+                '',
+                'my.distribution',
+                '---------------',
+                '- one change',
+                '  [gforcada]',
+                '',
+                '- second change',
+                '  [someone else]',
+                '',
+                'my.other',
+                '--------',
+                '- third change',
+                '  [gforcada]',
+                '',
+                '- related one',
+                '  [someone else]',
+                '',
+            ])
+        )
