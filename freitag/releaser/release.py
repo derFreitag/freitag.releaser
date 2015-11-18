@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
+from freitag.releaser.utils import get_latest_tag
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
@@ -9,7 +10,6 @@ from freitag.releaser.utils import wrap_folder
 from freitag.releaser.utils import wrap_sys_argv
 from git import InvalidGitRepositoryError
 from git import Repo
-from git.exc import GitCommandError
 from plone.releaser.buildout import Buildout
 from zest.releaser import fullrelease
 from zest.releaser.utils import ask
@@ -162,28 +162,10 @@ class FullRelease(object):
             repo = Repo(distribution_path)
             remote = repo.remote()
 
-            # get the latest tag reachable from remote master
-            latest_master_commit = remote.refs['master'].commit.hexsha
-            try:
-                # TODO: refactor this and UpdateDistChangelog,
-                # which have the same logic
-                latest_tag = repo.git.describe(
-                    '--abbrev=0',
-                    '--tags',
-                    latest_master_commit
-                )
-            except GitCommandError:
+            latest_tag = get_latest_tag(repo, 'master')
+            if latest_tag not in repo.tags:
                 # if there is no tag it definitely needs a release
                 need_a_release.append(distribution_path)
-
-                # get the second to last commit
-                # for the way get_compact_git_history gets the commit before
-                # the earliest you pass
-                commits = [
-                    c
-                    for c in repo.iter_commits()
-                ]
-                latest_tag = commits[-2].hexsha
                 self.last_tags[dist_name] = latest_tag
                 continue
 

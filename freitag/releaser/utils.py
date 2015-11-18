@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from freitag.releaser import IGNORE_COMMIT_MESSAGES
 from git import Repo
+from git.exc import GitCommandError
 from paramiko import SSHClient
 from scp import SCPClient
 from shutil import rmtree
@@ -128,6 +129,43 @@ def filter_git_history(changes):
             cleaned_changes.append(line)
 
     return '\n'.join(cleaned_changes)
+
+
+def get_latest_tag(repo, branch):
+    """Returns the tag closest to the given branch on the given repository.
+
+    If no tag can be found,
+    then the earliest possible commit is returned instead.
+
+    :param repo: the repository where to look for the tag
+    :type repo: git.Repo
+    :param branch: the branch where to look for a tag
+    :type branch: str
+    :return: closest reachable tag from given branch,
+      or the earliest commit possible
+    :rtype: str
+    :raises: IndexError if the given branch can not be found on the
+      default git remote
+    """
+    remote = repo.remote()
+    latest_master_commit = remote.refs[branch].commit.hexsha
+    try:
+        latest_tag = repo.git.describe(
+            '--abbrev=0',
+            '--tags',
+            latest_master_commit
+        )
+    except GitCommandError:
+        # get the second to last commit
+        # for the way get_compact_git_history gets the commit before
+        # the earliest you pass
+        commits = [
+            c
+            for c in repo.iter_commits()
+        ]
+        latest_tag = commits[-2].hexsha
+
+    return latest_tag
 
 
 @contextmanager

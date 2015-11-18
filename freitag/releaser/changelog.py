@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
+from freitag.releaser.utils import get_latest_tag
 from git import Repo
-from git.exc import GitCommandError
 
 import os
 import sys
@@ -159,24 +159,7 @@ class UpdateDistChangelog(object):
             sys.exit(1)
 
         repo = Repo(self.path)
-        remote = repo.remote()
-        latest_master_commit = remote.refs['master'].commit.hexsha
-        try:
-            latest_tag = repo.git.describe(
-                '--abbrev=0',
-                '--tags',
-                latest_master_commit
-            )
-        except GitCommandError:
-            # get the second to last commit
-            # for the way get_compact_git_history gets the commit before the
-            # earliest you pass
-            commits = [
-                c
-                for c in repo.iter_commits()
-            ]
-            latest_tag = commits[-2].hexsha
-
+        latest_tag = get_latest_tag(repo, 'master')
         history = get_compact_git_history(repo, latest_tag)
         cleaned_git_changes = filter_git_history(history)
         print(cleaned_git_changes)
