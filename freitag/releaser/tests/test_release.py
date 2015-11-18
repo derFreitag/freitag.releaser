@@ -240,7 +240,7 @@ class TestFullRelease(unittest.TestCase):
         path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
         os.makedirs(path)
         repo_folder = '{0}/my.distribution'.format(path)
-        repo = self.buildout_repo.clone(repo_folder)
+        self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path)
@@ -254,4 +254,184 @@ class TestFullRelease(unittest.TestCase):
         self.assertEqual(
             full_release.distributions,
             [repo_folder, ]
+        )
+
+    def test_changes_to_be_released_no_tag(self):
+        """Check that if a distribution does not have any tag is kept as a
+        distribution that needs to be released
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # create some commits
+        self._commit(repo)
+        self._commit(repo)
+        repo.remote().push()
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with OutputCapture():
+            full_release.check_changes_to_be_released()
+
+        # check that the distribution is still there
+        self.assertEqual(
+            full_release.distributions,
+            [repo_folder, ]
+        )
+
+    def test_changes_to_be_released_nothing_to_release(self):
+        """Check that if there is a tag on the last commit the distribution is
+        removed from the list of distributions needing a release
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # create a tag
+        repo.create_tag('my-tag')
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with OutputCapture():
+            full_release.check_changes_to_be_released()
+
+        # check that the distribution is still there
+        self.assertEqual(
+            full_release.distributions,
+            []
+        )
+
+    def test_changes_to_be_released_commits_to_release(self):
+        """Check that if there is a tag on the last commit the distribution is
+        removed from the list of distributions needing a release
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # create a tag
+        repo.create_tag('my-tag')
+
+        # create a commit
+        self._commit(repo)
+        repo.remote().push()
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with OutputCapture():
+            full_release.check_changes_to_be_released()
+
+        # check that the distribution is still there
+        self.assertEqual(
+            full_release.distributions,
+            [repo_folder, ]
+        )
+
+    def test_changes_to_be_released_dry_run(self):
+        """Check that if the distribution was supposed to be removed, it is not
+        if dry_run is True
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # create a tag
+        repo.create_tag('my-tag')
+
+        # full release
+        full_release = FullRelease(path=path, dry_run=True)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with OutputCapture():
+            full_release.check_changes_to_be_released()
+
+        # check that the distribution is still there
+        self.assertEqual(
+            full_release.distributions,
+            [repo_folder, ]
+        )
+
+    def test_changes_to_be_released_last_tags_filled(self):
+        """Check that if the distribution has a tag is stored on last_tags dict
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # create a tag
+        repo.create_tag('my-tag')
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with OutputCapture():
+            full_release.check_changes_to_be_released()
+
+        # check that the tag has been saved on the dictionary
+        self.assertEqual(
+            full_release.last_tags['my.distribution'],
+            'my-tag'
+        )
+
+    def test_changes_to_be_released_last_tags_no_tag(self):
+        """Check that if the distribution does not have a tag the latest
+        commit is stored on last_tags dict
+        """
+        # create repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        repo = self.buildout_repo.clone(repo_folder)
+
+        # create some commits
+        self._commit(repo)
+        self._commit(repo)
+        repo.remote().push()
+
+        # full release
+        full_release = FullRelease(path=path)
+        full_release.distributions = [repo_folder, ]
+
+        # run check_changes_to_be_released
+        with OutputCapture():
+            full_release.check_changes_to_be_released()
+
+        # check that the distribution key has been created
+        self.assertIn(
+            'my.distribution',
+            full_release.last_tags
+        )
+
+        # check that what's stored is the hexsha of a commit
+        commit = [
+            c
+            for c in repo.iter_commits()
+            if c.hexsha == full_release.last_tags['my.distribution']
+        ]
+        self.assertEqual(
+            len(commit),
+            1
         )

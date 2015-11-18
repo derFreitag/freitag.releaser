@@ -169,6 +169,8 @@ class FullRelease(object):
             # get the latest tag reachable from remote master
             latest_master_commit = remote.refs['master'].commit.hexsha
             try:
+                # TODO: refactor this and UpdateDistChangelog,
+                # which have the same logic
                 latest_tag = repo.git.describe(
                     '--abbrev=0',
                     '--tags',
@@ -177,18 +179,22 @@ class FullRelease(object):
             except GitCommandError:
                 # if there is no tag it definitely needs a release
                 need_a_release.append(distribution_path)
+
+                # get the second to last commit
+                # for the way get_compact_git_history gets the commit before
+                # the earliest you pass
+                commits = [
+                    c
+                    for c in repo.iter_commits()
+                ]
+                latest_tag = commits[-2].hexsha
+                self.last_tags[dist_name] = latest_tag
                 continue
 
-            # TODO: handle repositories that still do not have a tag
-            # (i.e. the try except above)
             self.last_tags[dist_name] = latest_tag
             # get the commit where the latest tag is on
             tag = repo.tags[latest_tag]
             tag_sha = tag.commit.hexsha
-
-            # finally check if there is any branch ahead of that last tag
-            if 'master' not in remote.refs:
-                continue
 
             branch_sha = remote.refs['master'].commit.hexsha
             if tag_sha != branch_sha:
