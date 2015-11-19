@@ -201,38 +201,34 @@ class FullRelease(object):
         for distribution_path in self.distributions:
             logger.debug(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
-            dist_clone = self.buildout.sources.get(dist_name)
+            repo = Repo(distribution_path)
 
-            if dist_clone is None:
+            git_changes = get_compact_git_history(
+                repo,
+                self.last_tags[dist_name],
+            )
+            cleaned_git_changes = filter_git_history(git_changes)
+
+            # a git history without any meaningful commit should not be
+            # released
+            if cleaned_git_changes == '':
                 continue
 
-            with git_repo(dist_clone) as repo:
-                git_changes = get_compact_git_history(
-                    repo,
-                    self.last_tags[dist_name],
-                )
-                cleaned_git_changes = filter_git_history(git_changes)
+            change_log_path = '{0}/CHANGES.rst'.format(
+                repo.working_tree_dir
+            )
+            changes = self._grab_changelog(change_log_path)
+            self.changelogs[dist_name] = changes[2:]
 
-                # a git history without any meaningful commit should not be
-                # released
-                if cleaned_git_changes == '':
-                    continue
-
-                change_log_path = '{0}/CHANGES.rst'.format(
-                    repo.working_tree_dir
-                )
-                changes = self._grab_changelog(change_log_path)
-                self.changelogs[dist_name] = changes[2:]
-
-                # nice to have: show them side-by-side
-                logger.info('')
-                logger.info(cleaned_git_changes)
-                logger.info('')
-                logger.info('')
-                logger.info(''.join(changes))
-                if not self.dry_run and \
-                        ask('Is the change log ready for release?'):
-                    to_release.append(distribution_path)
+            # nice to have: show them side-by-side
+            logger.info('')
+            logger.info(cleaned_git_changes)
+            logger.info('')
+            logger.info('')
+            logger.info(''.join(changes))
+            if not self.dry_run and \
+                    ask('Is the change log ready for release?'):
+                to_release.append(distribution_path)
 
         if not self.dry_run:
             self.distributions = to_release

@@ -515,28 +515,6 @@ class TestFullRelease(BaseTest):
             1
         )
 
-    def test_ask_what_to_release_no_source(self):
-        """Check that if the distribution has no source defined it will not be
-        released
-        """
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
-        repo_folder = '{0}/my.distribution'.format(path)
-
-        # full release
-        full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
-
-        # run check_changes_to_be_released
-        with wrap_folder(self.user_buildout_repo.working_tree_dir):
-            with OutputCapture():
-                full_release.ask_what_to_release()
-
-        # check that the distribution is not going to be released
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
-
     def test_ask_what_to_release_clean_some_lines_of_git_history(self):
         """Check that if the some commits are administrative they are not
         shown to the user, the other non-administrative are shown
