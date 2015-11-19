@@ -8,8 +8,16 @@ from scp import SCPClient
 from shutil import rmtree
 from tempfile import mkdtemp
 
+import logging
 import os
 import sys
+
+
+def configure_logging(debug):
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
 
 def update_branch(repo, branch):
