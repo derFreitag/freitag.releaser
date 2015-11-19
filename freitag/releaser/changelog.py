@@ -4,8 +4,12 @@ from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
 from git import Repo
 
+import logging
 import os
 import sys
+
+
+logger = logging.getLogger(__name__)
 
 
 class VersionException(Exception):
@@ -23,13 +27,13 @@ class GatherChangelog(object):
         self.ask_versions()
 
         msg = '\nGATHERING CHANGELOG FROM {0} to {1}'
-        print(msg.format(self.earliest_version, self.newest_version))
+        logger.info(msg.format(self.earliest_version, self.newest_version))
 
         changelog = self.gather_changelog(
             self.newest_version,
             self.earliest_version
         )
-        print(changelog)
+        logger.info(changelog)
 
     def ask_versions(self):
         last_version = self._get_buildout_version()
@@ -74,7 +78,7 @@ class GatherChangelog(object):
             try:
                 answer = self.ask(question, last_version, default=default)
             except VersionException:
-                print('Please provide a valid value for version.')
+                logger.info('Please provide a valid value for version.')
         return answer
 
     @staticmethod
@@ -150,19 +154,19 @@ class UpdateDistChangelog(object):
 
     def __call__(self):
         if not os.path.exists(self.path):
-            print('{0} does not exist'.format(self.path))
+            logger.info('{0} does not exist'.format(self.path))
             sys.exit(1)
 
         path = '{0}/CHANGES.rst'.format(self.path)
         if not os.path.exists(path):
-            print('{0} does not exist'.format(path))
+            logger.info('{0} does not exist'.format(path))
             sys.exit(1)
 
         repo = Repo(self.path)
         latest_tag = get_latest_tag(repo, 'master')
         history = get_compact_git_history(repo, latest_tag)
         cleaned_git_changes = filter_git_history(history)
-        print(cleaned_git_changes)
+        logger.debug(cleaned_git_changes)
 
         with open(path) as changes:
             current_data = changes.read()
