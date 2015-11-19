@@ -2,7 +2,6 @@
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
-from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
 from freitag.releaser.utils import update_branch
@@ -245,20 +244,15 @@ class FullRelease(object):
         for distribution_path in self.distributions:
             logger.debug(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
-            dist_clone = self.buildout.sources.get(dist_name)
+            repo = Repo(distribution_path)
 
-            if dist_clone is None:
-                continue
+            release = ReleaseDistribution(repo.working_tree_dir)
+            new_version = release()
+            self.versions[dist_name] = new_version
 
-            with git_repo(dist_clone, shallow=False) as repo:
-                release = ReleaseDistribution(repo.working_tree_dir)
-                new_version = release()
-                self.versions[dist_name] = new_version
-
-                self.buildout.set_version(dist_name, new_version)
+            self.buildout.set_version(dist_name, new_version)
 
             # update the local repository
-            repo = Repo(distribution_path)
             update_branch(repo, 'master')
 
     def _create_commit_message(self):
