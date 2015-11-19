@@ -14,10 +14,13 @@ from plone.releaser.buildout import Buildout
 from zest.releaser import fullrelease
 from zest.releaser.utils import ask
 
+import logging
 import os
 import re
 import sys
 
+
+logger = logging.getLogger(__name__)
 
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
@@ -98,8 +101,8 @@ class FullRelease(object):
 
             self.distributions.append(path)
 
-        print('Distributions: ')
-        print('\n'.join(self.distributions))
+        logger.debug('Distributions: ')
+        logger.debug('\n'.join(self.distributions))
 
     def filter_distros(self):
         if self.filter != '':
@@ -111,10 +114,10 @@ class FullRelease(object):
 
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
-        print('')
+        logger.info('')
         msg = 'Check pending local changes'
-        print(msg)
-        print('-' * len(msg))
+        logger.info(msg)
+        logger.info('-' * len(msg))
         clean_distributions = []
         for distribution_path in self.distributions:
             # nice to have: add some sort of progress bar like plone.releaser
@@ -132,8 +135,8 @@ class FullRelease(object):
             if dirty or local_changes:
                 msg = '{0} has non-committed/unpushed changes, ' \
                       'it will not be released.'
-                print(msg.format(DISTRIBUTION.format(distribution_path)))
-
+                msg = msg.format(DISTRIBUTION.format(distribution_path))
+                logger.info(msg)
                 continue
 
             clean_distributions.append(distribution_path)
@@ -146,19 +149,19 @@ class FullRelease(object):
 
             self.distributions = clean_distributions
 
-        print('Distributions: ')
-        print('\n'.join(self.distributions))
+        logger.debug('Distributions: ')
+        logger.debug('\n'.join(self.distributions))
 
     def check_changes_to_be_released(self):
         """Check which distributions have changes that could need a release"""
-        print('')
+        logger.info('')
         msg = 'Check changes to be released'
-        print(msg)
-        print('-' * len(msg))
+        logger.info(msg)
+        logger.info('-' * len(msg))
         need_a_release = []
         for distribution_path in self.distributions:
             dist_name = distribution_path.split('/')[-1]
-            print(DISTRIBUTION.format(distribution_path))
+            logger.debug(DISTRIBUTION.format(distribution_path))
             repo = Repo(distribution_path)
             remote = repo.remote()
 
@@ -190,13 +193,13 @@ class FullRelease(object):
         everything worth writing in CHANGES.rst from git history is already
         there.
         """
-        print('')
+        logger.info('')
         msg = 'What to release'
-        print(msg)
-        print('-' * len(msg))
+        logger.info(msg)
+        logger.info('-' * len(msg))
         to_release = []
         for distribution_path in self.distributions:
-            print(DISTRIBUTION.format(distribution_path))
+            logger.debug(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
@@ -222,11 +225,11 @@ class FullRelease(object):
                 self.changelogs[dist_name] = changes[2:]
 
                 # nice to have: show them side-by-side
-                print('')
-                print(cleaned_git_changes)
-                print('')
-                print('')
-                print(''.join(changes))
+                logger.info('')
+                logger.info(cleaned_git_changes)
+                logger.info('')
+                logger.info('')
+                logger.info(''.join(changes))
                 if not self.dry_run and \
                         ask('Is the change log ready for release?'):
                     to_release.append(distribution_path)
@@ -234,17 +237,17 @@ class FullRelease(object):
         if not self.dry_run:
             self.distributions = to_release
 
-        print('Distributions: ')
-        print('\n'.join(self.distributions))
+        logger.debug('Distributions: ')
+        logger.debug('\n'.join(self.distributions))
 
     def release_all(self):
         """Release all distributions"""
-        print('')
+        logger.info('')
         msg = 'Release!'
-        print(msg)
-        print('-' * len(msg))
+        logger.info(msg)
+        logger.info('-' * len(msg))
         for distribution_path in self.distributions:
-            print(DISTRIBUTION.format(distribution_path))
+            logger.debug(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
             dist_clone = self.buildout.sources.get(dist_name)
 
@@ -282,8 +285,8 @@ class FullRelease(object):
     def update_buildout(self):
         """Commit the changes on buildout"""
         msg = 'Update buildout'
-        print(msg)
-        print('-' * len(msg))
+        logger.info(msg)
+        logger.info('-' * len(msg))
 
         repo = Repo(os.path.curdir)
         repo.git.add('versions.cfg')

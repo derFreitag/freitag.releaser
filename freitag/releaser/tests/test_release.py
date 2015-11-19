@@ -4,6 +4,7 @@ from freitag.releaser.release import ReleaseDistribution
 from freitag.releaser.utils import wrap_folder
 from git import Repo
 from tempfile import mkdtemp
+from testfixtures import LogCapture
 from testfixtures import OutputCapture
 from zest.releaser import utils
 
@@ -89,6 +90,13 @@ class BaseTest(unittest.TestCase):
             filename='CHANGES.rst',
             msg='Update changes'
         )
+
+    def _get_logging_as_string(self, output):
+        messages = [
+            f.getMessage()
+            for f in output.records
+        ]
+        return '\n'.join(messages)
 
 
 class TestFullRelease(BaseTest):
@@ -561,22 +569,23 @@ class TestFullRelease(BaseTest):
 
         utils.test_answer_book.set_answers(['Y', ])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
-            with OutputCapture() as output:
-                full_release.ask_what_to_release()
+            with OutputCapture():
+                with LogCapture() as output:
+                    full_release.ask_what_to_release()
 
         self.assertIn(
             'Random commit 2',
-            output.captured
+            self._get_logging_as_string(output)
         )
 
         self.assertNotIn(
             'Bump version',
-            output.captured
+            self._get_logging_as_string(output)
         )
 
         self.assertIn(
             'Add source',
-            output.captured
+            self._get_logging_as_string(output)
         )
 
     def test_ask_what_to_release_clean_all_lines_of_git_history(self):
@@ -638,16 +647,17 @@ class TestFullRelease(BaseTest):
 
         utils.test_answer_book.set_answers(['Y', ])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
-            with OutputCapture() as output:
-                full_release.ask_what_to_release()
+            with OutputCapture():
+                with LogCapture() as output:
+                    full_release.ask_what_to_release()
 
         self.assertIn(
             'change log entry 1',
-            output.captured
+            self._get_logging_as_string(output)
         )
         self.assertIn(
             'change log entry 2',
-            output.captured
+            self._get_logging_as_string(output)
         )
 
     def test_ask_what_to_release_dry_run(self):
