@@ -13,6 +13,9 @@ import os
 import sys
 
 
+logger = logging.getLogger(__name__)
+
+
 def configure_logging(debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -35,7 +38,7 @@ def update_branch(repo, branch):
     try:
         repo.heads[branch].checkout()
     except IndexError:
-        print('branch {0} does not exist remotely'.format(branch))
+        logger.debug('branch {0} does not exist remotely'.format(branch))
         return False
 
     local_commit = repo.head.commit
@@ -63,14 +66,14 @@ def is_branch_synced(repo, branch='master'):
     try:
         local_branch = repo.refs[branch]
     except IndexError:
-        print('{0} branch does not exist locally'.format(branch))
+        logger.debug('{0} branch does not exist locally'.format(branch))
         # no problem then, all commits are pushed
         return True
 
     try:
         remote_branch = remote.refs[branch]
     except IndexError:
-        print('{0} branch does not exist remotely'.format(branch))
+        logger.debug('{0} branch does not exist remotely'.format(branch))
         # it's pointless to check if a branch has local commits if it does
         # not exist remotely
         return False

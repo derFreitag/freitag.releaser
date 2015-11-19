@@ -8,6 +8,7 @@ from freitag.releaser.utils import wrap_sys_argv
 from git import Repo
 from plone.releaser.buildout import Source
 from tempfile import mkdtemp
+from testfixtures import LogCapture
 from testfixtures import OutputCapture
 
 import os
@@ -44,6 +45,13 @@ class TestUtils(unittest.TestCase):
         open(dummy_file, 'wb').close()
         repo.index.add([dummy_file, ])
         repo.index.commit(msg)
+
+    def _get_logging_as_string(self, output):
+        messages = [
+            f.getMessage()
+            for f in output.records
+        ]
+        return '\n'.join(messages)
 
     def test_update_branch(self):
         """Check that branch really gets updated"""
@@ -108,7 +116,7 @@ class TestUtils(unittest.TestCase):
 
     def test_is_branch_synced_non_existing_local_branch(self):
         """Check that if a branch does not exist locally it reports so"""
-        with OutputCapture() as output:
+        with LogCapture() as output:
             result = is_branch_synced(
                 self.user_repo,
                 'non-existing-branch'
@@ -116,7 +124,12 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(result)
         self.assertIn(
             'non-existing-branch branch does not exist locally',
-            output.captured
+            self._get_logging_as_string(output)
+        )
+        # output is shown on info level
+        self.assertEqual(
+            output.records[0].levelname,
+            'DEBUG'
         )
 
     def test_is_branch_synced_non_existing_remote_branch(self):
@@ -126,7 +139,7 @@ class TestUtils(unittest.TestCase):
         self.user_repo.create_head(branch_name)
         self.user_repo.heads[branch_name].checkout()
 
-        with OutputCapture() as output:
+        with LogCapture() as output:
             result = is_branch_synced(
                 self.user_repo,
                 branch_name
@@ -135,7 +148,12 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(result)
         self.assertIn(
             '{0} branch does not exist remotely'.format(branch_name),
-            output.captured
+            self._get_logging_as_string(output)
+        )
+        # output is shown on info level
+        self.assertEqual(
+            output.records[0].levelname,
+            'DEBUG'
         )
 
     def test_get_compact_git_history(self):
