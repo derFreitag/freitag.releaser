@@ -3,7 +3,7 @@ from freitag.releaser.changelog import UpdateDistChangelog
 from git import Repo
 from plone.releaser.buildout import Source
 from tempfile import mkdtemp
-from testfixtures import OutputCapture
+from testfixtures import LogCapture
 
 import os
 import shutil
@@ -39,17 +39,29 @@ class TestUpdateDistChangelog(unittest.TestCase):
         repo.index.add([dummy_file, ])
         repo.index.commit(msg)
 
+    def _get_logging_as_string(self, output):
+        messages = [
+            f.getMessage()
+            for f in output.records
+        ]
+        return '\n'.join(messages)
+
     def test_non_existing_path(self):
         """Check that a non existing path exits early with a message"""
         path = '/tmp/probably-not-existing-path'
         changelog = UpdateDistChangelog(path)
 
-        with OutputCapture() as output:
+        with LogCapture() as output:
             self.assertRaises(SystemExit, changelog)
 
         self.assertIn(
             '{0} does not exist'.format(path),
-            output.captured
+            self._get_logging_as_string(output)
+        )
+        # output is shown on info level
+        self.assertEqual(
+            output.records[0].levelname,
+            'INFO'
         )
 
     def test_non_existing_file(self):
@@ -57,38 +69,21 @@ class TestUpdateDistChangelog(unittest.TestCase):
         path = self.user_repo.working_tree_dir
         changelog = UpdateDistChangelog(path)
 
-        with OutputCapture() as output:
+        with LogCapture() as output:
             self.assertRaises(SystemExit, changelog)
 
         self.assertIn(
             '{0}/CHANGES.rst does not exist'.format(path),
-            output.captured
+            self._get_logging_as_string(output)
         )
-
-    def test_no_tag(self):
-        """Check that if there is no tag, changelog is gathered anyway"""
-        # make some commits
-        for i in range(5):
-            self._commit(
-                self.user_repo,
-                filename='CHANGES.rst',
-                msg='Commit {0}'.format(i)
-            )
-        self.user_repo.remote().push()
-
-        path = self.user_repo.working_tree_dir
-        changelog = UpdateDistChangelog(path)
-
-        with OutputCapture() as output:
-            changelog()
-
+        # output is shown on info level
         self.assertEqual(
-            len(output.captured.split('\n')),
-            6
+            output.records[0].levelname,
+            'INFO'
         )
 
-    def test_tag(self):
-        """Check that if there is a tag, changelog is gathered only up to it"""
+    def test_git_history(self):
+        """Check that the git history is shown on debug level"""
         # make some commits
         for i in range(3):
             self._commit(
@@ -110,13 +105,20 @@ class TestUpdateDistChangelog(unittest.TestCase):
         path = self.user_repo.working_tree_dir
         changelog = UpdateDistChangelog(path)
 
-        with OutputCapture() as output:
+        with LogCapture() as output:
             changelog()
 
-        # 4 = 2 commits after the tag + 1 commit on the tag + 1 empty line
+        # output is only shown on debug level
         self.assertEqual(
-            len(output.captured.split('\n')),
-            4
+            output.records[0].levelname,
+            'DEBUG'
+        )
+
+        # 2 commits after the tag + 1 commit on the tag
+        messages = self._get_logging_as_string(output)
+        self.assertEqual(
+            len(messages.split('\n')),
+            3
         )
 
     def test_changes_updated(self):
@@ -142,13 +144,13 @@ class TestUpdateDistChangelog(unittest.TestCase):
         path = self.user_repo.working_tree_dir
         changelog = UpdateDistChangelog(path)
 
-        with OutputCapture() as output:
+        with LogCapture() as output:
             changelog()
 
         with open('{0}/CHANGES.rst'.format(path)) as changes:
             changes_file = changes.read()
 
         self.assertIn(
-            output.captured,
+            self._get_logging_as_string(output),
             changes_file
         )
