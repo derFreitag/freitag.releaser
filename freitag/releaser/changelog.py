@@ -157,22 +157,40 @@ class UpdateDistChangelog(object):
             logger.info('{0} does not exist'.format(self.path))
             sys.exit(1)
 
-        path = '{0}/CHANGES.rst'.format(self.path)
-        if not os.path.exists(path):
-            logger.info('{0} does not exist'.format(path))
+        changes_path = self.get_changes_path()
+        git_history = self.get_git_history()
+
+        self.write_changes(changes_path, git_history)
+
+    def write_changes(self, changes_path=None, history=None):
+        if changes_path is None:
+            changes_path = self.get_changes_path()
+
+        if history is None:
+            history = self.get_git_history()
+
+        with open(changes_path) as changes:
+            current_data = changes.read()
+
+        with open(changes_path, 'w') as changes:
+            changes.write(history)
+            changes.write('\n')
+            changes.write('\n')
+            changes.write(current_data)
+
+    def get_changes_path(self):
+        changes_path = '{0}/CHANGES.rst'.format(self.path)
+        if not os.path.exists(changes_path):
+            logger.info('{0} does not exist'.format(changes_path))
             sys.exit(1)
 
+        return changes_path
+
+    def get_git_history(self):
         repo = Repo(self.path)
         latest_tag = get_latest_tag(repo, 'master')
         history = get_compact_git_history(repo, latest_tag)
         cleaned_git_changes = filter_git_history(history)
         logger.debug(cleaned_git_changes)
 
-        with open(path) as changes:
-            current_data = changes.read()
-
-        with open(path, 'w') as changes:
-            changes.write(history)
-            changes.write('\n')
-            changes.write('\n')
-            changes.write(current_data)
+        return cleaned_git_changes

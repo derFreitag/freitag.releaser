@@ -639,7 +639,7 @@ class TestFullRelease(BaseTest):
         )
 
     def test_ask_what_to_release_dry_run(self):
-        """Check that in dry_run mode no question is asked"""
+        """Check that in dry_run mode no distributions are filtered"""
         repo = self.user_buildout_repo
 
         # add source, CHANGES.rst, commits and push the repo
@@ -659,17 +659,51 @@ class TestFullRelease(BaseTest):
         full_release.distributions = [repo_folder, ]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
+        utils.test_answer_book.set_answers(['n', ])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
-            with OutputCapture() as output:
+            with OutputCapture():
                 full_release.ask_what_to_release()
 
         self.assertEqual(
             full_release.distributions,
             [repo_folder, ]
         )
-        self.assertNotIn(
-            'Is the change log ready for release?',
+
+    def test_ask_what_to_release_dry_run_write_changes(self):
+        """Check that in dry_run mode you can write the git history on CHANGES
+        """
+        repo = self.user_buildout_repo
+
+        # add source, CHANGES.rst, commits and push the repo
+        self._add_source(repo)
+        self._add_changes(repo)
+        first_commit_sha = self._commit(repo, msg='Random commit 1')
+        self.user_buildout_repo.remote().push()
+
+        # clone the repo
+        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        os.makedirs(path)
+        repo_folder = '{0}/my.distribution'.format(path)
+        self.buildout_repo.clone(repo_folder)
+
+        # full release
+        full_release = FullRelease(path=path, dry_run=True)
+        full_release.distributions = [repo_folder, ]
+        full_release.last_tags['my.distribution'] = first_commit_sha
+
+        utils.test_answer_book.set_answers(['y', ])
+        with wrap_folder(self.user_buildout_repo.working_tree_dir):
+            with OutputCapture() as output:
+                full_release.ask_what_to_release()
+
+        self.assertIn(
+            'write the above git history on CHANGES.rst',
             output.captured
+        )
+
+        self.assertIn(
+            'Random commit 1',
+            open('{0}/CHANGES.rst'.format(repo_folder)).read()
         )
 
     def test_ask_what_to_release_user_can_not_release_a_distribution(self):

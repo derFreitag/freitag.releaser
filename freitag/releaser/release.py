@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
@@ -225,7 +226,11 @@ class FullRelease(object):
             logger.info('')
             logger.info('')
             logger.info(''.join(changes))
-            if not self.dry_run and \
+            msg = '{0}: write the above git history on CHANGES.rst?'
+            if self.dry_run and ask(msg.format(dist_name)):
+                changelog = UpdateDistChangelog(distribution_path)
+                changelog.write_changes(history=cleaned_git_changes)
+            elif not self.dry_run and \
                     ask('Is the change log ready for release?'):
                 to_release.append(distribution_path)
 
