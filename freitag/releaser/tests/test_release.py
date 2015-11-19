@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.release import FullRelease
 from freitag.releaser.release import ReleaseDistribution
+from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import wrap_folder
 from git import Repo
 from tempfile import mkdtemp
@@ -742,6 +743,27 @@ class TestFullRelease(BaseTest):
             'Is the change log ready for release?',
             output.captured
         )
+
+    def test_update_buildout(self):
+        """Check that repository is updated with commit message"""
+        path = self.user_buildout_repo.working_tree_dir
+
+        message = 'New versions: 345'
+
+        with wrap_folder(path):
+            with open('versions.cfg', 'w') as versions:
+                versions.write('[versions]')
+
+            full_release = FullRelease()
+            full_release.commit_message = message
+            full_release.update_buildout()
+
+        commit = self.user_buildout_repo.commit()
+        self.assertEqual(
+            commit.message.strip(),
+            message
+        )
+        self.assertTrue(is_branch_synced(self.user_buildout_repo))
 
     def test_create_commit_message(self):
         """Check that the commit message is generated correctly"""
