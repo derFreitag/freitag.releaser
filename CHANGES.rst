@@ -5,9 +5,34 @@ Changelog
 
 0.7.2 (unreleased)
 ------------------
+- Only show the meaningful commits.
+  [gforcada]
 
-- Nothing changed yet.
+- Remove develop branch support. This massively simplifies all the code.
+  [gforcada]
 
+- Allow to release only some packages.
+  See ``-f`` option on full-release command.
+  [gforcada]
+
+- Push cfg files when doing a full release.
+  [gforcada]
+
+- Test nearly everything.
+  [gforcada]
+
+- Fix coverage and speed up travis.
+  [gforcada]
+
+- Add more utility functions.
+  [gforcada]
+
+- Add debug option to all commands,
+  use python logging module to log information at various levels.
+  [gforcada]
+
+- Avoid cloning repositories (speed ups everything).
+  [gforcada]
 
 0.7.1 (2015-11-16)
 ------------------
