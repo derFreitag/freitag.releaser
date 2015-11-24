@@ -842,6 +842,82 @@ class TestFullRelease(BaseTest):
             ])
         )
 
+    def test_update_batou(self):
+        """Check that batou repository is updated with new version pins"""
+        buildout_path = self.user_buildout_repo.working_tree_dir
+
+        # create the fake batou repository
+        remote_batou = Repo.init(mkdtemp(), bare=True)
+
+        # clone the fake batou repository and add the versions.cfg
+        tmp_batou_repo = remote_batou.clone(mkdtemp())
+        folder_path = '{0}/components/plone/versions'
+        folder_path = folder_path.format(tmp_batou_repo.working_tree_dir)
+        os.makedirs(folder_path)
+        file_path = '{0}/versions.cfg'.format(folder_path)
+        with open(file_path, 'w') as versions:
+            versions.write('[versions]')
+        tmp_batou_repo.index.add([file_path, ])
+        tmp_batou_repo.index.commit('lalala')
+        tmp_batou_repo.remote().push('master:refs/heads/master')
+
+        tmp_batou_repo.create_head('staging')
+        tmp_batou_repo.remote().push('staging:refs/heads/staging')
+
+        shutil.rmtree(tmp_batou_repo.working_dir)
+
+        with wrap_folder(buildout_path):
+            with open('develop.cfg', 'w') as versions:
+                versions.write('[sources]\n')
+                versions.write(
+                    'deployment = git file://{0}'.format(
+                        remote_batou.working_dir
+                    )
+                )
+
+            full_release = FullRelease()
+            full_release.commit_message = 'lalala'
+            full_release.versions = {
+                'der.freitag': '4.3',
+                'freitag.article': '2.7',
+            }
+            full_release.update_batou()
+
+        tmp_batou_repo = remote_batou.clone(mkdtemp())
+        remote = tmp_batou_repo.remote()
+        branch = tmp_batou_repo.create_head('staging', remote.refs['staging'])
+        branch.set_tracking_branch(remote.refs['staging'])
+        branch.checkout()
+
+        self.assertEqual(
+            branch.commit.message,
+            'lalala'
+        )
+        self.assertEqual(
+            len(branch.commit.stats.files.keys()),
+            1
+        )
+        self.assertEqual(
+            branch.commit.stats.files.keys()[0],
+            'components/plone/versions/versions.cfg'
+        )
+
+        with wrap_folder(tmp_batou_repo.working_tree_dir):
+            with open('components/plone/versions/versions.cfg') as afile:
+                data = afile.read()
+
+        self.assertIn(
+            'der.freitag = 4.3',
+            data
+        )
+        self.assertIn(
+            'freitag.article = 2.7',
+            data
+        )
+
+        shutil.rmtree(remote_batou.working_dir)
+        shutil.rmtree(tmp_batou_repo.working_tree_dir)
+
 
 class TestReleaseDistribution(BaseTest):
 

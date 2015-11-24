@@ -3,6 +3,7 @@ from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
+from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
 from freitag.releaser.utils import update_branch
@@ -292,7 +293,52 @@ class FullRelease(object):
         repo.remote().push()
 
     def update_batou(self):
-        pass
+        """Update the version pins on batou as well"""
+        deployment_repo = self.buildout.sources.get('deployment')
+        if deployment_repo is None:
+            logger.info(
+                'No deployment repository sources found!'
+                '\n'
+                'Batou can not be updated!'
+            )
+            return
+        # clone the repo
+        with git_repo(deployment_repo, shallow=False) as repo:
+            # check if there is a staging branch
+            remote = repo.remote()
+            if 'staging' not in remote.refs:
+                logger.info(
+                    'staging branch not found on deployment repository'
+                )
+                return
+
+            # switch to staging branch
+            new_branch = repo.create_head('staging', remote.refs['staging'])
+            new_branch.set_tracking_branch(remote.refs['staging'])
+            new_branch.checkout()
+
+            # get components/plone/versions/versions.cfg Buildout
+            path = 'components/plone/versions/versions.cfg'
+            plone_versions = '{0}/{1}'.format(
+                repo.working_tree_dir,
+                path
+            )
+            deployment_buildout = Buildout(
+                sources_file=plone_versions,
+                checkouts_file=plone_versions,
+                versions_file=plone_versions
+            )
+            # update version pins
+            for dist_name in self.versions:
+                deployment_buildout.set_version(
+                    dist_name,
+                    self.versions[dist_name]
+                )
+            # commit and push the repo
+            repo.index.add([path, ])
+            repo.index.commit(message=self.commit_message)
+            # push the changes
+            remote.push()
 
     @staticmethod
     def _grab_changelog(changelog_path):
