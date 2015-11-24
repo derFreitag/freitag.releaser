@@ -3,8 +3,8 @@
 Changelog
 =========
 
-0.7.2 (unreleased)
-------------------
+1.0 (2015-11-24)
+----------------
 - Only show the meaningful commits.
   [gforcada]
 
