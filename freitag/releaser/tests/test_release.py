@@ -105,12 +105,12 @@ class TestFullRelease(BaseTest):
     def test_create_instance(self):
         """Check that the values passed on creation are safed"""
         path = '/tmp/la/li/somewhere'
-        dry_run = True
+        test = True
         dist_filter = 'some random filter'
 
         full_release = FullRelease(
             path=path,
-            dry_run=dry_run,
+            test=test,
             filter_distributions=dist_filter
         )
         self.assertEqual(
@@ -118,8 +118,8 @@ class TestFullRelease(BaseTest):
             path
         )
         self.assertEqual(
-            full_release.dry_run,
-            dry_run
+            full_release.test,
+            test
         )
         self.assertEqual(
             full_release.filter,
@@ -286,9 +286,9 @@ class TestFullRelease(BaseTest):
                 full_release.check_pending_local_changes
             )
 
-    def test_check_pending_local_changes_unpushed_dry_run(self):
+    def test_check_pending_local_changes_unpushed_test(self):
         """Check that a repository with local commits is *not* removed from
-        the list of distributions to be released if dry_run is True
+        the list of distributions to be released if test is True
         """
         # create repo
         path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
@@ -300,7 +300,7 @@ class TestFullRelease(BaseTest):
         self._commit(repo)
 
         # full release
-        full_release = FullRelease(path=path, dry_run=True)
+        full_release = FullRelease(path=path, test=True)
         full_release.distributions = [repo_folder, ]
 
         with OutputCapture():
@@ -423,9 +423,9 @@ class TestFullRelease(BaseTest):
             [repo_folder, ]
         )
 
-    def test_changes_to_be_released_dry_run(self):
+    def test_changes_to_be_released_test(self):
         """Check that if the distribution was supposed to be removed, it is not
-        if dry_run is True
+        if test is True
         """
         # create repo
         path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
@@ -437,7 +437,7 @@ class TestFullRelease(BaseTest):
         repo.create_tag('my-tag')
 
         # full release
-        full_release = FullRelease(path=path, dry_run=True)
+        full_release = FullRelease(path=path, test=True)
         full_release.distributions = [repo_folder, ]
 
         # run check_changes_to_be_released
@@ -639,8 +639,8 @@ class TestFullRelease(BaseTest):
             self._get_logging_as_string(output)
         )
 
-    def test_ask_what_to_release_dry_run(self):
-        """Check that in dry_run mode no distributions are filtered"""
+    def test_ask_what_to_release_test(self):
+        """Check that in test mode no distributions are filtered"""
         repo = self.user_buildout_repo
 
         # add source, CHANGES.rst, commits and push the repo
@@ -656,7 +656,7 @@ class TestFullRelease(BaseTest):
         self.buildout_repo.clone(repo_folder)
 
         # full release
-        full_release = FullRelease(path=path, dry_run=True)
+        full_release = FullRelease(path=path, test=True)
         full_release.distributions = [repo_folder, ]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
@@ -670,8 +670,8 @@ class TestFullRelease(BaseTest):
             [repo_folder, ]
         )
 
-    def test_ask_what_to_release_dry_run_write_changes(self):
-        """Check that in dry_run mode you can write the git history on CHANGES
+    def test_ask_what_to_release_test_write_changes(self):
+        """Check that in test mode you can write the git history on CHANGES
         """
         repo = self.user_buildout_repo
 
@@ -688,7 +688,7 @@ class TestFullRelease(BaseTest):
         self.buildout_repo.clone(repo_folder)
 
         # full release
-        full_release = FullRelease(path=path, dry_run=True)
+        full_release = FullRelease(path=path, test=True)
         full_release.distributions = [repo_folder, ]
         full_release.last_tags['my.distribution'] = first_commit_sha
 

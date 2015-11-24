@@ -39,7 +39,7 @@ class FullRelease(object):
 
     #: if actual releases have to happen or only gathering an overview of
     #: what's pending to be released
-    dry_run = None
+    test = None
 
     #: only release the distributions that their name match with this string
     filter = None
@@ -64,9 +64,9 @@ class FullRelease(object):
     #: all distributions released and their changelog
     commit_message = ''
 
-    def __init__(self, path='src', dry_run=False, filter_distributions=''):
+    def __init__(self, path='src', test=False, filter_distributions=''):
         self.path = path
-        self.dry_run = dry_run
+        self.test = test
         self.filter = filter_distributions
         self.buildout = Buildout(
             sources_file='develop.cfg',
@@ -82,7 +82,7 @@ class FullRelease(object):
         self.check_changes_to_be_released()
         self.ask_what_to_release()
 
-        if not self.dry_run and len(self.distributions) > 0:
+        if not self.test and len(self.distributions) > 0:
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
@@ -145,7 +145,7 @@ class FullRelease(object):
             clean_distributions.append(distribution_path)
 
         # if nothing is about to be released, do not filter the distributions
-        if not self.dry_run:
+        if not self.test:
             if len(self.distributions) != len(clean_distributions):
                 if not ask('Do you want to continue?', default=True):
                     sys.exit()
@@ -186,7 +186,7 @@ class FullRelease(object):
                 need_a_release.append(distribution_path)
 
         # if nothing is about to be released, do not filter the distributions
-        if not self.dry_run:
+        if not self.test:
             self.distributions = need_a_release
 
     def ask_what_to_release(self):
@@ -230,14 +230,14 @@ class FullRelease(object):
             logger.info('')
             logger.info(''.join(changes))
             msg = '{0}: write the above git history on CHANGES.rst?'
-            if self.dry_run and ask(msg.format(dist_name)):
+            if self.test and ask(msg.format(dist_name)):
                 changelog = UpdateDistChangelog(distribution_path)
                 changelog.write_changes(history=cleaned_git_changes)
-            elif not self.dry_run and \
+            elif not self.test and \
                     ask('Is the change log ready for release?'):
                 to_release.append(distribution_path)
 
-        if not self.dry_run:
+        if not self.test:
             self.distributions = to_release
 
         logger.debug('Distributions: ')

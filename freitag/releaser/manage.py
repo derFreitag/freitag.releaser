@@ -11,7 +11,7 @@ from freitag.releaser.utils import push_cfg_files
 
 def full_release(
         path='src',
-        dry_run=False,
+        test=False,
         filter_distributions='',
         debug=False
 ):
@@ -19,9 +19,9 @@ def full_release(
 
     :param path: where to look for filter to release
     :type path: str
-    :param dry_run: if filter will be released or only an overview
+    :param test: if distributions will be released or only an overview
       about what's pending to be released
-    :type dry_run: bool
+    :type test: bool
     :param filter_distributions: only filter that match the given string will
       be considered to release
     :type filter_distributions: str
@@ -31,7 +31,7 @@ def full_release(
     configure_logging(debug)
     release_all = FullRelease(
         path=path,
-        dry_run=dry_run,
+        test=test,
         filter_distributions=filter_distributions
     )
     release_all()
