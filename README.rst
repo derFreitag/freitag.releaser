@@ -39,7 +39,7 @@ Additions to plone.releaser:
 - gather the changes on distributions (more than only *collect_changelog*)
 - push cfg files *publish_cfg_files*
 - check which distributions need a release
-- **(TODO)**: update batou version pins (components/{plone,zeo}/versions/versions.cfg
+- update batou version pins (components/plone/versions/versions.cfg
 
 .. _`der Freitag`: https://www.freitag.de
 .. _`plone.releaser`: https://pypi.python.org/pypi/plone.releaser
