@@ -3,8 +3,8 @@
 Changelog
 =========
 
-1.1 (unreleased)
-----------------
+1.0.post0 (2015-11-24)
+----------------------
 - Minor cleanup, 1.0 release was half broken.
   [gforcada]
 
