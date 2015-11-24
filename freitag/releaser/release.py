@@ -278,7 +278,10 @@ class FullRelease(object):
             changelogs.append(''.join(self.changelogs[dist]))
             changelogs.append('')
 
-        self.commit_message = '\n'.join(msg + changelogs)
+        # There's no need to run CI when doing releases...
+        ci_skip = ['[ci skip]', ]
+
+        self.commit_message = '\n'.join(msg + changelogs + ci_skip)
 
     def update_buildout(self):
         """Commit the changes on buildout"""
