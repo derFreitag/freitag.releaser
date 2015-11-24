@@ -3,6 +3,12 @@
 Changelog
 =========
 
+1.1 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
 1.0.post0 (2015-11-24)
 ----------------------
 - Minor cleanup, 1.0 release was half broken.
