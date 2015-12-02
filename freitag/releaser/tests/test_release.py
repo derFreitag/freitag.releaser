@@ -804,8 +804,7 @@ class TestFullRelease(BaseTest):
 
         full_release._create_commit_message()
 
-        self.assertEqual(
-            full_release.commit_message,
+        self.assertIn(
             '\n'.join([
                 'New releases:',
                 '',
@@ -839,7 +838,8 @@ class TestFullRelease(BaseTest):
                 '- related one',
                 '  [someone else]',
                 '',
-            ])
+            ]),
+            full_release.commit_message
         )
 
     def test_update_batou(self):
