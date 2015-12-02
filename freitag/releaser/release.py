@@ -202,7 +202,6 @@ class FullRelease(object):
         logger.info('-' * len(msg))
         to_release = []
         for distribution_path in self.distributions:
-            logger.debug(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
             repo = Repo(distribution_path)
 
@@ -216,6 +215,8 @@ class FullRelease(object):
             # released
             if cleaned_git_changes == '':
                 continue
+
+            logger.info(DISTRIBUTION.format(distribution_path))
 
             change_log_path = '{0}/CHANGES.rst'.format(
                 repo.working_tree_dir
@@ -250,7 +251,7 @@ class FullRelease(object):
         logger.info(msg)
         logger.info('-' * len(msg))
         for distribution_path in self.distributions:
-            logger.debug(DISTRIBUTION.format(distribution_path))
+            logger.info(DISTRIBUTION.format(distribution_path))
             dist_name = distribution_path.split('/')[-1]
             repo = Repo(distribution_path)
 
