@@ -307,19 +307,6 @@ class FullRelease(object):
             return
         # clone the repo
         with git_repo(deployment_repo, shallow=False) as repo:
-            # check if there is a staging branch
-            remote = repo.remote()
-            if 'staging' not in remote.refs:
-                logger.info(
-                    'staging branch not found on deployment repository'
-                )
-                return
-
-            # switch to staging branch
-            new_branch = repo.create_head('staging', remote.refs['staging'])
-            new_branch.set_tracking_branch(remote.refs['staging'])
-            new_branch.checkout()
-
             # get components/plone/versions/versions.cfg Buildout
             path = 'components/plone/versions/versions.cfg'
             plone_versions = '{0}/{1}'.format(
@@ -341,7 +328,7 @@ class FullRelease(object):
             repo.index.add([path, ])
             repo.index.commit(message=self.commit_message)
             # push the changes
-            remote.push()
+            repo.remote().push()
 
     @staticmethod
     def _grab_changelog(changelog_path):

@@ -861,9 +861,6 @@ class TestFullRelease(BaseTest):
         tmp_batou_repo.index.commit('lalala')
         tmp_batou_repo.remote().push('master:refs/heads/master')
 
-        tmp_batou_repo.create_head('staging')
-        tmp_batou_repo.remote().push('staging:refs/heads/staging')
-
         shutil.rmtree(tmp_batou_repo.working_dir)
 
         with wrap_folder(buildout_path):
@@ -884,10 +881,7 @@ class TestFullRelease(BaseTest):
             full_release.update_batou()
 
         tmp_batou_repo = remote_batou.clone(mkdtemp())
-        remote = tmp_batou_repo.remote()
-        branch = tmp_batou_repo.create_head('staging', remote.refs['staging'])
-        branch.set_tracking_branch(remote.refs['staging'])
-        branch.checkout()
+        branch = tmp_batou_repo.branches['master']
 
         self.assertEqual(
             branch.commit.message,
