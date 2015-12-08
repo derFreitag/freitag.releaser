@@ -4,7 +4,6 @@ from argh.decorators import named
 from freitag.releaser.changelog import GatherChangelog
 from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
-from freitag.releaser.release import ReleaseDistribution
 from freitag.releaser.utils import configure_logging
 from freitag.releaser.utils import push_cfg_files
 
@@ -35,19 +34,6 @@ def full_release(
         filter_distributions=filter_distributions
     )
     release_all()
-
-
-def release(path, debug=False):
-    """Release the distribution found on the given path
-
-    :param path: filesystem path of the distribution about to release
-    :type path: str
-    :param debug: controls how much output is shown to the user
-    :type debug: bool
-    """
-    configure_logging(debug)
-    release_distribution = ReleaseDistribution(path)
-    release_distribution()
 
 
 @named('update-changelog')
@@ -91,7 +77,6 @@ class Manage(object):
         parser = ArghParser()
         commands = [
             full_release,
-            release,
             collect_changelog,
             publish_cfg_files,
             update_distribution_changelog,
