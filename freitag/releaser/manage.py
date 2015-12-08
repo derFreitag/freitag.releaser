@@ -75,7 +75,7 @@ def collect_changelog(debug=False):
     changelog()
 
 
-def publish_cfg_files(debug):
+def publish_cfg_files(debug=False):
     """Push buildout .cfg files on a remote server
 
     :param debug: controls how much output is shown to the user
