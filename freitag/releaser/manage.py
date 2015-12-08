@@ -85,11 +85,6 @@ def publish_cfg_files(debug=False):
     push_cfg_files()
 
 
-def sync_batou():
-    """Update version pins on batou"""
-    pass
-
-
 class Manage(object):
 
     def __call__(self, **kwargs):
@@ -99,7 +94,6 @@ class Manage(object):
             release,
             collect_changelog,
             publish_cfg_files,
-            sync_batou,
             update_distribution_changelog,
         ]
 
