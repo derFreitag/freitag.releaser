@@ -987,12 +987,12 @@ class TestReleaseDistribution(BaseTest):
         release = ReleaseDistribution(folder)
 
         self._commit(self.user_buildout_repo)
-        self.user_buildout_repo.create_tag('first-tag')
+        self.user_buildout_repo.create_tag('4.9')
 
         self._commit(self.user_buildout_repo)
-        self.user_buildout_repo.create_tag('last-tag')
+        self.user_buildout_repo.create_tag('4.11')
 
         self.assertEqual(
             release.get_version(),
-            'last-tag'
+            '4.11'
         )

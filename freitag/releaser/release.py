@@ -412,4 +412,4 @@ class ReleaseDistribution(object):
 
     def get_version(self):
         self.repo = Repo(self.path)
-        return self.repo.tags[-1].name
+        return self.repo.git.describe('--tags').split('-')[0]
