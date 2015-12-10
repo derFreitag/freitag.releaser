@@ -221,7 +221,11 @@ class FullRelease(object):
             change_log_path = '{0}/CHANGES.rst'.format(
                 repo.working_tree_dir
             )
-            changes = self._grab_changelog(change_log_path)
+            try:
+                changes = self._grab_changelog(change_log_path)
+            except IOError:
+                logger.debug('Changelog not found, skipping.')
+                continue
             self.changelogs[dist_name] = changes[2:]
 
             # nice to have: show them side-by-side
