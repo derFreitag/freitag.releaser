@@ -23,7 +23,8 @@ def full_release(
       about what's pending to be released
     :type test: bool
     :param filter_distributions: only distributions that match the given
-      string will be considered to release
+      string will be considered to release (multiples can be specified
+      comma-separated)
     :type filter_distributions: str
     :param debug: controls how much output is shown to the user
     :type debug: bool
