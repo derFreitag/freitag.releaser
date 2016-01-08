@@ -8,6 +8,7 @@ from freitag.releaser.utils import configure_logging
 from freitag.releaser.utils import push_cfg_files
 
 
+@named('r')
 def full_release(
         path='src',
         test=False,
@@ -36,7 +37,7 @@ def full_release(
     release_all()
 
 
-@named('update-changelog')
+@named('changelog')
 def update_distribution_changelog(path, debug=False):
     """Update CHANGES.rst with the git changelog
 
@@ -61,6 +62,7 @@ def collect_changelog(debug=False):
     changelog()
 
 
+@named('push')
 def publish_cfg_files(debug=False):
     """Push buildout .cfg files on a remote server
 
