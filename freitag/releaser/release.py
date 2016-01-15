@@ -108,15 +108,17 @@ class FullRelease(object):
         logger.debug('\n'.join(self.distributions))
 
     def filter_distros(self):
+        if self.filter == '':
+            return
+
         tmp_list = []
-        if self.filter != '':
-            # the filter can be of multiple values, comma-separated
-            for f in self.filter.split(','):
-                tmp_list += [
-                    d
-                    for d in self.distributions
-                    if d.find(f) != -1
-                ]
+        # the filter can be of multiple values, comma-separated
+        for f in self.filter.split(','):
+            tmp_list += [
+                d
+                for d in self.distributions
+                if d.find(f) != -1
+            ]
         # keep them sorted
         self.distributions = [
             d
