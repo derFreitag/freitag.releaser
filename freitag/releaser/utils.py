@@ -123,6 +123,8 @@ def push_cfg_files():
             'buildout.standalone.d/distribution-qa.cfg',
         ]
         scp.put(files, remote_path='sphinx')
+        logger.debug('Files uploaded: ')
+        logger.debug('\n'.join(files))
 
 
 def filter_git_history(changes):
