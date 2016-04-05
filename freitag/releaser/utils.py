@@ -101,11 +101,14 @@ def get_compact_git_history(repo, tag):
     :return: whether the given repo's master branch is in sync with upstream
     :rtype: str
     """
-    return repo.git.log(
-        '--oneline',
-        '--graph',
-        '{0}~1..master'.format(tag)
-    )
+    try:
+        return repo.git.log(
+            '--oneline',
+            '--graph',
+            '{0}~1..master'.format(tag)
+        )
+    except GitCommandError:
+        return ''
 
 
 def push_cfg_files():
