@@ -42,7 +42,7 @@ class FullRelease(object):
     test = None
 
     #: only release the distributions that their name match with this string
-    filter = None
+    filters = None
 
     #: distributions that will be released
     distributions = []
@@ -67,7 +67,7 @@ class FullRelease(object):
     def __init__(self, path='src', test=False, filter_distributions=''):
         self.path = path
         self.test = test
-        self.filter = filter_distributions
+        self.filters = filter_distributions
         self.buildout = Buildout(
             sources_file='develop.cfg',
             checkouts_file='develop.cfg',
@@ -108,12 +108,12 @@ class FullRelease(object):
         logger.debug('\n'.join(self.distributions))
 
     def filter_distros(self):
-        if self.filter == '':
+        if self.filters == '':
             return
 
         tmp_list = []
         # the filter can be of multiple values, comma-separated
-        for f in self.filter.split(','):
+        for f in self.filters.split(','):
             tmp_list += [
                 d
                 for d in self.distributions
