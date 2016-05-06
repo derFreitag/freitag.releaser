@@ -5,3 +5,4 @@ exclude .installed.cfg
 global-exclude *.pyc
 include ez_setup.py
 exclude *.egg
+recursive-exclude src .DS_Store
