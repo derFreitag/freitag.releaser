@@ -3,3 +3,5 @@ recursive-include doc *
 include *
 exclude .installed.cfg
 global-exclude *.pyc
+include ez_setup.py
+exclude *.egg
