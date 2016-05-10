@@ -122,7 +122,7 @@ class TestFullRelease(BaseTest):
             test
         )
         self.assertEqual(
-            full_release.filter,
+            full_release.filters,
             dist_filter
         )
 
