@@ -10,10 +10,11 @@ from freitag.releaser.utils import push_cfg_files
 
 @named('r')
 def full_release(
-        path='src',
-        test=False,
-        filter_distributions='',
-        debug=False
+    path='src',
+    test=False,
+    filter_distributions='',
+    debug=False,
+    offline=False,
 ):
     """Release all distribution found on src/
 
@@ -28,12 +29,15 @@ def full_release(
     :type filter_distributions: str
     :param debug: controls how much output is shown to the user
     :type debug: bool
+    :param offline: controls if network will be used (turns test on as well)
+    :type offline: bool
     """
     configure_logging(debug)
     release_all = FullRelease(
         path=path,
         test=test,
-        filter_distributions=filter_distributions
+        filter_distributions=filter_distributions,
+        offline=offline,
     )
     release_all()
 

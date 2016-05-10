@@ -41,6 +41,9 @@ class FullRelease(object):
     #: what's pending to be released
     test = None
 
+    #: if network will be used (only to be used together with test)
+    offline = None
+
     #: only release the distributions that their name match with this string
     filters = None
 
@@ -64,21 +67,36 @@ class FullRelease(object):
     #: all distributions released and their changelog
     commit_message = ''
 
-    def __init__(self, path='src', test=False, filter_distributions=''):
+    def __init__(
+        self,
+        path='src',
+        test=False,
+        filter_distributions='',
+        offline=False,
+    ):
         self.path = path
         self.test = test
+        self.offline = offline
         self.filters = filter_distributions
         self.buildout = Buildout(
             sources_file='develop.cfg',
             checkouts_file='develop.cfg',
         )
 
+        if self.offline and not self.test:
+            logger.warn(
+                'Offline operations means that no release can be done. '
+                'Test option has been turned on as well.'
+            )
+            self.test = True
+
     def __call__(self):
         """Go through all distributions and release them if needed *and* wanted
         """
         self.get_all_distributions()
         self.filter_distros()
-        self.check_pending_local_changes()
+        if not self.offline:
+            self.check_pending_local_changes()
         self.check_changes_to_be_released()
         self.ask_what_to_release()
 
