@@ -6,10 +6,18 @@ from git import Repo
 
 import logging
 import os
+import re
 import sys
 
 
 logger = logging.getLogger(__name__)
+
+CHANGELOG_ENTRY = """- {1}
+  https://www.pivotaltracker.com/story/show/{0}
+  [gforcada]
+"""
+
+PARSE_GIT_CHANGELOG_RE = re.compile(r'\[\#(\d+)\]\s+([\s\w]+)')
 
 
 class VersionException(Exception):
@@ -174,6 +182,12 @@ class UpdateDistChangelog(object):
 
         with open(changes_path, 'w') as changes:
             changes.write(history)
+            changes.write('\n')
+            changes.write('\n')
+            for line in history.split('\n'):
+                parsed = PARSE_GIT_CHANGELOG_RE.search(line)
+                if parsed:
+                    changes.write(CHANGELOG_ENTRY.format(*parsed.groups()))
             changes.write('\n')
             changes.write('\n')
             changes.write(current_data)
