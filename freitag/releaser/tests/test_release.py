@@ -208,14 +208,14 @@ class TestFullRelease(BaseTest):
     def test_filter_multiple_filters(self):
         """Check that if multiple filters are passed they are correctly used
         """
-        full_release = FullRelease(filter_distributions='w,h')
+        full_release = FullRelease(filter_distributions=['w', 'h'])
         full_release.distributions = ['one', 'two', 'three', ]
         with OutputCapture():
             full_release.filter_distros()
 
         self.assertEqual(
             full_release.distributions,
-            ['two', 'three', ]
+            ['three', 'two', ]
         )
 
     def test_check_pending_local_changes_dirty(self):

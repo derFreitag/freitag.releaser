@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from argh import arg
 from argh import ArghParser
 from argh.decorators import named
 from freitag.releaser.changelog import GatherChangelog
@@ -9,10 +10,11 @@ from freitag.releaser.utils import push_cfg_files
 
 
 @named('r')
+@arg('-f', '--filter-distributions', nargs='*')
 def full_release(
     path='src',
     test=False,
-    filter_distributions='',
+    filter_distributions=None,
     debug=False,
     offline=False,
 ):
@@ -25,7 +27,7 @@ def full_release(
     :type test: bool
     :param filter_distributions: only distributions that match the given
       string will be considered to release (multiples can be specified
-      comma-separated)
+      space-separated)
     :type filter_distributions: str
     :param debug: controls how much output is shown to the user
     :type debug: bool

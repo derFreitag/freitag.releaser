@@ -126,23 +126,18 @@ class FullRelease(object):
         logger.debug('\n'.join(self.distributions))
 
     def filter_distros(self):
-        if self.filters == '':
+        if not self.filters:
             return
 
         tmp_list = []
-        # the filter can be of multiple values, comma-separated
-        for f in self.filters.split(','):
+        for f in self.filters:
             tmp_list += [
                 d
                 for d in self.distributions
                 if d.find(f) != -1
             ]
         # keep them sorted
-        self.distributions = [
-            d
-            for d in self.distributions
-            if d in tmp_list
-        ]
+        self.distributions = sorted(tmp_list)
 
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
