@@ -355,7 +355,7 @@ class FullRelease(object):
                 )
             # commit and push the repo
             repo.index.add([path, ])
-            repo.index.commit(message=self.commit_message)
+            repo.index.commit(message=self.commit_message.encode('utf-8'))
             # push the changes
             repo.remote().push()
 

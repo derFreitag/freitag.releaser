@@ -181,7 +181,7 @@ class UpdateDistChangelog(object):
             current_data = changes.read()
 
         with open(changes_path, 'w') as changes:
-            changes.write(history)
+            changes.write(history.encode('utf-8'))
             changes.write('\n')
             changes.write('\n')
             for line in history.split('\n'):
