@@ -5,6 +5,7 @@ from argh.decorators import named
 from freitag.releaser.changelog import GatherChangelog
 from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
+from freitag.releaser.utils import check_connection
 from freitag.releaser.utils import configure_logging
 from freitag.releaser.utils import push_cfg_files
 
@@ -35,6 +36,7 @@ def full_release(
     :type offline: bool
     """
     configure_logging(debug)
+    check_connection()
     release_all = FullRelease(
         path=path,
         test=test,
@@ -77,6 +79,7 @@ def publish_cfg_files(debug=False):
     :type debug: bool
     """
     configure_logging(debug)
+    check_connection()
     push_cfg_files()
 
 

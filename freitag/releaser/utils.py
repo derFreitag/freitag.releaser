@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from freitag.releaser import IGNORE_COMMIT_MESSAGES
 from git import Repo
 from git.exc import GitCommandError
+from paramiko import AutoAddPolicy
 from paramiko import SSHClient
 from scp import SCPClient
 from shutil import rmtree
@@ -114,18 +115,19 @@ def get_compact_git_history(repo, tag):
 def push_cfg_files():
     ssh = SSHClient()
     ssh.load_system_host_keys()
+    ssh.set_missing_host_key_policy(AutoAddPolicy())
 
-    ssh.connect(
-        'docs.freitag-verlag.de',
-        username='service',
-    )
+    user, server, path = check_connection()
+
+    ssh.connect(server, username=user)
 
     with SCPClient(ssh.get_transport()) as scp:
         files = [
             'versions.cfg',
             'buildout.standalone.d/distribution-qa.cfg',
+            'release.cfg',
         ]
-        scp.put(files, remote_path='sphinx')
+        scp.put(files, remote_path=path)
         logger.debug('Files uploaded: ')
         logger.debug('\n'.join(files))
 
@@ -258,3 +260,29 @@ def wrap_sys_argv():
     yield
 
     sys.argv = original_args
+
+
+def check_connection():
+    """Check that a connection string exists
+
+    This is a generic way to get a connection string without having to
+    """
+    user = None
+    server = None
+    path = None
+    try:
+        with open('release.cfg') as config:
+            connection = config.read()
+            if '@' not in connection:
+                raise ValueError('No user/server on release.cfg')
+            user, server = connection.strip().split('@')
+
+            if ':' not in server:
+                raise ValueError('No server/path on release.cfg')
+            server, path = server.split(':')
+
+    except Exception:
+        logger.info('Something went wrong trying to get the connection string')
+        sys.exit(1)
+
+    return user, server, path
