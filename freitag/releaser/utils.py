@@ -124,8 +124,11 @@ def push_cfg_files():
     with SCPClient(ssh.get_transport()) as scp:
         files = [
             'versions.cfg',
-            'buildout.standalone.d/distribution-qa.cfg',
+            'distribution-qa.cfg',
             'release.cfg',
+            'sources.cfg',
+            'qa.cfg',
+            'solr.cfg',
         ]
         scp.put(files, remote_path=path)
         logger.debug('Files uploaded: ')

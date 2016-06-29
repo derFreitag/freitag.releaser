@@ -79,8 +79,8 @@ class FullRelease(object):
         self.offline = offline
         self.filters = filter_distributions
         self.buildout = Buildout(
-            sources_file='develop.cfg',
-            checkouts_file='develop.cfg',
+            sources_file='sources.cfg',
+            checkouts_file='buildout.cfg',
         )
 
         if self.offline and not self.test:
