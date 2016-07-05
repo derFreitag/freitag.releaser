@@ -4,7 +4,6 @@ branch = True
 [report]
 omit =
     */.buildout/eggs/*
-    */test*
     */bin/*
     /opt/*
     /home/travis/virtualenv/*
