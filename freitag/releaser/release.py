@@ -308,7 +308,7 @@ class FullRelease(object):
             changelogs.append('')
 
         # There's no need to run CI when doing releases...
-        ci_skip = ['[ci skip]', ]
+        ci_skip = ['[ci-skip]', ]
 
         self.commit_message = '\n'.join(msg + changelogs + ci_skip)
 
