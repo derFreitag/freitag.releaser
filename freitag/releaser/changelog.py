@@ -34,10 +34,7 @@ class UpdateDistChangelog(object):
             logger.info('{0} does not exist'.format(self.path))
             sys.exit(1)
 
-        changes_path = self.get_changes_path()
-        git_history = self.get_git_history()
-
-        self.write_changes(changes_path, git_history)
+        self.write_changes()
 
     def write_changes(self, changes_path=None, history=None):
         if changes_path is None:
