@@ -24,7 +24,7 @@ before_install:
   - echo "eggs-directory = $HOME/buildout-cache/eggs" >> $HOME/.buildout/default.cfg
   - wget https://launchpad.net/lazr.restfulclient/trunk/0.13.4/+download/lazr.restfulclient-0.13.4.tar.bz2
   - pip install lazr.restfulclient-0.13.4.tar.bz2
-  - pip install -U pip setuptools zc.buildout
+  - pip install -U setuptools==27.3.1 zc.buildout==2.5.3
 install:
   - buildout
 script:
