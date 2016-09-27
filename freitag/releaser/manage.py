@@ -2,7 +2,6 @@
 from argh import arg
 from argh import ArghParser
 from argh.decorators import named
-from freitag.releaser.changelog import GatherChangelog
 from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
 from freitag.releaser.utils import check_connection
@@ -64,17 +63,6 @@ def update_distribution_changelog(path, debug=False):
     changelog()
 
 
-def collect_changelog(debug=False):
-    """Collect changes made on distributions between a commit time frame
-
-    :param debug: controls how much output is shown to the user
-    :type debug: bool
-    """
-    configure_logging(debug)
-    changelog = GatherChangelog()
-    changelog()
-
-
 @named('push')
 def publish_cfg_files(debug=False):
     """Push buildout .cfg files on a remote server
@@ -93,7 +81,6 @@ class Manage(object):
         parser = ArghParser()
         commands = [
             full_release,
-            collect_changelog,
             publish_cfg_files,
             update_distribution_changelog,
         ]
