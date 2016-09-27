@@ -73,11 +73,13 @@ class FullRelease(object):
         test=False,
         filter_distributions='',
         offline=False,
+        branch='master',
     ):
         self.path = path
         self.test = test
         self.offline = offline
         self.filters = filter_distributions
+        self.branch = branch
         self.buildout = Buildout(
             sources_file='sources.cfg',
             checkouts_file='buildout.cfg',
@@ -156,7 +158,7 @@ class FullRelease(object):
             if repo.is_dirty():
                 dirty = True
 
-            if not is_branch_synced(repo):
+            if not is_branch_synced(repo, branch=self.branch):
                 local_changes = True
 
             if dirty or local_changes:
@@ -192,7 +194,7 @@ class FullRelease(object):
             repo = Repo(distribution_path)
             remote = repo.remote()
 
-            latest_tag = get_latest_tag(repo, 'master')
+            latest_tag = get_latest_tag(repo, self.branch)
             if latest_tag not in repo.tags:
                 # if there is no tag it definitely needs a release
                 need_a_release.append(distribution_path)
@@ -204,9 +206,9 @@ class FullRelease(object):
             tag = repo.tags[latest_tag]
             tag_sha = tag.commit.hexsha
 
-            branch_sha = remote.refs['master'].commit.hexsha
+            branch_sha = remote.refs[self.branch].commit.hexsha
             if tag_sha != branch_sha:
-                # master is ahead of the last tag: needs a release
+                # self.branch is ahead of the last tag: needs a release
                 need_a_release.append(distribution_path)
 
         # if nothing is about to be released, do not filter the distributions
@@ -232,6 +234,7 @@ class FullRelease(object):
             git_changes = get_compact_git_history(
                 repo,
                 self.last_tags[dist_name],
+                self.branch,
             )
             cleaned_git_changes = filter_git_history(git_changes)
 
@@ -290,7 +293,7 @@ class FullRelease(object):
             self.buildout.set_version(dist_name, new_version)
 
             # update the local repository
-            update_branch(repo, 'master')
+            update_branch(repo, self.branch)
 
     def _create_commit_message(self):
         msg = ['New releases:', '', ]

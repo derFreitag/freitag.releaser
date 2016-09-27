@@ -55,13 +55,13 @@ def update_branch(repo, branch):
 
 
 def is_branch_synced(repo, branch='master'):
-    """Check if master branch on the given repository has local commits
+    """Check if given branch on the given repository has local commits
 
     :param repo: the repository that will be used to check the branches
     :type repo: git.Repo
     :param branch: the branch that needs to be checked if it is synced
     :type branch: str
-    :return: whether the given repo's master branch is in sync with upstream
+    :return: whether the given repo's branch is in sync with upstream
     :rtype: bool
     """
     # get new code, if any
@@ -92,21 +92,23 @@ def is_branch_synced(repo, branch='master'):
     return True
 
 
-def get_compact_git_history(repo, tag):
-    """Gets all the commits between the tag and master
+def get_compact_git_history(repo, tag, base_branch):
+    """Gets all the commits between the given tag and branch
 
     :param repo: the repository that will be used to get the history
     :type repo: git.Repo
     :param tag: the tag that will be used as a base from where to get commits
     :type tag: str
-    :return: whether the given repo's master branch is in sync with upstream
+    :param base_branch: the branch up to where commits are gathered
+    :type base_branch: str
+    :return: whether the given repo's branch is in sync with upstream
     :rtype: str
     """
     try:
         return repo.git.log(
             '--oneline',
             '--graph',
-            '{0}~1..master'.format(tag)
+            '{0}~1..{1}'.format(tag, base_branch)
         )
     except GitCommandError:
         return ''
@@ -173,12 +175,12 @@ def get_latest_tag(repo, branch):
       default git remote
     """
     remote = repo.remote()
-    latest_master_commit = remote.refs[branch].commit.hexsha
+    latest_branch_commit = remote.refs[branch].commit.hexsha
     try:
         latest_tag = repo.git.describe(
             '--abbrev=0',
             '--tags',
-            latest_master_commit
+            latest_branch_commit
         )
     except GitCommandError:
         # get the second to last commit

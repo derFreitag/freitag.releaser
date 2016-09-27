@@ -18,6 +18,7 @@ def full_release(
     filter_distributions=None,
     debug=False,
     offline=False,
+    branch='master',
 ):
     """Release all distribution found on src/
 
@@ -34,6 +35,8 @@ def full_release(
     :type debug: bool
     :param offline: controls if network will be used (turns test on as well)
     :type offline: bool
+    :param branch: which branch should be used as a base for comparsion
+    :type branch: string
     """
     configure_logging(debug)
     check_connection()
@@ -42,6 +45,7 @@ def full_release(
         test=test,
         filter_distributions=filter_distributions,
         offline=offline,
+        branch=branch,
     )
     release_all()
 
