@@ -26,8 +26,9 @@ class UpdateDistChangelog(object):
     #: system path where the distribution should be found
     path = None
 
-    def __init__(self, path):
+    def __init__(self, path, branch='master'):
         self.path = path
+        self.branch = branch
 
     def __call__(self):
         if not os.path.exists(self.path):
@@ -68,8 +69,8 @@ class UpdateDistChangelog(object):
 
     def get_git_history(self):
         repo = Repo(self.path)
-        latest_tag = get_latest_tag(repo, 'master')
-        history = get_compact_git_history(repo, latest_tag)
+        latest_tag = get_latest_tag(repo, self.branch)
+        history = get_compact_git_history(repo, latest_tag, self.branch)
         cleaned_git_changes = filter_git_history(history)
         logger.debug(cleaned_git_changes)
 

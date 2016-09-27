@@ -59,7 +59,7 @@ def update_distribution_changelog(path, debug=False):
     :type debug: bool
     """
     configure_logging(debug)
-    changelog = UpdateDistChangelog(path)
+    changelog = UpdateDistChangelog(path, branch='master')
     changelog()
 
 

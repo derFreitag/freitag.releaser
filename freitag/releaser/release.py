@@ -263,7 +263,10 @@ class FullRelease(object):
             logger.info(''.join(changes))
             msg = '{0}: write the above git history on CHANGES.rst?'
             if self.test and ask(msg.format(dist_name)):
-                changelog = UpdateDistChangelog(distribution_path)
+                changelog = UpdateDistChangelog(
+                    distribution_path,
+                    branch=self.branch,
+                )
                 changelog.write_changes(history=cleaned_git_changes)
             elif not self.test and \
                     ask('Is the change log ready for release?'):
