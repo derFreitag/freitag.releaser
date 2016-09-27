@@ -289,7 +289,7 @@ class FullRelease(object):
             dist_name = distribution_path.split('/')[-1]
             repo = Repo(distribution_path)
 
-            release = ReleaseDistribution(repo.working_tree_dir)
+            release = ReleaseDistribution(repo.working_tree_dir, self.branch)
             new_version = release()
             self.versions[dist_name] = new_version
 
@@ -400,8 +400,9 @@ class ReleaseDistribution(object):
     #: parent repository which will be updated with the new release
     parent_repo = None
 
-    def __init__(self, path):
+    def __init__(self, path, branch):
         self.path = path
+        self.branch = branch
         self.name = path.split('/')[-1]
 
     def __call__(self):
@@ -415,12 +416,13 @@ class ReleaseDistribution(object):
         self.parent_repo = Repo(os.path.curdir)
         current_branch = self.parent_repo.active_branch.name
 
-        if current_branch not in ('master', '4.x'):
-            text = '{0} is not on master or 4.x branch, but on {1}'
+        if current_branch != self.branch:
+            text = '{0} is not on {1} or 4.x branch, but on {2}'
             raise ValueError(
                 text.format(
                     DISTRIBUTION.format('zope repository'),
-                    BRANCH.format(current_branch)
+                    BRANCH.format(self.branch),
+                    BRANCH.format(current_branch),
                 )
             )
 
