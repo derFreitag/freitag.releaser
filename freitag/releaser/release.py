@@ -415,8 +415,8 @@ class ReleaseDistribution(object):
         self.parent_repo = Repo(os.path.curdir)
         current_branch = self.parent_repo.active_branch.name
 
-        if current_branch != 'master':
-            text = '{0} is not on master branch, but on {1}'
+        if current_branch not in ('master', '4.x'):
+            text = '{0} is not on master or 4.x branch, but on {1}'
             raise ValueError(
                 text.format(
                     DISTRIBUTION.format('zope repository'),
