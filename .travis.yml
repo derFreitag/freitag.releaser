@@ -23,7 +23,8 @@ before_install:
   - echo "[buildout]" > $HOME/.buildout/default.cfg
   - echo "download-cache = $HOME/buildout-cache/downloads" >> $HOME/.buildout/default.cfg
   - echo "eggs-directory = $HOME/buildout-cache/eggs" >> $HOME/.buildout/default.cfg
-  - pip install launchpadlib
+  - wget https://launchpad.net/lazr.restfulclient/trunk/0.13.4/+download/lazr.restfulclient-0.13.4.tar.bz2
+  - pip install lazr.restfulclient-0.13.4.tar.bz2
   - pip install -U pip setuptools zc.buildout
 install:
   - buildout
