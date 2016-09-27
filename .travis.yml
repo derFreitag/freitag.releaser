@@ -23,9 +23,9 @@ before_install:
   - echo "[buildout]" > $HOME/.buildout/default.cfg
   - echo "download-cache = $HOME/buildout-cache/downloads" >> $HOME/.buildout/default.cfg
   - echo "eggs-directory = $HOME/buildout-cache/eggs" >> $HOME/.buildout/default.cfg
+  - pip install -U pip setuptools zc.buildout
 install:
-  - python bootstrap.py
-  - bin/buildout
+  - buildout
 script:
   - bin/code-analysis
   - bin/test
