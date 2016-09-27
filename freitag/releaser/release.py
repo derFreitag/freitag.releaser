@@ -400,7 +400,7 @@ class ReleaseDistribution(object):
     #: parent repository which will be updated with the new release
     parent_repo = None
 
-    def __init__(self, path, branch):
+    def __init__(self, path, branch='master'):
         self.path = path
         self.branch = branch
         self.name = path.split('/')[-1]
