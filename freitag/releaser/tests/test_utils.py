@@ -166,7 +166,8 @@ class TestUtils(unittest.TestCase):
 
         git_history = get_compact_git_history(
             self.user_repo,
-            tag_name
+            tag_name,
+            'master',
         )
         self.assertIn(
             'Forth commit',

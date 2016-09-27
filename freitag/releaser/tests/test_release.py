@@ -877,7 +877,7 @@ class TestFullRelease(BaseTest):
         shutil.rmtree(tmp_batou_repo.working_dir)
 
         with wrap_folder(buildout_path):
-            with open('develop.cfg', 'w') as versions:
+            with open('sources.cfg', 'w') as versions:
                 versions.write('[sources]\n')
                 versions.write(
                     'deployment = git file://{0}'.format(
