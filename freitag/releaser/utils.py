@@ -135,18 +135,20 @@ def push_cfg_files():
             'qa.cfg',
             'solr.cfg',
         ]
+        remote_files = []
         for filename in files:
             remote_filename = filename
             if current_branch == '4.x':
                 parts = filename.split('.')
                 parts[0] += '4'
                 remote_filename = '.'.join(parts)
+            remote_files.append(remote_filename)
             scp.put(
                 filename,
                 remote_path='{0}/{1}'.format(path, remote_filename)
             )
         logger.debug('Files uploaded: ')
-        logger.debug('\n'.join(files))
+        logger.debug('\n'.join(remote_files))
 
 
 def filter_git_history(changes):
