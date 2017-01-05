@@ -1,8 +1,3 @@
-recursive-include freitag *
-recursive-include doc *
-include *
+graft freitag
+graft doc
 exclude .installed.cfg
-global-exclude *.pyc
-include ez_setup.py
-exclude *.egg
-recursive-exclude src .DS_Store
