@@ -194,6 +194,12 @@ class FullRelease(object):
             repo = Repo(distribution_path)
             remote = repo.remote()
 
+            if not self.test and 'theme' in dist_name:
+                msg = 'You are about to release "{0}", ' \
+                      'did you run yarn? You might want to quit and run it.'
+                if not ask(msg.format(dist_name)):
+                    continue
+
             latest_tag = get_latest_tag(repo, self.branch)
             if latest_tag not in repo.tags:
                 # if there is no tag it definitely needs a release
