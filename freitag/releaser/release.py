@@ -103,6 +103,7 @@ class FullRelease(object):
         self.ask_what_to_release()
 
         if not self.test and len(self.distributions) > 0:
+            self.check_branches()
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
@@ -278,6 +279,44 @@ class FullRelease(object):
         logger.debug('Distributions: ')
         logger.debug('\n'.join(self.distributions))
 
+    def check_branches(self):
+        """Check that all distributions to be released, and the parent
+        repository, are on the correct branch
+        """
+        logger.info('')
+        msg = 'Check branches'
+        logger.info(msg)
+        logger.info('-' * len(msg))
+
+        parent_repo = Repo(os.path.curdir)
+        current_branch = parent_repo.active_branch.name
+
+        if current_branch != self.branch:
+            text = '{0} is not on {1} branch, but on {2}'
+            raise ValueError(
+                text.format(
+                    DISTRIBUTION.format('zope repository'),
+                    BRANCH.format(self.branch),
+                    BRANCH.format(current_branch),
+                )
+            )
+
+        for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
+            repo = Repo(distribution_path)
+            current_branch = repo.active_branch.name
+
+            if current_branch != self.branch:
+                text = '{0} is not on {1} branch, but on {2}'
+                raise ValueError(
+                    text.format(
+                        DISTRIBUTION.format(
+                            '{0} repository'.format(dist_name)),
+                        BRANCH.format(self.branch),
+                        BRANCH.format(current_branch),
+                    )
+                )
+
     def release_all(self):
         """Release all distributions"""
         logger.info('')
@@ -406,25 +445,10 @@ class ReleaseDistribution(object):
         self.name = path.split('/')[-1]
 
     def __call__(self):
-        self._check_parent_branch()
         self._check_distribution_exists()
         self._zest_releaser()
 
         return self.get_version()
-
-    def _check_parent_branch(self):
-        self.parent_repo = Repo(os.path.curdir)
-        current_branch = self.parent_repo.active_branch.name
-
-        if current_branch != self.branch:
-            text = '{0} is not on {1} or 4.x branch, but on {2}'
-            raise ValueError(
-                text.format(
-                    DISTRIBUTION.format('zope repository'),
-                    BRANCH.format(self.branch),
-                    BRANCH.format(current_branch),
-                )
-            )
 
     def _check_distribution_exists(self):
         """Check that the folder exists"""
