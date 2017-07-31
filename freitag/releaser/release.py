@@ -104,6 +104,7 @@ class FullRelease(object):
 
         if not self.test and len(self.distributions) > 0:
             self.check_branches()
+            self.report_whats_to_release()
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
@@ -316,6 +317,16 @@ class FullRelease(object):
                         BRANCH.format(current_branch),
                     )
                 )
+
+    def report_whats_to_release(self):
+        """Report which distributions are about to be released"""
+        logger.info('')
+        msg = 'Distributions about to release:'
+        logger.info(msg)
+        logger.info('-' * len(msg))
+        for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
+            logger.info('- {0}'.format(dist_name))
 
     def release_all(self):
         """Release all distributions"""
