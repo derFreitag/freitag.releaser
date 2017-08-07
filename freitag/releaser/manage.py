@@ -2,7 +2,6 @@
 from argh import arg
 from argh import ArghParser
 from argh.decorators import named
-from freitag.releaser.changelog import UpdateDistChangelog
 from freitag.releaser.release import FullRelease
 from freitag.releaser.utils import check_connection
 from freitag.releaser.utils import configure_logging
@@ -49,20 +48,6 @@ def full_release(
     release_all()
 
 
-@named('changelog')
-def update_distribution_changelog(path, debug=False):
-    """Update CHANGES.rst with the git changelog
-
-    :param path: filesystem path of the distribution about to release
-    :type path: str
-    :param debug: controls how much output is shown to the user
-    :type debug: bool
-    """
-    configure_logging(debug)
-    changelog = UpdateDistChangelog(path, branch='master')
-    changelog()
-
-
 @named('push')
 def publish_cfg_files(debug=False):
     """Push buildout .cfg files on a remote server
@@ -82,7 +67,6 @@ class Manage(object):
         commands = [
             full_release,
             publish_cfg_files,
-            update_distribution_changelog,
         ]
 
         parser.add_commands(commands)
