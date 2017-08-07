@@ -98,6 +98,7 @@ class FullRelease(object):
         self.get_all_distributions()
         self.filter_distros()
         if not self.offline:
+            self.check_parent_repo_changes()
             self.check_pending_local_changes()
         self.check_changes_to_be_released()
         self.ask_what_to_release()
@@ -142,6 +143,31 @@ class FullRelease(object):
             ]
         # keep them sorted
         self.distributions = sorted(tmp_list)
+
+    def check_parent_repo_changes(self):
+        """Check that the parent repository does not have local or upstream
+        changes
+        """
+        logger.info('')
+        msg = 'Check parent repository'
+        logger.info(msg)
+        logger.info('-' * len(msg))
+
+        repo = Repo(os.path.curdir)
+
+        dirty = False
+        local_changes = False
+
+        if repo.is_dirty():
+            dirty = True
+
+        if not is_branch_synced(repo, branch=self.branch):
+            local_changes = True
+
+        if dirty or local_changes:
+            msg = 'zope has non-committed/unpushed changes, ' \
+                  'no releases can be made on that state.'
+            raise ValueError(msg)
 
     def check_pending_local_changes(self):
         """Check that the distributions do not have local changes"""
