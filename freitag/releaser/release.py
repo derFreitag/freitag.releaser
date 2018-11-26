@@ -279,15 +279,15 @@ class FullRelease(object):
 
             logger.info(DISTRIBUTION.format(distribution_path))
 
-            change_log_path = '{0}/CHANGES.rst'.format(
+            changes_snippets_folder = '{0}/news'.format(
                 repo.working_tree_dir
             )
             try:
-                changes = self._grab_changelog(change_log_path)
+                changes = self._grab_changelog(changes_snippets_folder)
             except IOError:
                 logger.debug('Changelog not found, skipping.')
                 continue
-            self.changelogs[dist_name] = changes[2:]
+            self.changelogs[dist_name] = changes
 
             # nice to have: show them side-by-side
             logger.info('')
@@ -448,21 +448,18 @@ class FullRelease(object):
             repo.remote().push()
 
     @staticmethod
-    def _grab_changelog(changelog_path):
-        unreleased_regex = re.compile(r' \(unreleased\)$')
-        release = re.compile(r' \(\d+-\d+-\d+\)$')
+    def _grab_changelog(news_folder):
+        header = '\n- {1} https://gitlab.com/der-freitag/zope/issues/{0}\n'
         lines = []
-        with open(changelog_path) as changelog:
-            on_changelog = False
-            for line in changelog:
-                if unreleased_regex.search(line):
-                    on_changelog = True
+        for news_filename in os.listdir(news_folder):
+            if news_filename == '.gitkeep':
+                continue
+            news_path = os.sep.join([news_folder, news_filename])
+            lines.append(header.format(*news_filename.split('.')))
+            with open(news_path) as news_file:
+                for line in news_file:
+                    lines.append('  {0}'.format(line))
 
-                if release.search(line):
-                    break
-
-                if on_changelog:
-                    lines.append(line)
         return lines
 
 
