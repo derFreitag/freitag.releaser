@@ -151,6 +151,17 @@ def push_cfg_files():
         logger.debug('\n'.join(remote_files))
 
 
+def push_folder_to_server(folder, server_data):
+    ssh = SSHClient()
+    ssh.load_system_host_keys()
+    ssh.set_missing_host_key_policy(AutoAddPolicy())
+    user, server, server_path = server_data
+    ssh.connect(server, username=user)
+
+    with SCPClient(ssh.get_transport()) as scp:
+        scp.put(folder, remote_path=server_path, recursive=True)
+
+
 def filter_git_history(changes):
     """Removes administrative/boilerplate commits from the given git history.
 
@@ -284,24 +295,42 @@ def wrap_sys_argv():
 def check_connection():
     """Check that a connection string exists
 
-    This is a generic way to get a connection string without having to
+    This is a generic way to get a connection string without having to define it
+    here in the source code.
     """
-    user = None
-    server = None
-    path = None
-    try:
-        with open('release.cfg') as config:
-            connection = config.read()
-            if '@' not in connection:
-                raise ValueError('No user/server on release.cfg')
-            user, server = connection.strip().split('@')
+    return _check_server_file('release.cfg',)
 
-            if ':' not in server:
-                raise ValueError('No server/path on release.cfg')
-            server, path = server.split(':')
+
+def check_delivery_servers():
+    return _check_server_file('release_delivery.cfg', multiple=True)
+
+
+def _check_server_file(filename, multiple=False):
+    servers = []
+    try:
+        with open(filename) as config:
+            connection = config.read()
+            if multiple:
+                for line in connection.split('\n'):
+                    if line:
+                        servers.append(_check_connection_line(line, filename))
+
+            else:
+                servers = _check_connection_line(connection, filename)
 
     except Exception:
         logger.info('Something went wrong trying to get the connection string')
         sys.exit(1)
 
+    return servers
+
+
+def _check_connection_line(line, filename):
+    if '@' not in line:
+        raise ValueError('No user/server on {0}'.format(filename))
+    user, server = line.strip().split('@')
+
+    if ':' not in server:
+        raise ValueError('No server/path on {0}'.format(filename))
+    server, path = server.split(':')
     return user, server, path

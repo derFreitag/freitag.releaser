@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.changelog import UpdateDistChangelog
+from freitag.releaser.utils import check_delivery_servers
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
+from freitag.releaser.utils import push_folder_to_server
 from freitag.releaser.utils import update_branch
 from freitag.releaser.utils import wrap_folder
 from freitag.releaser.utils import wrap_sys_argv
@@ -17,7 +19,7 @@ from zest.releaser.utils import ask
 
 import logging
 import os
-import re
+import subprocess
 import sys
 
 
@@ -109,6 +111,7 @@ class FullRelease(object):
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
+            self.assets()
             # push cfg files so that jenkins gets them already
             push_cfg_files()
             self.update_batou()
@@ -411,6 +414,54 @@ class FullRelease(object):
         repo.git.commit(message=self.commit_message)
         # push the changes
         repo.remote().push()
+
+    def assets(self):
+        """Build freitag.theme assets and send them to delivery VMs"""
+        theme_repo = self._check_theme_distribution()
+        if theme_repo:
+            self._build_and_send_assets(theme_repo)
+
+    def _check_theme_distribution(self):
+        if 'freitag.theme' not in self.distributions:
+            logger.info(
+                'Frontend assets are not being pushed to delivery VMs, '
+                'as freitag.theme is not being released'
+            )
+            return
+
+        theme_repo = self.buildout.sources.get('freitag.theme')
+        if theme_repo is None:
+            logger.info(
+                'No freitag.theme repository sources found!'
+                '\n'
+                'Assets can not be built!'
+            )
+            return
+        return theme_repo
+
+    def _build_and_send_assets(self, theme_repo):
+        logger.info('About to clone freitag.theme, it takes a while...')
+        with git_repo(theme_repo, shallow=True) as repo:
+            logger.info('Cloned!')
+            self._build_assets(repo.working_tree_dir)
+            self._send_assets(repo.working_tree_dir)
+
+    @staticmethod
+    def _build_assets(path):
+        build_path = '{0}/src/freitag/theme/from_freitag'.format(path)
+        yarn = ['yarn', '-s', '--no-progress', ]
+        subprocess.Popen(
+            yarn + ['--frozen-lockfile', '--non-interactive'], cwd=build_path,
+        ).communicate()
+        subprocess.Popen(yarn + ['release'], cwd=build_path).communicate()
+        logger.info('Assets build!')
+
+    @staticmethod
+    def _send_assets(path):
+        static_path = '{0}/src/freitag/theme/static'.format(path)
+        for server in check_delivery_servers():
+            logger.info('About to push assets to {0}'.format(server[1]))
+            push_folder_to_server(static_path, server)
 
     def update_batou(self):
         """Update the version pins on batou as well"""

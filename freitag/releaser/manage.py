@@ -4,6 +4,7 @@ from argh import ArghParser
 from argh.decorators import named
 from freitag.releaser.release import FullRelease
 from freitag.releaser.utils import check_connection
+from freitag.releaser.utils import check_delivery_servers
 from freitag.releaser.utils import configure_logging
 from freitag.releaser.utils import push_cfg_files
 
@@ -60,6 +61,20 @@ def publish_cfg_files(debug=False):
     push_cfg_files()
 
 
+@named('assets')
+def publish_assets(debug=False):
+    """Push freitag.theme assets to delivery servers
+
+    :param debug: controls how much output is shown to the user
+    :type debug: bool
+    """
+    configure_logging(debug)
+    check_delivery_servers()
+    release = FullRelease(path='src')
+    release.distributions = ['freitag.theme', ]
+    release.assets()
+
+
 class Manage(object):
 
     def __call__(self, **kwargs):
@@ -67,6 +82,7 @@ class Manage(object):
         commands = [
             full_release,
             publish_cfg_files,
+            publish_assets,
         ]
 
         parser.add_commands(commands)
