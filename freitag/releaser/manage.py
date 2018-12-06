@@ -71,7 +71,7 @@ def publish_assets(debug=False):
     configure_logging(debug)
     check_delivery_servers()
     release = FullRelease(path='src')
-    release.distributions = ['freitag.theme', ]
+    release.distributions = ['src/freitag.theme', ]
     release.assets()
 
 

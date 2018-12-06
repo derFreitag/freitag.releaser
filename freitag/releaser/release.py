@@ -422,7 +422,8 @@ class FullRelease(object):
             self._build_and_send_assets(theme_repo)
 
     def _check_theme_distribution(self):
-        if 'freitag.theme' not in self.distributions:
+        theme = '/'.join([self.path, 'freitag.theme'])
+        if theme not in self.distributions:
             logger.info(
                 'Frontend assets are not being pushed to delivery VMs, '
                 'as freitag.theme is not being released'
