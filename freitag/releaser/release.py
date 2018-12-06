@@ -293,9 +293,12 @@ class FullRelease(object):
             self.changelogs[dist_name] = changes
 
             # nice to have: show them side-by-side
+            logger.info('git changelog')
             logger.info('')
             logger.info(cleaned_git_changes)
             logger.info('')
+            logger.info('')
+            logger.info('news entries')
             logger.info('')
             logger.info(''.join(changes))
             msg = '{0}: write the above git history on CHANGES.rst?'
