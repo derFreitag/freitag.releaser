@@ -287,7 +287,7 @@ class FullRelease(object):
             )
             try:
                 changes = self._grab_changelog(changes_snippets_folder)
-            except IOError:
+            except (IOError, OSError):
                 logger.debug('Changelog not found, skipping.')
                 continue
             self.changelogs[dist_name] = changes
