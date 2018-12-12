@@ -100,6 +100,7 @@ class FullRelease(object):
         self.get_all_distributions()
         self.filter_distros()
         if not self.offline:
+            self.check_tooling()
             self.check_parent_repo_changes()
             self.check_pending_local_changes()
         self.check_changes_to_be_released()
@@ -146,6 +147,27 @@ class FullRelease(object):
             ]
         # keep them sorted
         self.distributions = sorted(tmp_list)
+
+    def check_tooling(self):
+        """Ensure that the tools needed are available
+
+        Tools to check:
+        - towncrier: without it the news/ folder would not be used
+        """
+        logger.info('')
+        msg = 'Check tools'
+        logger.info(msg)
+        logger.info('-' * len(msg))
+
+        # that's how zestreleaser.towncrier searches for towncrier
+        import distutils
+        path = distutils.spawn.find_executable('towncrier')
+        if not path:
+            raise ValueError(
+                'towncrier is not available, '
+                'activate the virtualenv and/or '
+                'install what is on requirements.txt'
+            )
 
     def check_parent_repo_changes(self):
         """Check that the parent repository does not have local or upstream
