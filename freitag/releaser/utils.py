@@ -9,6 +9,7 @@ from scp import SCPClient
 from shutil import rmtree
 from tempfile import mkdtemp
 
+import ConfigParser
 import logging
 import os
 import sys
@@ -119,7 +120,7 @@ def push_cfg_files():
     ssh.load_system_host_keys()
     ssh.set_missing_host_key_policy(AutoAddPolicy())
 
-    user, server, path = check_connection()
+    user, server, path = get_servers('eggs')[0]
 
     ssh.connect(server, username=user)
 
@@ -292,45 +293,33 @@ def wrap_sys_argv():
     sys.argv = original_args
 
 
-def check_connection():
-    """Check that a connection string exists
+def get_servers(section):
+    """Get the server details for the given section
 
     This is a generic way to get a connection string without having to define it
     here in the source code.
     """
-    return _check_server_file('release.cfg',)
-
-
-def check_delivery_servers():
-    return _check_server_file('release_delivery.cfg', multiple=True)
-
-
-def _check_server_file(filename, multiple=False):
     servers = []
     try:
-        with open(filename) as config:
-            connection = config.read()
-            if multiple:
-                for line in connection.split('\n'):
-                    if line:
-                        servers.append(_check_connection_line(line, filename))
-
-            else:
-                servers = _check_connection_line(connection, filename)
-
+        with open('release.cfg') as config_file:
+            servers_config = ConfigParser.SafeConfigParser()
+            servers_config.readfp(config_file)
+            connection_strings = servers_config.get(section, 'servers')
+            for connection in connection_strings.strip().split('\n'):
+                servers.append(_server_details(connection))
     except Exception:
         logger.info('Something went wrong trying to get the connection string')
-        sys.exit(1)
+        raise
 
     return servers
 
 
-def _check_connection_line(line, filename):
+def _server_details(line):
     if '@' not in line:
-        raise ValueError('No user/server on {0}'.format(filename))
+        raise ValueError('No user/server on {0}'.format(line))
     user, server = line.strip().split('@')
 
     if ':' not in server:
-        raise ValueError('No server/path on {0}'.format(filename))
+        raise ValueError('No server/path on {0}'.format(line))
     server, path = server.split(':')
     return user, server, path

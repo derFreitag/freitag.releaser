@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from freitag.releaser.changelog import UpdateDistChangelog
-from freitag.releaser.utils import check_delivery_servers
+from freitag.releaser.utils import get_servers
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
@@ -485,7 +485,7 @@ class FullRelease(object):
     @staticmethod
     def _send_assets(path):
         static_path = '{0}/src/freitag/theme/static'.format(path)
-        for server in check_delivery_servers():
+        for server in get_servers('assets'):
             logger.info('About to push assets to {0}'.format(server[1]))
             push_folder_to_server(static_path, server)
 

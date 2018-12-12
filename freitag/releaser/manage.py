@@ -3,9 +3,8 @@ from argh import arg
 from argh import ArghParser
 from argh.decorators import named
 from freitag.releaser.release import FullRelease
-from freitag.releaser.utils import check_connection
-from freitag.releaser.utils import check_delivery_servers
 from freitag.releaser.utils import configure_logging
+from freitag.releaser.utils import get_servers
 from freitag.releaser.utils import push_cfg_files
 
 
@@ -38,7 +37,7 @@ def full_release(
     :type branch: string
     """
     configure_logging(debug)
-    check_connection()
+    get_servers('eggs')
     release_all = FullRelease(
         path=path,
         test=test,
@@ -57,7 +56,7 @@ def publish_cfg_files(debug=False):
     :type debug: bool
     """
     configure_logging(debug)
-    check_connection()
+    get_servers('eggs')
     push_cfg_files()
 
 
@@ -69,7 +68,7 @@ def publish_assets(debug=False):
     :type debug: bool
     """
     configure_logging(debug)
-    check_delivery_servers()
+    get_servers('assets')
     release = FullRelease(path='src')
     release.distributions = ['src/freitag.theme', ]
     release.assets()
