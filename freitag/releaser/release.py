@@ -467,7 +467,7 @@ class FullRelease(object):
 
     def _build_and_send_assets(self, theme_repo):
         logger.info('About to clone freitag.theme, it takes a while...')
-        with git_repo(theme_repo, shallow=True) as repo:
+        with git_repo(theme_repo, shallow=True, depth=1) as repo:
             logger.info('Cloned!')
             self._build_assets(repo.working_tree_dir)
             self._send_assets(repo.working_tree_dir)
