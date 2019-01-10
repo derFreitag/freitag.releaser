@@ -526,13 +526,23 @@ class FullRelease(object):
 
     @staticmethod
     def _grab_changelog(news_folder):
+        valid_suffixes = ('bugfix', 'feature', 'breaking')
         header = '\n- {1} https://gitlab.com/der-freitag/zope/issues/{0}\n'
         lines = []
         for news_filename in os.listdir(news_folder):
             if news_filename == '.gitkeep':
                 continue
             news_path = os.sep.join([news_folder, news_filename])
-            lines.append(header.format(*news_filename.split('.')))
+            issue, suffix = news_filename.split('.')
+            if suffix not in valid_suffixes:
+                raise ValueError(
+                    '{0} on "{1}" is not valid. Valid suffixes are: {2}'.format(
+                        suffix,
+                        news_path,
+                        valid_suffixes,
+                    )
+                )
+            lines.append(header.format(suffix, issue))
             with open(news_path) as news_file:
                 for line in news_file:
                     lines.append('  {0}'.format(line))
