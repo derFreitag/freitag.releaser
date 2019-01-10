@@ -533,7 +533,7 @@ class FullRelease(object):
                 continue
             news_path = os.sep.join([news_folder, news_filename])
             issue, suffix = news_filename.split('.')
-            lines.append(header.format(suffix, issue))
+            lines.append(header.format(issue, suffix))
             with open(news_path) as news_file:
                 for line in news_file:
                     lines.append('  {0}'.format(line))
