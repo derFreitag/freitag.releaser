@@ -203,7 +203,7 @@ class FullRelease(object):
         clean_distributions = []
         for index, distribution_path in enumerate(self.distributions):
             # nice to have: add some sort of progress bar like plone.releaser
-            logger.debug(
+            logger.info(
                 '[%i/%i] Checking %s',
                 index,
                 len(self.distributions),
