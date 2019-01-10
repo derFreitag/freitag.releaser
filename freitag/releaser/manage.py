@@ -7,6 +7,8 @@ from freitag.releaser.utils import configure_logging
 from freitag.releaser.utils import get_servers
 from freitag.releaser.utils import push_cfg_files
 
+import os
+
 
 @named('r')
 @arg('-f', '--filter-distributions', nargs='*')
@@ -74,6 +76,20 @@ def publish_assets(debug=False):
     release.assets()
 
 
+@named('news')
+def check_newsentries(debug=False):
+    """Verify that all news entries are fine
+
+    :param debug: controls how much output is shown to the user
+    :type debug: bool
+    """
+    configure_logging(debug)
+    release = FullRelease(path='src')
+    release.get_all_distributions()
+    for distribution in release.distributions:
+        release.verify_newsentries(os.path.join(distribution, 'news'))
+
+
 class Manage(object):
 
     def __call__(self, **kwargs):
@@ -82,6 +98,7 @@ class Manage(object):
             full_release,
             publish_cfg_files,
             publish_assets,
+            check_newsentries,
         ]
 
         parser.add_commands(commands)
