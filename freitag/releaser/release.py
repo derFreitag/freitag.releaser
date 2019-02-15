@@ -112,10 +112,11 @@ class FullRelease(object):
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
-            self.assets()
             # push cfg files so that jenkins gets them already
             push_cfg_files()
             self.update_batou()
+            # push assets to delivery servers
+            self.assets()
 
     def get_all_distributions(self):
         """Get all distributions that are found in self.path"""
