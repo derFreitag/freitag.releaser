@@ -202,7 +202,7 @@ class FullRelease(object):
         logger.info(msg)
         logger.info('-' * len(msg))
         clean_distributions = []
-        for index, distribution_path in enumerate(self.distributions):
+        for index, distribution_path in enumerate(self.distributions, start=1):
             # nice to have: add some sort of progress bar like plone.releaser
             logger.info(
                 '[%i/%i] Checking %s',
