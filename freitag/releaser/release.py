@@ -396,7 +396,7 @@ class FullRelease(object):
         logger.info(msg)
         logger.info('-' * len(msg))
         for distribution_path in self.distributions:
-            logger.info(DISTRIBUTION.format(distribution_path))
+            logger.info('\n\n{0}'.format(DISTRIBUTION.format(distribution_path)))
             dist_name = distribution_path.split('/')[-1]
             repo = Repo(distribution_path)
 
