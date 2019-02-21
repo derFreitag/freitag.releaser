@@ -19,6 +19,7 @@ from zest.releaser.utils import ask
 
 import logging
 import os
+import re
 import subprocess
 import sys
 
@@ -27,6 +28,8 @@ logger = logging.getLogger(__name__)
 
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
+
+NEWS_ENTRY_FILENAME_RE = re.compile(r'(\d+).(\w+)(.\d)*')
 
 
 class FullRelease(object):
@@ -526,14 +529,11 @@ class FullRelease(object):
             repo.remote().push()
 
     def _grab_changelog(self, news_folder):
-        self.verify_newsentries(news_folder)
+        entries = self.verify_newsentries(news_folder)
         header = '\n- {1} https://gitlab.com/der-freitag/zope/issues/{0}\n'
         lines = []
-        for news_filename in os.listdir(news_folder):
-            if news_filename == '.gitkeep':
-                continue
+        for suffix, issue, news_filename in entries:
             news_path = os.sep.join([news_folder, news_filename])
-            issue, suffix = news_filename.split('.')
             lines.append(header.format(issue, suffix))
             with open(news_path) as news_file:
                 for line in news_file:
@@ -542,23 +542,28 @@ class FullRelease(object):
         return lines
 
     def verify_newsentries(self, news_folder):
+        valid_entries = []
         valid_suffixes = ('bugfix', 'feature', 'breaking')
         try:
             for news_filename in os.listdir(news_folder):
                 if news_filename == '.gitkeep':
                     continue
                 news_path = os.sep.join([news_folder, news_filename])
-                issue, suffix = news_filename.split('.')
-                if suffix not in valid_suffixes:
-                    raise ValueError(
-                        '{0} on "{1}" is not valid. Valid suffixes are: {2}'.format(
-                            suffix,
-                            news_path,
-                            valid_suffixes,
+                matches = NEWS_ENTRY_FILENAME_RE.match(news_filename)
+                if matches:
+                    issue, suffix, _ = matches.groups()
+                    if suffix not in valid_suffixes:
+                        raise ValueError(
+                            '{0} on "{1}" is not valid. Valid suffixes are: {2}'.format(
+                                matches.groups(1),
+                                news_path,
+                                valid_suffixes,
+                            )
                         )
-                    )
+                    valid_entries.append([suffix, issue, news_filename, ])
         except OSError:
             logger.warning('%s does not exist', news_folder)
+        return valid_entries
 
 
 class ReleaseDistribution(object):
