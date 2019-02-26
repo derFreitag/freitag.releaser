@@ -134,7 +134,6 @@ def push_cfg_files():
             'release.cfg',
             'sources.cfg',
             'qa.cfg',
-            'solr.cfg',
         ]
         remote_files = []
         for filename in files:
