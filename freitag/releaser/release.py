@@ -335,7 +335,7 @@ class FullRelease(object):
                 )
                 changelog.write_changes(history=cleaned_git_changes)
             elif not self.test and \
-                    ask('Is the change log ready for release?'):
+                    ask('Is the change log for {0} ready for release?'.format(dist_name)):
                 to_release.append(distribution_path)
 
         if not self.test:
