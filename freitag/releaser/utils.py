@@ -124,9 +124,6 @@ def push_cfg_files():
 
     ssh.connect(server, username=user)
 
-    repo = Repo(os.path.curdir)
-    current_branch = repo.active_branch.name
-
     with SCPClient(ssh.get_transport()) as scp:
         files = [
             'versions.cfg',
@@ -138,10 +135,6 @@ def push_cfg_files():
         remote_files = []
         for filename in files:
             remote_filename = filename
-            if current_branch == '4.x':
-                parts = filename.split('.')
-                parts[0] += '4'
-                remote_filename = '.'.join(parts)
             remote_files.append(remote_filename)
             scp.put(
                 filename,
