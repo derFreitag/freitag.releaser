@@ -243,6 +243,7 @@ def git_repo(source, shallow=True, depth=100):
             tmp_dir,
             depth=depth,
             no_single_branch=True,
+            branch=source.branch
         )
     else:
         repo = Repo.clone_from(
