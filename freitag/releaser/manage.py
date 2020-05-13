@@ -35,7 +35,7 @@ def full_release(
     :type debug: bool
     :param offline: controls if network will be used (turns test on as well)
     :type offline: bool
-    :param branch: which branch should be used as a base for comparsion
+    :param branch: which branch should be used as a base for comparison
     :type branch: string
     """
     configure_logging(debug)
