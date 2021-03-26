@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from freitag.releaser.utils import get_servers
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
+from freitag.releaser.utils import get_servers
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
