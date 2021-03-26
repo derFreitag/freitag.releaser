@@ -19,6 +19,7 @@ from zest.releaser.utils import ask
 import logging
 import os
 import re
+import socket
 import subprocess
 import sys
 
@@ -114,8 +115,7 @@ class FullRelease(object):
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
-            # push cfg files so that jenkins gets them already
-            push_cfg_files()
+            self.push_cfg_files()
             self.update_batou()
             # push assets to delivery servers
             self.assets()
@@ -436,6 +436,13 @@ class FullRelease(object):
         # push the changes
         repo.remote().push()
 
+    def push_cfg_files(self):
+        """Push cfg files so that jenkins gets them already"""
+        try:
+            push_cfg_files()
+        except socket.error:
+            logger.error('Could not connect to the server!!!')
+
     def assets(self):
         """Build freitag.theme assets and send them to delivery VMs"""
         theme_repo = self._check_theme_distribution()
@@ -483,7 +490,10 @@ class FullRelease(object):
         static_path = '{0}/src/freitag/theme/static'.format(path)
         for server in get_servers('assets'):
             logger.info('About to push assets to {0}'.format(server[1]))
-            push_folder_to_server(static_path, server)
+            try:
+                push_folder_to_server(static_path, server)
+            except socket.error:
+                logger.error('Could not connect to the server!!!')
 
     def update_batou(self):
         """Update the version pins on batou as well"""
