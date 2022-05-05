@@ -497,6 +497,10 @@ class FullRelease(object):
 
     def update_batou(self):
         """Update the version pins on batou as well"""
+        msg = 'Update batou'
+        logger.info(msg)
+        logger.info('-' * len(msg))
+
         deployment_repo = self.buildout.sources.get('deployment')
         if deployment_repo is None:
             logger.info(
