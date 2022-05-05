@@ -3,9 +3,6 @@ from contextlib import contextmanager
 from freitag.releaser import IGNORE_COMMIT_MESSAGES
 from git import Repo
 from git.exc import GitCommandError
-from paramiko import AutoAddPolicy
-from paramiko import SSHClient
-from scp import SCPClient
 from shutil import rmtree
 from tempfile import mkdtemp
 
@@ -135,14 +132,16 @@ def push_cfg_files():
 
 
 def push_folder_to_server(folder, server_data):
-    ssh = SSHClient()
-    ssh.load_system_host_keys()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
     user, server, server_path = server_data
-    ssh.connect(server, username=user)
-
-    with SCPClient(ssh.get_transport()) as scp:
-        scp.put(folder, remote_path=server_path, recursive=True)
+    command = [
+        'scp',
+        '-r',
+        folder,
+        '{0}@{1}:{2}'.format(user, server, server_path)
+    ]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    print(stdout)
 
 
 def filter_git_history(changes):
