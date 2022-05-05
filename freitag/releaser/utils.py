@@ -12,6 +12,7 @@ from tempfile import mkdtemp
 import ConfigParser
 import logging
 import os
+import subprocess
 import sys
 
 
@@ -116,32 +117,21 @@ def get_compact_git_history(repo, tag, base_branch):
 
 
 def push_cfg_files():
-    ssh = SSHClient()
-    ssh.load_system_host_keys()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
-
+    files = [
+        'versions.cfg',
+        'distribution-qa.cfg',
+        'release.cfg',
+        'sources.cfg',
+        'qa.cfg',
+    ]
     user, server, path = get_servers('eggs')[0]
 
-    ssh.connect(server, username=user)
-
-    with SCPClient(ssh.get_transport()) as scp:
-        files = [
-            'versions.cfg',
-            'distribution-qa.cfg',
-            'release.cfg',
-            'sources.cfg',
-            'qa.cfg',
-        ]
-        remote_files = []
-        for filename in files:
-            remote_filename = filename
-            remote_files.append(remote_filename)
-            scp.put(
-                filename,
-                remote_path='{0}/{1}'.format(path, remote_filename)
-            )
-        logger.debug('Files uploaded: ')
-        logger.debug('\n'.join(remote_files))
+    command = ['scp', ]
+    command.extend(files)
+    command.append('{0}@{1}:{2}'.format(user, server, path))
+    process = subprocess.Popen(command, stdout=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    print(stdout)
 
 
 def push_folder_to_server(folder, server_data):
