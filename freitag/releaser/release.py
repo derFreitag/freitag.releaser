@@ -115,8 +115,8 @@ class FullRelease(object):
             self.release_all()
             self._create_commit_message()
             self.update_buildout()
-            self.push_cfg_files()
             self.update_batou()
+            self.push_cfg_files()
             # push assets to delivery servers
             self.assets()
 
