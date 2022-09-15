@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from contextlib import contextmanager
 from freitag.releaser import IGNORE_COMMIT_MESSAGES
 from git import Repo
@@ -6,7 +5,7 @@ from git.exc import GitCommandError
 from shutil import rmtree
 from tempfile import mkdtemp
 
-import ConfigParser
+import configparser
 import logging
 import os
 import subprocess
@@ -21,10 +20,7 @@ def configure_logging(debug):
         level = logging.DEBUG
     else:
         level = logging.INFO
-    logging.basicConfig(
-        level=level,
-        format='%(message)s'
-    )
+    logging.basicConfig(level=level, format='%(message)s')
 
 
 def update_branch(repo, branch):
@@ -42,13 +38,13 @@ def update_branch(repo, branch):
     try:
         repo.heads[branch].checkout()
     except IndexError:
-        logger.debug('branch {0} does not exist remotely'.format(branch))
+        logger.debug(f'branch {branch} does not exist remotely')
         return False
 
     local_commit = repo.head.commit
     remote_commit = remote.refs[branch].commit
     if local_commit != remote_commit:
-        repo.git.rebase('origin/{0}'.format(branch))
+        repo.git.rebase(f'origin/{branch}')
 
     return True
 
@@ -70,14 +66,14 @@ def is_branch_synced(repo, branch='master'):
     try:
         local_branch = repo.refs[branch]
     except IndexError:
-        logger.debug('{0} branch does not exist locally'.format(branch))
+        logger.debug(f'{branch} branch does not exist locally')
         # no problem then, all commits are pushed
         return True
 
     try:
         remote_branch = remote.refs[branch]
     except IndexError:
-        logger.debug('{0} branch does not exist remotely'.format(branch))
+        logger.debug(f'{branch} branch does not exist remotely')
         # it's pointless to check if a branch has local commits if it does
         # not exist remotely
         return False
@@ -104,11 +100,7 @@ def get_compact_git_history(repo, tag, base_branch):
     :rtype: str
     """
     try:
-        return repo.git.log(
-            '--oneline',
-            '--graph',
-            '{0}~1..{1}'.format(tag, base_branch)
-        )
+        return repo.git.log('--oneline', '--graph', f'{tag}~1..{base_branch}')
     except GitCommandError:
         return ''
 
@@ -123,9 +115,9 @@ def push_cfg_files():
     ]
     user, server, path = get_servers('eggs')[0]
 
-    command = ['scp', ]
+    command = ['scp']
     command.extend(files)
-    command.append('{0}@{1}:{2}'.format(user, server, path))
+    command.append(f'{user}@{server}:{path}')
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
     print(stdout)
@@ -133,12 +125,7 @@ def push_cfg_files():
 
 def push_folder_to_server(folder, server_data):
     user, server, server_path = server_data
-    command = [
-        'scp',
-        '-r',
-        folder,
-        '{0}@{1}:{2}'.format(user, server, server_path)
-    ]
+    command = ['scp', '-r', folder, f'{user}@{server}:{server_path}']
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
     print(stdout)
@@ -184,19 +171,12 @@ def get_latest_tag(repo, branch):
     remote = repo.remote()
     latest_branch_commit = remote.refs[branch].commit.hexsha
     try:
-        latest_tag = repo.git.describe(
-            '--abbrev=0',
-            '--tags',
-            latest_branch_commit
-        )
+        latest_tag = repo.git.describe('--abbrev=0', '--tags', latest_branch_commit)
     except GitCommandError:
         # get the second to last commit
         # for the way get_compact_git_history gets the commit before
         # the earliest you pass
-        commits = [
-            c
-            for c in repo.iter_commits()
-        ]
+        commits = [c for c in repo.iter_commits()]
         latest_tag = commits[-2].hexsha
 
     return latest_tag
@@ -232,13 +212,10 @@ def git_repo(source, shallow=True, depth=100):
             tmp_dir,
             depth=depth,
             no_single_branch=True,
-            branch=source.branch
+            branch=source.branch,
         )
     else:
-        repo = Repo.clone_from(
-            url,
-            tmp_dir
-        )
+        repo = Repo.clone_from(url, tmp_dir)
 
     # give the control back
     yield repo
@@ -268,7 +245,7 @@ def wrap_folder(new_folder):
 def wrap_sys_argv():
     """Context manager to temporally save sys.argv and restore if afterwards"""
     original_args = sys.argv
-    sys.argv = ['', ]
+    sys.argv = ['']
 
     yield
 
@@ -284,7 +261,7 @@ def get_servers(section):
     servers = []
     try:
         with open('release.cfg') as config_file:
-            servers_config = ConfigParser.SafeConfigParser()
+            servers_config = configparser.ConfigParser()
             servers_config.readfp(config_file)
             connection_strings = servers_config.get(section, 'servers')
             for connection in connection_strings.strip().split('\n'):
@@ -298,10 +275,10 @@ def get_servers(section):
 
 def _server_details(line):
     if '@' not in line:
-        raise ValueError('No user/server on {0}'.format(line))
+        raise ValueError(f'No user/server on {line}')
     user, server = line.strip().split('@')
 
     if ':' not in server:
-        raise ValueError('No server/path on {0}'.format(line))
+        raise ValueError(f'No server/path on {line}')
     server, path = server.split(':')
     return user, server, path

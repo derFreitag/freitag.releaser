@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from zest.releaser.utils import ask
 
 import logging
@@ -16,15 +15,14 @@ def check_translations(data):
     :param data: information coming from zest.releaser
     :type data: dict
     """
-    path = '{0}/bin/i18ndude'.format(data['workingdir'])
+    path = f'{data["workingdir"]}/bin/i18ndude'
     if not os.path.exists(path):
-        msg = '{0} not found, no translation check will be done'
-        logger.debug(msg.format(path))
+        logger.debug(f'{path} not found, no translation check will be done')
         return
 
     process = subprocess.Popen(
-        ['bin/i18ndude', 'find-untranslated', '-n', 'src/', ],
-        stdout=subprocess.PIPE
+        ['bin/i18ndude', 'find-untranslated', '-n', 'src/'],
+        stdout=subprocess.PIPE,
     )
     stdout, stderr = process.communicate()
     if 'ERROR' not in stdout:
@@ -32,7 +30,6 @@ def check_translations(data):
         return
 
     logger.info(stdout)
-    msg = 'There are strings not marked as translatable, ' \
-          'do you want to continue?'
+    msg = 'There are strings not marked as translatable, do you want to continue?'
     if not ask(msg, default=False):
         sys.exit(1)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from argh import arg
 from argh import ArghParser
 from argh.decorators import named
@@ -72,7 +71,7 @@ def publish_assets(debug=False):
     configure_logging(debug)
     get_servers('assets')
     release = FullRelease(path='src')
-    release.distributions = ['src/freitag.theme', ]
+    release.distributions = ['src/freitag.theme']
     release.assets()
 
 
@@ -90,8 +89,7 @@ def check_newsentries(debug=False):
         release.verify_newsentries(os.path.join(distribution, 'news'))
 
 
-class Manage(object):
-
+class Manage:
     def __call__(self, **kwargs):
         parser = ArghParser()
         commands = [
