@@ -120,7 +120,7 @@ def push_cfg_files():
     command.append(f'{user}@{server}:{path}')
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
-    print(stdout)
+    print(stdout)  # noqa: T001
 
 
 def push_folder_to_server(folder, server_data):
@@ -128,7 +128,7 @@ def push_folder_to_server(folder, server_data):
     command = ['scp', '-r', folder, f'{user}@{server}:{server_path}']
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
-    print(stdout)
+    print(stdout)  # noqa: T001
 
 
 def filter_git_history(changes):
