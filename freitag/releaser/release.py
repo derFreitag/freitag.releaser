@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
@@ -32,7 +31,7 @@ BRANCH = PATH = '\033[1;30m{0}\033[0m'
 NEWS_ENTRY_FILENAME_RE = re.compile(r'(\d+).(\w+)(.\d)*')
 
 
-class FullRelease(object):
+class FullRelease:
     """Releases all distributions that have changes and want to be released
 
     Does lots of QA before and after any release actually happens as well as
@@ -98,8 +97,7 @@ class FullRelease(object):
             self.test = True
 
     def __call__(self):
-        """Go through all distributions and release them if needed *and* wanted
-        """
+        """Go through all distributions and release them if needed *and* wanted"""
         self.get_all_distributions()
         self.filter_distros()
         if not self.offline:
@@ -123,7 +121,7 @@ class FullRelease(object):
     def get_all_distributions(self):
         """Get all distributions that are found in self.path"""
         for folder in sorted(os.listdir(self.path)):
-            path = '{0}/{1}'.format(self.path, folder)
+            path = f'{self.path}/{folder}'
             if not os.path.isdir(path):
                 continue
 
@@ -143,11 +141,7 @@ class FullRelease(object):
 
         tmp_list = []
         for f in self.filters:
-            tmp_list += [
-                d
-                for d in self.distributions
-                if d.find(f) != -1
-            ]
+            tmp_list += [d for d in self.distributions if d.find(f) != -1]
         # keep them sorted
         self.distributions = sorted(tmp_list)
 
@@ -164,6 +158,7 @@ class FullRelease(object):
 
         # that's how zestreleaser.towncrier searches for towncrier
         import distutils
+
         path = distutils.spawn.find_executable('towncrier')
         if not path:
             raise ValueError(
@@ -193,8 +188,10 @@ class FullRelease(object):
             local_changes = True
 
         if dirty or local_changes:
-            msg = 'zope has non-committed/unpushed changes, ' \
-                  'no releases can be made on that state.'
+            msg = (
+                'zope has non-committed/unpushed changes, '
+                'no releases can be made on that state.'
+            )
             raise ValueError(msg)
 
     def check_pending_local_changes(self):
@@ -224,10 +221,11 @@ class FullRelease(object):
                 local_changes = True
 
             if dirty or local_changes:
-                msg = '{0} has non-committed/unpushed changes, ' \
-                      'it will not be released.'
-                msg = msg.format(DISTRIBUTION.format(distribution_path))
-                logger.info(msg)
+                distro = DISTRIBUTION.format(distribution_path)
+                logger.info(
+                    f'{distro} has non-committed/unpushed changes, '
+                    'it will not be released.'
+                )
                 continue
 
             clean_distributions.append(distribution_path)
@@ -307,12 +305,10 @@ class FullRelease(object):
 
             logger.info(DISTRIBUTION.format(distribution_path))
 
-            changes_snippets_folder = '{0}/news'.format(
-                repo.working_tree_dir
-            )
+            changes_snippets_folder = f'{repo.working_tree_dir}/news'
             try:
                 changes = self._grab_changelog(changes_snippets_folder)
-            except (IOError, OSError):
+            except OSError:
                 logger.debug('Changelog not found, skipping.')
                 continue
             self.changelogs[dist_name] = changes
@@ -326,8 +322,8 @@ class FullRelease(object):
             logger.info('news entries')
             logger.info('')
             logger.info(''.join(changes))
-            if not self.test and \
-                    ask('Is the change log for {0} ready for release?'.format(dist_name)):
+            msg = f'Is the change log for {dist_name} ready for release?'
+            if not self.test and ask(msg):
                 to_release.append(distribution_path)
 
         if not self.test:
@@ -349,13 +345,11 @@ class FullRelease(object):
         current_branch = parent_repo.active_branch.name
 
         if current_branch != self.branch:
-            text = '{0} is not on {1} branch, but on {2}'
+            distro = DISTRIBUTION.format('zope repository')
+            expected_branch = BRANCH.format(self.branch)
+            actual_branch = BRANCH.format(current_branch)
             raise ValueError(
-                text.format(
-                    DISTRIBUTION.format('zope repository'),
-                    BRANCH.format(self.branch),
-                    BRANCH.format(current_branch),
-                )
+                f'{distro} is not on {expected_branch} branch, but on {actual_branch}'
             )
 
         for distribution_path in self.distributions:
@@ -364,14 +358,11 @@ class FullRelease(object):
             current_branch = repo.active_branch.name
 
             if current_branch != self.branch:
-                text = '{0} is not on {1} branch, but on {2}'
+                distro = DISTRIBUTION.format(f'{dist_name} repository')
+                expected_branch = BRANCH.format(self.branch)
+                actual_branch = BRANCH.format(current_branch)
                 raise ValueError(
-                    text.format(
-                        DISTRIBUTION.format(
-                            '{0} repository'.format(dist_name)),
-                        BRANCH.format(self.branch),
-                        BRANCH.format(current_branch),
-                    )
+                    f'{distro} is not on {expected_branch} branch, but on {actual_branch}'
                 )
 
     def report_whats_to_release(self):
@@ -382,7 +373,7 @@ class FullRelease(object):
         logger.info('-' * len(msg))
         for distribution_path in self.distributions:
             dist_name = distribution_path.split('/')[-1]
-            logger.info('- {0}'.format(dist_name))
+            logger.info(f'- {dist_name}')
 
     def release_all(self):
         """Release all distributions"""
@@ -391,7 +382,7 @@ class FullRelease(object):
         logger.info(msg)
         logger.info('-' * len(msg))
         for distribution_path in self.distributions:
-            logger.info('\n\n{0}'.format(DISTRIBUTION.format(distribution_path)))
+            logger.info(f'\n\n{DISTRIBUTION.format(distribution_path)}')
             dist_name = distribution_path.split('/')[-1]
             repo = Repo(distribution_path)
 
@@ -405,13 +396,10 @@ class FullRelease(object):
             update_branch(repo, self.branch)
 
     def _create_commit_message(self):
-        msg = ['New releases:', '', ]
-        changelogs = ['', 'Changelogs:', '', ]
+        msg = ['New releases:', '']
+        changelogs = ['', 'Changelogs:', '']
         for dist in sorted(self.versions.keys()):
-            tmp_msg = '{0} {1}'.format(
-                dist,
-                self.versions[dist]
-            )
+            tmp_msg = f'{dist} {self.versions[dist]}'
             msg.append(tmp_msg)
 
             changelogs.append(dist)
@@ -420,7 +408,7 @@ class FullRelease(object):
             changelogs.append('')
 
         # There's no need to run CI when doing releases...
-        ci_skip = ['[ci-skip]', ]
+        ci_skip = ['[ci-skip]']
 
         self.commit_message = '\n'.join(msg + changelogs + ci_skip)
 
@@ -440,7 +428,7 @@ class FullRelease(object):
         """Push cfg files so that jenkins gets them already"""
         try:
             push_cfg_files()
-        except socket.error:
+        except OSError:
             logger.error('Could not connect to the server!!!')
 
     def assets(self):
@@ -477,22 +465,22 @@ class FullRelease(object):
 
     @staticmethod
     def _build_assets(path):
-        build_path = '{0}/src/freitag/theme/from_freitag'.format(path)
-        yarn = ['yarn', '-s', '--no-progress', ]
+        build_path = f'{path}/src/freitag/theme/from_freitag'
+        yarn = ['yarn', '-s', '--no-progress']
         subprocess.Popen(
-            yarn + ['--frozen-lockfile', '--non-interactive'], cwd=build_path,
+            yarn + ['--frozen-lockfile', '--non-interactive'], cwd=build_path
         ).communicate()
         subprocess.Popen(yarn + ['release'], cwd=build_path).communicate()
         logger.info('Assets build!')
 
     @staticmethod
     def _send_assets(path):
-        static_path = '{0}/src/freitag/theme/static'.format(path)
+        static_path = f'{path}/src/freitag/theme/static'
         for server in get_servers('assets'):
-            logger.info('About to push assets to {0}'.format(server[1]))
+            logger.info(f'About to push assets to {server[1]}')
             try:
                 push_folder_to_server(static_path, server)
-            except socket.error:
+            except OSError:
                 logger.error('Could not connect to the server!!!')
 
     def update_batou(self):
@@ -513,23 +501,17 @@ class FullRelease(object):
         with git_repo(deployment_repo, shallow=False) as repo:
             # get components/plone/versions/versions.cfg Buildout
             path = 'components/plone/versions/versions.cfg'
-            plone_versions = '{0}/{1}'.format(
-                repo.working_tree_dir,
-                path
-            )
+            plone_versions = f'{repo.working_tree_dir}/{path}'
             deployment_buildout = Buildout(
                 sources_file=plone_versions,
                 checkouts_file=plone_versions,
-                versions_file=plone_versions
+                versions_file=plone_versions,
             )
             # update version pins
             for dist_name in self.versions:
-                deployment_buildout.set_version(
-                    dist_name,
-                    self.versions[dist_name]
-                )
+                deployment_buildout.set_version(dist_name, self.versions[dist_name])
             # commit and push the repo
-            repo.index.add([path, ])
+            repo.index.add([path])
             repo.index.commit(message=self.commit_message.encode('utf-8'))
             # push the changes
             repo.remote().push()
@@ -543,7 +525,7 @@ class FullRelease(object):
             lines.append(header.format(issue, suffix))
             with open(news_path) as news_file:
                 for line in news_file:
-                    lines.append('  {0}'.format(line))
+                    lines.append(f'  {line}')
 
         return lines
 
@@ -560,19 +542,16 @@ class FullRelease(object):
                     issue, suffix, _ = matches.groups()
                     if suffix not in valid_suffixes:
                         raise ValueError(
-                            '{0} on "{1}" is not valid. Valid suffixes are: {2}'.format(
-                                matches.groups(1),
-                                news_path,
-                                valid_suffixes,
-                            )
+                            f'{matches.groups(1)} on "{news_path}" is not valid. '
+                            f'Valid suffixes are: {valid_suffixes}'
                         )
-                    valid_entries.append([suffix, issue, news_filename, ])
+                    valid_entries.append([suffix, issue, news_filename])
         except OSError:
             logger.warning('%s does not exist', news_folder)
         return valid_entries
 
 
-class ReleaseDistribution(object):
+class ReleaseDistribution:
     """Release a single distribution with zest.releaser
 
     It does some QA checks before/after the actual release happens.
@@ -602,9 +581,7 @@ class ReleaseDistribution(object):
     def _check_distribution_exists(self):
         """Check that the folder exists"""
         if not os.path.exists(self.path):
-            raise IOError(
-                'Path {0} does NOT exist'.format(PATH.format(self.path))
-            )
+            raise OSError(f'Path {PATH.format(self.path)} does NOT exist')
 
     def _zest_releaser(self):
         """Release the distribution"""

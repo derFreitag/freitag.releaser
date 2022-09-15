@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from freitag.releaser.release import FullRelease
 from freitag.releaser.release import ReleaseDistribution
 from freitag.releaser.utils import is_branch_synced
@@ -44,7 +43,6 @@ utils.TESTMODE = True
 
 
 class BaseTest(unittest.TestCase):
-
     def setUp(self):
         self.buildout_repo = Repo.init(mkdtemp(), bare=True)
 
@@ -53,7 +51,7 @@ class BaseTest(unittest.TestCase):
             self.remote_buildout_repo,
             content=BUILDOUT_FILE_CONTENTS.format(''),
             filename='develop.cfg',
-            msg='First commit'
+            msg='First commit',
         )
         self.remote_buildout_repo.remote().push('master:refs/heads/master')
 
@@ -68,20 +66,18 @@ class BaseTest(unittest.TestCase):
         dummy_file = os.path.join(repo.working_tree_dir, filename)
         with open(dummy_file, 'w') as afile:
             afile.write(content)
-        repo.index.add([dummy_file, ])
+        repo.index.add([dummy_file])
         repo.index.commit(msg)
 
         return repo.commit().hexsha
 
     def _add_source(self, repo):
-        source_line = 'my.distribution = git file://{0}'.format(
-            repo.working_tree_dir
-        )
+        source_line = f'my.distribution = git file://{repo.working_tree_dir}'
         self._commit(
             repo,
             content=BUILDOUT_FILE_CONTENTS.format(source_line),
             filename='develop.cfg',
-            msg='Add source'
+            msg='Add source',
         )
 
     def _add_changes(self, repo):
@@ -89,19 +85,15 @@ class BaseTest(unittest.TestCase):
             self.user_buildout_repo,
             content=CHANGES,
             filename='CHANGES.rst',
-            msg='Update changes'
+            msg='Update changes',
         )
 
     def _get_logging_as_string(self, output):
-        messages = [
-            f.getMessage()
-            for f in output.records
-        ]
+        messages = [f.getMessage() for f in output.records]
         return '\n'.join(messages)
 
 
 class TestFullRelease(BaseTest):
-
     def test_create_instance(self):
         """Check that the values passed on creation are safed"""
         path = '/tmp/la/li/somewhere'
@@ -109,45 +101,31 @@ class TestFullRelease(BaseTest):
         dist_filter = 'some random filter'
 
         full_release = FullRelease(
-            path=path,
-            test=test,
-            filter_distributions=dist_filter
+            path=path, test=test, filter_distributions=dist_filter
         )
-        self.assertEqual(
-            full_release.path,
-            path
-        )
-        self.assertEqual(
-            full_release.test,
-            test
-        )
-        self.assertEqual(
-            full_release.filters,
-            dist_filter
-        )
+        self.assertEqual(full_release.path, path)
+        self.assertEqual(full_release.test, test)
+        self.assertEqual(full_release.filters, dist_filter)
 
     def test_get_all_distributions_folder(self):
         """Check that a folder is not considered a distribution"""
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         # create a folder
-        os.makedirs('{0}/folder-not-repo'.format(path))
+        os.makedirs(f'{path}/folder-not-repo')
 
         full_release = FullRelease(path=path)
 
         with OutputCapture():
             full_release.get_all_distributions()
 
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
+        self.assertEqual(full_release.distributions, [])
 
     def test_get_all_distributions_file(self):
         """Check that a file is not considered a distribution"""
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         # create a file
         os.makedirs(path)
-        with open('{0}/random-file'.format(path), 'w') as afile:
+        with open(f'{path}/random-file', 'w') as afile:
             afile.write('something')
 
         full_release = FullRelease(path=path)
@@ -155,18 +133,15 @@ class TestFullRelease(BaseTest):
         with OutputCapture():
             full_release.get_all_distributions()
 
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
+        self.assertEqual(full_release.distributions, [])
 
     def test_get_all_distributions_repo(self):
         """Check that a git repository is considered a distribution"""
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo1 = self.buildout_repo.clone(repo_folder)
-        repo_folder = '{0}/my.distribution2'.format(path)
+        repo_folder = f'{path}/my.distribution2'
         repo2 = self.buildout_repo.clone(repo_folder)
 
         full_release = FullRelease(path=path)
@@ -175,20 +150,19 @@ class TestFullRelease(BaseTest):
             full_release.get_all_distributions()
 
         self.assertEqual(
-            full_release.distributions,
-            [repo1.working_tree_dir, repo2.working_tree_dir, ]
+            full_release.distributions, [repo1.working_tree_dir, repo2.working_tree_dir]
         )
 
     def test_filter_distros_no_filter(self):
         """Check that if no filter is applied all distributions are used"""
         full_release = FullRelease()
-        full_release.distributions = ['one', 'two', 'three', ]
+        full_release.distributions = ['one', 'two', 'three']
         with OutputCapture():
             full_release.filter_distros()
 
         self.assertEqual(
             full_release.distributions,
-            ['one', 'two', 'three', ]
+            ['one', 'two', 'three'],
         )
 
     def test_filter_distros_filter(self):
@@ -196,66 +170,59 @@ class TestFullRelease(BaseTest):
         are kept
         """
         full_release = FullRelease(filter_distributions='w')
-        full_release.distributions = ['one', 'two', 'three', ]
+        full_release.distributions = ['one', 'two', 'three']
         with OutputCapture():
             full_release.filter_distros()
 
         self.assertEqual(
             full_release.distributions,
-            ['two', ]
+            ['two'],
         )
 
     def test_filter_multiple_filters(self):
-        """Check that if multiple filters are passed they are correctly used
-        """
+        """Check that if multiple filters are passed they are correctly used"""
         full_release = FullRelease(filter_distributions=['w', 'h'])
-        full_release.distributions = ['one', 'two', 'three', ]
+        full_release.distributions = ['one', 'two', 'three']
         with OutputCapture():
             full_release.filter_distros()
 
-        self.assertEqual(
-            full_release.distributions,
-            ['three', 'two', ]
-        )
+        self.assertEqual(full_release.distributions, ['three', 'two'])
 
     def test_check_pending_local_changes_dirty(self):
         """Check that a repository with local changes (uncommitted) is removed
         from the list of distributions to be released
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # add a file
-        file_path = '{0}/tmp_file'.format(repo_folder)
+        file_path = f'{repo_folder}/tmp_file'
         with open(file_path, 'w') as afile:
             afile.write('something')
-            repo.index.add([file_path, ])
+            repo.index.add([file_path])
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
-        utils.test_answer_book.set_answers(['Y', ])
+        utils.test_answer_book.set_answers(['Y'])
         with OutputCapture():
             full_release.check_pending_local_changes()
 
         # check the distribution is removed
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
+        self.assertEqual(full_release.distributions, [])
 
     def test_check_pending_local_changes_unpushed(self):
         """Check that a repository with local commits is removed from the list
         of distributions to be released
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # make a commit on the repo
@@ -263,26 +230,23 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
-        utils.test_answer_book.set_answers(['Y', ])
+        utils.test_answer_book.set_answers(['Y'])
         with OutputCapture():
             full_release.check_pending_local_changes()
 
         # check the distribution is removed
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
+        self.assertEqual(full_release.distributions, [])
 
     def test_check_pending_local_changes_exit(self):
         """Check that if a repository has local commits you are given the
         option to quit.
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # make a commit on the repo
@@ -290,23 +254,20 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
-        utils.test_answer_book.set_answers(['n', ])
+        utils.test_answer_book.set_answers(['n'])
         with OutputCapture():
-            self.assertRaises(
-                SystemExit,
-                full_release.check_pending_local_changes
-            )
+            self.assertRaises(SystemExit, full_release.check_pending_local_changes)
 
     def test_check_pending_local_changes_unpushed_test(self):
         """Check that a repository with local commits is *not* removed from
         the list of distributions to be released if test is True
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # make a commit on the repo
@@ -314,7 +275,7 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path, test=True)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         with OutputCapture():
             full_release.check_pending_local_changes()
@@ -322,7 +283,7 @@ class TestFullRelease(BaseTest):
         # check the distribution is not removed
         self.assertEqual(
             full_release.distributions,
-            [repo_folder, ]
+            [repo_folder],
         )
 
     def test_check_pending_local_changes_clean(self):
@@ -330,23 +291,23 @@ class TestFullRelease(BaseTest):
         distributions to be released
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
-        utils.test_answer_book.set_answers(['Y', ])
+        utils.test_answer_book.set_answers(['Y'])
         with OutputCapture():
             full_release.check_pending_local_changes()
 
         # check the distribution is not removed
         self.assertEqual(
             full_release.distributions,
-            [repo_folder, ]
+            [repo_folder],
         )
 
     def test_changes_to_be_released_no_tag(self):
@@ -354,9 +315,9 @@ class TestFullRelease(BaseTest):
         distribution that needs to be released
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # create some commits
@@ -366,26 +327,23 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         # run check_changes_to_be_released
         with OutputCapture():
             full_release.check_changes_to_be_released()
 
         # check that the distribution is still there
-        self.assertEqual(
-            full_release.distributions,
-            [repo_folder, ]
-        )
+        self.assertEqual(full_release.distributions, [repo_folder])
 
     def test_changes_to_be_released_nothing_to_release(self):
         """Check that if there is a tag on the last commit the distribution is
         removed from the list of distributions needing a release
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # create a tag
@@ -393,26 +351,23 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         # run check_changes_to_be_released
         with OutputCapture():
             full_release.check_changes_to_be_released()
 
         # check that the distribution is still there
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
+        self.assertEqual(full_release.distributions, [])
 
     def test_changes_to_be_released_commits_to_release(self):
         """Check that if there is a tag on the last commit the distribution is
         removed from the list of distributions needing a release
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # create a tag
@@ -424,26 +379,23 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         # run check_changes_to_be_released
         with OutputCapture():
             full_release.check_changes_to_be_released()
 
         # check that the distribution is still there
-        self.assertEqual(
-            full_release.distributions,
-            [repo_folder, ]
-        )
+        self.assertEqual(full_release.distributions, [repo_folder])
 
     def test_changes_to_be_released_test(self):
         """Check that if the distribution was supposed to be removed, it is not
         if test is True
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # create a tag
@@ -451,7 +403,7 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path, test=True)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         # run check_changes_to_be_released
         with OutputCapture():
@@ -460,16 +412,15 @@ class TestFullRelease(BaseTest):
         # check that the distribution is still there
         self.assertEqual(
             full_release.distributions,
-            [repo_folder, ]
+            [repo_folder],
         )
 
     def test_changes_to_be_released_last_tags_filled(self):
-        """Check that if the distribution has a tag is stored on last_tags dict
-        """
+        """Check that if the distribution has a tag is stored on last_tags dict"""
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # create a tag
@@ -477,26 +428,23 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         # run check_changes_to_be_released
         with OutputCapture():
             full_release.check_changes_to_be_released()
 
         # check that the tag has been saved on the dictionary
-        self.assertEqual(
-            full_release.last_tags['my.distribution'],
-            'my-tag'
-        )
+        self.assertEqual(full_release.last_tags['my.distribution'], 'my-tag')
 
     def test_changes_to_be_released_last_tags_no_tag(self):
         """Check that if the distribution does not have a tag the latest
         commit is stored on last_tags dict
         """
         # create repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         repo = self.buildout_repo.clone(repo_folder)
 
         # create some commits
@@ -506,17 +454,14 @@ class TestFullRelease(BaseTest):
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
 
         # run check_changes_to_be_released
         with OutputCapture():
             full_release.check_changes_to_be_released()
 
         # check that the distribution key has been created
-        self.assertIn(
-            'my.distribution',
-            full_release.last_tags
-        )
+        self.assertIn('my.distribution', full_release.last_tags)
 
         # check that what's stored is the hexsha of a commit
         commit = [
@@ -524,10 +469,7 @@ class TestFullRelease(BaseTest):
             for c in repo.iter_commits()
             if c.hexsha == full_release.last_tags['my.distribution']
         ]
-        self.assertEqual(
-            len(commit),
-            1
-        )
+        self.assertEqual(len(commit), 1)
 
     def test_ask_what_to_release_clean_some_lines_of_git_history(self):
         """Check that if the some commits are administrative they are not
@@ -549,36 +491,27 @@ class TestFullRelease(BaseTest):
         self.user_buildout_repo.remote().push()
 
         # clone the repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
-        utils.test_answer_book.set_answers(['Y', ])
+        utils.test_answer_book.set_answers(['Y'])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
             with OutputCapture():
                 with LogCapture() as output:
                     full_release.ask_what_to_release()
 
-        self.assertIn(
-            'Random commit 2',
-            self._get_logging_as_string(output)
-        )
+        self.assertIn('Random commit 2', self._get_logging_as_string(output))
 
-        self.assertNotIn(
-            'Bump version',
-            self._get_logging_as_string(output)
-        )
+        self.assertNotIn('Bump version', self._get_logging_as_string(output))
 
-        self.assertIn(
-            'Add source',
-            self._get_logging_as_string(output)
-        )
+        self.assertIn('Add source', self._get_logging_as_string(output))
 
     def test_ask_what_to_release_clean_all_lines_of_git_history(self):
         """Check that if the commits on the distribution are only
@@ -596,14 +529,14 @@ class TestFullRelease(BaseTest):
         self.user_buildout_repo.remote().push()
 
         # clone the repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
@@ -611,10 +544,7 @@ class TestFullRelease(BaseTest):
                 full_release.ask_what_to_release()
 
         # check that the distribution is not going to be released
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
+        self.assertEqual(full_release.distributions, [])
 
     def test_ask_what_to_release_changes_rst_is_shown(self):
         """Check that the CHANGES.rst are shown to the user"""
@@ -627,30 +557,24 @@ class TestFullRelease(BaseTest):
         self.user_buildout_repo.remote().push()
 
         # clone the repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
-        utils.test_answer_book.set_answers(['Y', ])
+        utils.test_answer_book.set_answers(['Y'])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
             with OutputCapture():
                 with LogCapture() as output:
                     full_release.ask_what_to_release()
 
-        self.assertIn(
-            'change log entry 1',
-            self._get_logging_as_string(output)
-        )
-        self.assertIn(
-            'change log entry 2',
-            self._get_logging_as_string(output)
-        )
+        self.assertIn('change log entry 1', self._get_logging_as_string(output))
+        self.assertIn('change log entry 2', self._get_logging_as_string(output))
 
     def test_ask_what_to_release_test(self):
         """Check that in test mode no distributions are filtered"""
@@ -663,29 +587,30 @@ class TestFullRelease(BaseTest):
         self.user_buildout_repo.remote().push()
 
         # clone the repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path, test=True)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [
+            repo_folder,
+        ]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
-        utils.test_answer_book.set_answers(['n', ])
+        utils.test_answer_book.set_answers(['n'])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
             with OutputCapture():
                 full_release.ask_what_to_release()
 
         self.assertEqual(
             full_release.distributions,
-            [repo_folder, ]
+            [repo_folder],
         )
 
     def test_ask_what_to_release_test_write_changes(self):
-        """Check that in test mode you can write the git history on CHANGES
-        """
+        """Check that in test mode you can write the git history on CHANGES"""
         repo = self.user_buildout_repo
 
         # add source, CHANGES.rst, commits and push the repo
@@ -695,30 +620,24 @@ class TestFullRelease(BaseTest):
         self.user_buildout_repo.remote().push()
 
         # clone the repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path, test=True)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
-        utils.test_answer_book.set_answers(['y', ])
+        utils.test_answer_book.set_answers(['y'])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
             with OutputCapture() as output:
                 full_release.ask_what_to_release()
 
-        self.assertIn(
-            'write the above git history on CHANGES.rst',
-            output.captured
-        )
+        self.assertIn('write the above git history on CHANGES.rst', output.captured)
 
-        self.assertIn(
-            'Random commit 1',
-            open('{0}/CHANGES.rst'.format(repo_folder)).read()
-        )
+        self.assertIn('Random commit 1', open(f'{repo_folder}/CHANGES.rst').read())
 
     def test_ask_what_to_release_user_can_not_release_a_distribution(self):
         """Check that even if the distribution meets all the criteria,
@@ -733,29 +652,23 @@ class TestFullRelease(BaseTest):
         self.user_buildout_repo.remote().push()
 
         # clone the repo
-        path = '{0}/src'.format(self.user_buildout_repo.working_tree_dir)
+        path = f'{self.user_buildout_repo.working_tree_dir}/src'
         os.makedirs(path)
-        repo_folder = '{0}/my.distribution'.format(path)
+        repo_folder = f'{path}/my.distribution'
         self.buildout_repo.clone(repo_folder)
 
         # full release
         full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder, ]
+        full_release.distributions = [repo_folder]
         full_release.last_tags['my.distribution'] = first_commit_sha
 
-        utils.test_answer_book.set_answers(['n', ])
+        utils.test_answer_book.set_answers(['n'])
         with wrap_folder(self.user_buildout_repo.working_tree_dir):
             with OutputCapture() as output:
                 full_release.ask_what_to_release()
 
-        self.assertEqual(
-            full_release.distributions,
-            []
-        )
-        self.assertIn(
-            'Is the change log ready for release?',
-            output.captured
-        )
+        self.assertEqual(full_release.distributions, [])
+        self.assertIn('Is the change log ready for release?', output.captured)
 
     def test_update_buildout(self):
         """Check that repository is updated with commit message"""
@@ -772,10 +685,7 @@ class TestFullRelease(BaseTest):
             full_release.update_buildout()
 
         commit = self.user_buildout_repo.commit()
-        self.assertEqual(
-            commit.message.strip(),
-            message
-        )
+        self.assertEqual(commit.message.strip(), message)
         self.assertTrue(is_branch_synced(self.user_buildout_repo))
 
     def test_create_commit_message(self):
@@ -785,74 +695,76 @@ class TestFullRelease(BaseTest):
         full_release.versions['my.other'] = '5.4.3'
         full_release.versions['last.one'] = '1.2'
 
-        full_release.changelogs['my.distribution'] = '\n'.join([
-            '- one change',
-            '  [gforcada]',
-            '',
-            '- second change',
-            '  [someone else]'
-            ''
-        ])
-        full_release.changelogs['my.other'] = '\n'.join([
-            '- third change',
-            '  [gforcada]',
-            '',
-            '- related one',
-            '  [someone else]'
-            ''
-        ])
-        full_release.changelogs['last.one'] = '\n'.join([
-            '- one more change',
-            '  [gforcada]',
-            '',
-            '- really last change',
-            '  [someone else]'
-            ''
-        ])
-
-        self.assertEqual(
-            full_release.commit_message,
-            ''
-        )
-
-        full_release._create_commit_message()
-
-        self.assertIn(
-            '\n'.join([
-                'New releases:',
-                '',
-                'last.one 1.2',
-                'my.distribution 3.4.5',
-                'my.other 5.4.3',
-                '',
-                'Changelogs:',
-                '',
-                'last.one',
-                '--------',
-                '- one more change',
-                '  [gforcada]',
-                '',
-                '- really last change',
-                '  [someone else]',
-                '',
-                'my.distribution',
-                '---------------',
+        full_release.changelogs['my.distribution'] = '\n'.join(
+            [
                 '- one change',
                 '  [gforcada]',
                 '',
                 '- second change',
-                '  [someone else]',
-                '',
-                'my.other',
-                '--------',
+                '  [someone else]' '',
+            ]
+        )
+        full_release.changelogs['my.other'] = '\n'.join(
+            [
                 '- third change',
                 '  [gforcada]',
                 '',
                 '- related one',
-                '  [someone else]',
+                '  [someone else]' '',
+            ]
+        )
+        full_release.changelogs['last.one'] = '\n'.join(
+            [
+                '- one more change',
+                '  [gforcada]',
                 '',
-            ]),
-            full_release.commit_message
+                '- really last change',
+                '  [someone else]' '',
+            ]
+        )
+
+        self.assertEqual(full_release.commit_message, '')
+
+        full_release._create_commit_message()
+
+        self.assertIn(
+            '\n'.join(
+                [
+                    'New releases:',
+                    '',
+                    'last.one 1.2',
+                    'my.distribution 3.4.5',
+                    'my.other 5.4.3',
+                    '',
+                    'Changelogs:',
+                    '',
+                    'last.one',
+                    '--------',
+                    '- one more change',
+                    '  [gforcada]',
+                    '',
+                    '- really last change',
+                    '  [someone else]',
+                    '',
+                    'my.distribution',
+                    '---------------',
+                    '- one change',
+                    '  [gforcada]',
+                    '',
+                    '- second change',
+                    '  [someone else]',
+                    '',
+                    'my.other',
+                    '--------',
+                    '- third change',
+                    '  [gforcada]',
+                    '',
+                    '- related one',
+                    '  [someone else]',
+                    '',
+                ]
+            ),
+            full_release.commit_message,
         )
 
     def test_update_batou(self):
@@ -867,10 +779,10 @@ class TestFullRelease(BaseTest):
         folder_path = '{0}/components/plone/versions'
         folder_path = folder_path.format(tmp_batou_repo.working_tree_dir)
         os.makedirs(folder_path)
-        file_path = '{0}/versions.cfg'.format(folder_path)
+        file_path = f'{folder_path}/versions.cfg'
         with open(file_path, 'w') as versions:
             versions.write('[versions]')
-        tmp_batou_repo.index.add([file_path, ])
+        tmp_batou_repo.index.add([file_path])
         tmp_batou_repo.index.commit('lalala')
         tmp_batou_repo.remote().push('master:refs/heads/master')
 
@@ -879,11 +791,7 @@ class TestFullRelease(BaseTest):
         with wrap_folder(buildout_path):
             with open('sources.cfg', 'w') as versions:
                 versions.write('[sources]\n')
-                versions.write(
-                    'deployment = git file://{0}'.format(
-                        remote_batou.working_dir
-                    )
-                )
+                versions.write(f'deployment = git file://{remote_batou.working_dir}')
 
             full_release = FullRelease()
             full_release.commit_message = 'lalala'
@@ -896,49 +804,30 @@ class TestFullRelease(BaseTest):
         tmp_batou_repo = remote_batou.clone(mkdtemp())
         branch = tmp_batou_repo.branches['master']
 
-        self.assertEqual(
-            branch.commit.message,
-            'lalala'
-        )
-        self.assertEqual(
-            len(branch.commit.stats.files.keys()),
-            1
-        )
+        self.assertEqual(branch.commit.message, 'lalala')
+        self.assertEqual(len(branch.commit.stats.files.keys()), 1)
         self.assertEqual(
             branch.commit.stats.files.keys()[0],
-            'components/plone/versions/versions.cfg'
+            'components/plone/versions/versions.cfg',
         )
 
         with wrap_folder(tmp_batou_repo.working_tree_dir):
             with open('components/plone/versions/versions.cfg') as afile:
                 data = afile.read()
 
-        self.assertIn(
-            'der.freitag = 4.3',
-            data
-        )
-        self.assertIn(
-            'freitag.article = 2.7',
-            data
-        )
+        self.assertIn('der.freitag = 4.3', data)
+        self.assertIn('freitag.article = 2.7', data)
 
         shutil.rmtree(remote_batou.working_dir)
         shutil.rmtree(tmp_batou_repo.working_tree_dir)
 
 
 class TestReleaseDistribution(BaseTest):
-
     def test_create_instance(self):
         """Check that path and name are set properly"""
         release = ReleaseDistribution('some/random/path')
-        self.assertEqual(
-            release.path,
-            'some/random/path'
-        )
-        self.assertEqual(
-            release.name,
-            'path'
-        )
+        self.assertEqual(release.path, 'some/random/path')
+        self.assertEqual(release.name, 'path')
 
     def test_check_parent_branch_on_master(self):
         """Check that the parent repository is on master branch"""
@@ -948,10 +837,7 @@ class TestReleaseDistribution(BaseTest):
         with wrap_folder(folder):
             release._check_parent_branch()
 
-        self.assertEqual(
-            self.user_buildout_repo.active_branch.name,
-            'master'
-        )
+        self.assertEqual(self.user_buildout_repo.active_branch.name, 'master')
 
     def test_check_parent_branch_no_master(self):
         """Check that the parent repository is not on master branch"""
@@ -963,25 +849,16 @@ class TestReleaseDistribution(BaseTest):
 
         with OutputCapture():
             with wrap_folder(folder):
-                self.assertRaises(
-                    ValueError,
-                    release._check_parent_branch
-                )
+                self.assertRaises(ValueError, release._check_parent_branch)
 
-        self.assertEqual(
-            self.user_buildout_repo.active_branch.name,
-            'another-branch'
-        )
+        self.assertEqual(self.user_buildout_repo.active_branch.name, 'another-branch')
 
     def test_check_distribution_does_not_exists(self):
         """Check that if a distribution does not exist it raises an error"""
         folder = self.user_buildout_repo.working_tree_dir
-        release = ReleaseDistribution('{0}/lala'.format(folder))
+        release = ReleaseDistribution(f'{folder}/lala')
 
-        self.assertRaises(
-            IOError,
-            release._check_distribution_exists
-        )
+        self.assertRaises(IOError, release._check_distribution_exists)
 
     def test_check_distribution_exists(self):
         """Check that the parent repository is not on master branch"""
@@ -990,9 +867,7 @@ class TestReleaseDistribution(BaseTest):
 
         release._check_distribution_exists()
 
-        self.assertTrue(
-            os.path.exists(folder)
-        )
+        self.assertTrue(os.path.exists(folder))
 
     def test_get_version(self):
         """Check that the latest tag is returned"""
@@ -1005,7 +880,4 @@ class TestReleaseDistribution(BaseTest):
         self._commit(self.user_buildout_repo)
         self.user_buildout_repo.create_tag('4.11')
 
-        self.assertEqual(
-            release.get_version(),
-            '4.11'
-        )
+        self.assertEqual(release.get_version(), '4.11')
