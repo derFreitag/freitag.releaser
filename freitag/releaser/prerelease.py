@@ -25,7 +25,7 @@ def check_translations(data):
         stdout=subprocess.PIPE,
     )
     stdout, stderr = process.communicate()
-    if 'ERROR' not in stdout:
+    if b'ERROR' not in stdout:
         logger.debug('i18ndude: everything up to date')
         return
 
