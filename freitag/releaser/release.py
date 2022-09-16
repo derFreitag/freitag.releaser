@@ -620,6 +620,7 @@ class ReleaseDistribution:
         # https://github.com/zestsoftware/zest.releaser/issues/146
         with wrap_folder(self.path):
             with wrap_sys_argv():
+                sys.argv = ['bin/fullrelease', '--no-input']
                 fullrelease.main()
 
     def get_version(self):
