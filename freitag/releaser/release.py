@@ -89,7 +89,7 @@ class FullRelease:
         )
 
         if self.offline and not self.test:
-            logger.warn(
+            logger.warning(
                 'Offline operations means that no release can be done. '
                 'Test option has been turned on as well.'
             )
