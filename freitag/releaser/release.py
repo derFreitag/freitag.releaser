@@ -511,7 +511,7 @@ class FullRelease:
                 deployment_buildout.set_version(dist_name, self.versions[dist_name])
             # commit and push the repo
             repo.index.add([path])
-            repo.index.commit(message=self.commit_message.encode('utf-8'))
+            repo.index.commit(message=self.commit_message)
             # push the changes
             repo.remote().push()
 
