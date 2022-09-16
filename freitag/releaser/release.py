@@ -12,6 +12,7 @@ from freitag.releaser.utils import wrap_sys_argv
 from git import InvalidGitRepositoryError
 from git import Repo
 from plone.releaser.buildout import Buildout
+from zest.releaser import bumpversion
 from zest.releaser import fullrelease
 from zest.releaser.utils import ask
 
@@ -304,9 +305,9 @@ class FullRelease:
 
             logger.info(DISTRIBUTION.format(distribution_path))
 
-            changes_snippets_folder = f'{repo.working_tree_dir}/news'
+            news_folder = f'{repo.working_tree_dir}/news'
             try:
-                changes = self._grab_changelog(changes_snippets_folder)
+                changes, next_release = self._grab_changelog(news_folder)
             except OSError:
                 logger.debug('Changelog not found, skipping.')
                 continue
@@ -321,15 +322,32 @@ class FullRelease:
             logger.info('news entries')
             logger.info('')
             logger.info(''.join(changes))
+            release_kind = DISTRIBUTION.format(next_release)
+            logger.info(f'Next release will be a {release_kind} release\n')
+            if next_release != 'bugfix':
+                logger.info(
+                    'You can still change the version number, '
+                    'see the next question.'
+                )
             msg = f'Is the change log for {dist_name} ready for release?'
             if not self.test and ask(msg):
                 to_release.append(distribution_path)
+
+                if next_release != 'bugfix':
+                    self._decide_version(distribution_path, next_release)
 
         if not self.test:
             self.distributions = to_release
 
         logger.debug('Distributions: ')
         logger.debug('\n'.join(self.distributions))
+
+    @staticmethod
+    def _decide_version(distribution_path, next_release):
+        with wrap_folder(distribution_path):
+            with wrap_sys_argv():
+                sys.argv = ['bin/bumpversion', f'--{next_release}']
+                bumpversion.main()
 
     def check_branches(self):
         """Check that all distributions to be released, and the parent
@@ -516,7 +534,7 @@ class FullRelease:
             repo.remote().push()
 
     def _grab_changelog(self, news_folder):
-        entries = self.verify_newsentries(news_folder)
+        entries, next_release = self.verify_newsentries(news_folder)
         header = '\n- {1} https://gitlab.com/der-freitag/zope/issues/{0}\n'
         lines = []
         for suffix, issue, news_filename in entries:
@@ -526,11 +544,12 @@ class FullRelease:
                 for line in news_file:
                     lines.append(f'  {line}')
 
-        return lines
+        return lines, next_release
 
     def verify_newsentries(self, news_folder):
         valid_entries = []
         valid_suffixes = ('bugfix', 'feature', 'breaking')
+        highest_suffix_used = 'bugfix'
         try:
             for news_filename in os.listdir(news_folder):
                 if news_filename == '.gitkeep':
@@ -545,9 +564,21 @@ class FullRelease:
                             f'Valid suffixes are: {valid_suffixes}'
                         )
                     valid_entries.append([suffix, issue, news_filename])
+                    highest_suffix_used = self.highest_suffix(highest_suffix_used, suffix)
         except OSError:
-            logger.warning('%s does not exist', news_folder)
-        return valid_entries
+            logger.warning(f'{news_folder} does not exist')
+        return valid_entries, highest_suffix_used
+
+    @staticmethod
+    def highest_suffix(current, new):
+        # if we already have a breaking change, that's all
+        if current == 'breaking':
+            return current
+        # if it is a feature, but we have now a breaking return that
+        if current == 'feature' and new == 'breaking':
+            return 'breaking'
+        # at this point even if it is a bugfix, we can return the new value
+        return new
 
 
 class ReleaseDistribution:
