@@ -574,14 +574,10 @@ class FullRelease:
 
     @staticmethod
     def highest_suffix(current, new):
-        # if we already have a breaking change, that's all
-        if current == 'breaking':
-            return current
-        # if it is a feature, but we have now a breaking return that
-        if current == 'feature' and new == 'breaking':
-            return 'breaking'
-        # at this point even if it is a bugfix, we can return the new value
-        return new
+        suffixes_ordered = ('breaking', 'feature', 'bugfix')
+        for suffix in suffixes_ordered:
+            if current == suffix or new == suffix:
+                return suffix
 
 
 class ReleaseDistribution:
