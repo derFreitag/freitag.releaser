@@ -21,6 +21,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -398,6 +399,8 @@ class FullRelease:
         msg = 'Release!'
         logger.info(msg)
         logger.info('-' * len(msg))
+        logger.info('Give yourself 5 seconds to decide if all is fine')
+        time.sleep(5)
         for distribution_path in self.distributions:
             logger.info(f'\n\n{DISTRIBUTION.format(distribution_path)}')
             dist_name = distribution_path.split('/')[-1]
