@@ -3,8 +3,8 @@
 Changelog
 =========
 
-1.1 (unreleased)
-----------------
+2.0.0 (2022-09-27)
+------------------
 
 - Lots of changes: cleanups, enhancements, etc.
   [gforcada]
