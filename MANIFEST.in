@@ -1,4 +1,4 @@
 graft freitag
 graft doc
-exclude .installed.cfg .coveragerc
+exclude .installed.cfg
 include *.rst *.GPL *.cfg
