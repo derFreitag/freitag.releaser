@@ -6,8 +6,8 @@ Changelog
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Lots of changes: cleanups, enhancements, etc.
+  [gforcada]
 
 1.0.post0 (2015-11-24)
 ----------------------
