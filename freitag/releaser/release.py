@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
 
-NEWS_ENTRY_FILENAME_RE = re.compile(r'(\d+).(\w+)(.\d)*')
+NEWS_ENTRY_FILENAME_RE = re.compile(r'([\d\w]+).(\w+)(.\d)*')
 
 
 class FullRelease:
@@ -551,7 +551,7 @@ class FullRelease:
 
     def verify_newsentries(self, news_folder):
         valid_entries = []
-        valid_suffixes = ('bugfix', 'feature', 'breaking')
+        valid_suffixes = ('bugfix', 'feature', 'breaking', 'internal')
         highest_suffix_used = 'bugfix'
         try:
             for news_filename in os.listdir(news_folder):
