@@ -6,8 +6,8 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Handle a few more towncrier suffies.
+  [gforcada]
 
 2.0.0 (2022-09-27)
 ------------------
