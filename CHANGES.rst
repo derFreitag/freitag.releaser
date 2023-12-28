@@ -3,7 +3,7 @@
 Changelog
 =========
 
-2.0.1 (unreleased)
+2.0.1 (2023-12-28)
 ------------------
 
 - Handle a few more towncrier suffies.
