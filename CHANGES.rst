@@ -6,8 +6,8 @@ Changelog
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Drop unneeded `plone.recipe.codeanalysis` dependency.
+  [gforcada]
 
 2.0.1 (2023-12-28)
 ------------------
