@@ -49,7 +49,6 @@ setup(
         'gitpython',
         'gocept.zestreleaser.customupload',
         'paramiko',
-        'plone.recipe.codeanalysis',
         'plone.releaser',
         'scp',
         'setuptools',
