@@ -2,7 +2,7 @@ from pathlib import Path
 from setuptools import setup
 
 
-version = '2.0.3.dev0'
+version = '3.0.0'
 
 
 def read(filename):

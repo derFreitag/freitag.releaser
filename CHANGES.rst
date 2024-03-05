@@ -3,7 +3,7 @@
 Changelog
 =========
 
-2.0.3 (unreleased)
+3.0.0 (2024-03-05)
 ------------------
 
 - Use implicit namespaces.
