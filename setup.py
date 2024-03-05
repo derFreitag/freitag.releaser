@@ -1,4 +1,4 @@
-from setuptools import find_packages
+from pathlib import Path
 from setuptools import setup
 
 
@@ -11,19 +11,19 @@ def read(filename):
 
 
 desc = 'Release facilities to ease the management of buildout based projects.'
-long_description = '\n\n'.join(
-    [
-        read('README.rst'),
-        read('CHANGES.rst'),
-    ]
-)
-
+long_description = f"""
+{Path('README.rst').read_text()}
+\n\n
+{Path('CHANGES.rst').read_text()}
+"""
 
 setup(
     name='freitag.releaser',
     version=version,
     description=desc,
     long_description=long_description,
+    # Get more strings from
+    # https://pypi.org/classifiers/
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -45,6 +45,7 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
+    python_requires='>=3.8',
     install_requires=[
         'gitpython',
         'gocept.zestreleaser.customupload',
