@@ -41,7 +41,7 @@ setup(
     author_email='gil.gnome@gmail.com',
     url='https://github.com/derFreitag/freitag.releaser',
     license='GPL',
-    packages=['freitag.discussion'],
+    packages=['freitag.releaser'],
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
