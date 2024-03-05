@@ -41,8 +41,8 @@ setup(
     author_email='gil.gnome@gmail.com',
     url='https://github.com/derFreitag/freitag.releaser',
     license='GPL',
-    packages=find_packages(exclude=['ez_setup']),
-    namespace_packages=['freitag'],
+    packages=['freitag.discussion'],
+    package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
     install_requires=[
