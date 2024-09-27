@@ -327,8 +327,7 @@ class FullRelease:
             logger.info(f'Next release will be a {release_kind} release\n')
             if next_release != 'bugfix':
                 logger.info(
-                    'You can still change the version number, '
-                    'see the next question.'
+                    'You can still change the version number, see the next question.'
                 )
             msg = f'Is the change log for {dist_name} ready for release?'
             if not self.test and ask(msg):
@@ -567,7 +566,9 @@ class FullRelease:
                             f'Valid suffixes are: {valid_suffixes}'
                         )
                     valid_entries.append([suffix, issue, news_filename])
-                    highest_suffix_used = self.highest_suffix(highest_suffix_used, suffix)
+                    highest_suffix_used = self.highest_suffix(
+                        highest_suffix_used, suffix
+                    )
         except OSError:
             logger.warning(f'{news_folder} does not exist')
         return valid_entries, highest_suffix_used
