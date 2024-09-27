@@ -17,7 +17,7 @@ def full_release(
     filter_distributions=None,
     debug=False,
     offline=False,
-    branch='master',
+    branch='main',
 ):
     """Release all distribution found on src/
 

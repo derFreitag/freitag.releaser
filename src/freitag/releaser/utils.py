@@ -49,7 +49,7 @@ def update_branch(repo, branch):
     return True
 
 
-def is_branch_synced(repo, branch='master'):
+def is_branch_synced(repo, branch='main'):
     """Check if given branch on the given repository has local commits
 
     :param repo: the repository that will be used to check the branches

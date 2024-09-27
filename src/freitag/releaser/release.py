@@ -78,7 +78,7 @@ class FullRelease:
         test=False,
         filter_distributions='',
         offline=False,
-        branch='master',
+        branch='main',
     ):
         self.path = path
         self.test = test
@@ -596,7 +596,7 @@ class ReleaseDistribution:
     #: parent repository which will be updated with the new release
     parent_repo = None
 
-    def __init__(self, path, branch='master'):
+    def __init__(self, path, branch='main'):
         self.path = path
         self.branch = branch
         self.name = path.split('/')[-1]
