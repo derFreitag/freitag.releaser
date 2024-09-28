@@ -108,7 +108,6 @@ def get_compact_git_history(repo, tag, base_branch):
 def push_cfg_files():
     files = [
         'versions.cfg',
-        'distribution-qa.cfg',
         'release.cfg',
         'sources.cfg',
         'qa.cfg',
