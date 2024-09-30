@@ -6,8 +6,11 @@ Changelog
 3.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Allow releases from `main` branch
+  [gforcada]
 
+- Be more flexible with news snippets file names.
+  [gforcada]
 
 3.0.0 (2024-03-05)
 ------------------
