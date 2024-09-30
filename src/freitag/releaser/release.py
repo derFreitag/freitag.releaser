@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 DISTRIBUTION = '\033[1;91m{0}\033[0m'
 BRANCH = PATH = '\033[1;30m{0}\033[0m'
 
-NEWS_ENTRY_FILENAME_RE = re.compile(r'([\d\w]+).(\w+)(.\d)*')
+NEWS_ENTRY_FILENAME_RE = re.compile(r'(\+?[\-\d\w]+).(\w+)(.\d)*')
 
 
 class FullRelease:
@@ -554,7 +554,7 @@ class FullRelease:
         highest_suffix_used = 'bugfix'
         try:
             for news_filename in os.listdir(news_folder):
-                if news_filename == '.gitkeep':
+                if news_filename in ('.gitkeep', '.changelog_template.jinja'):
                     continue
                 news_path = os.sep.join([news_folder, news_filename])
                 matches = NEWS_ENTRY_FILENAME_RE.match(news_filename)
@@ -569,6 +569,9 @@ class FullRelease:
                     highest_suffix_used = self.highest_suffix(
                         highest_suffix_used, suffix
                     )
+                    logger.debug(f'Found a valid news entry: {news_path}')
+                else:
+                    logger.debug(f'!!! Invalid news entry: {news_path}')
         except OSError:
             logger.warning(f'{news_folder} does not exist')
         return valid_entries, highest_suffix_used
