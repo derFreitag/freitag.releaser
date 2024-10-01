@@ -3,7 +3,7 @@
 Changelog
 =========
 
-3.1.1 (unreleased)
+4.0.0 (2024-10-01)
 ------------------
 
 - Remove the assets command, it's no longer useful.
