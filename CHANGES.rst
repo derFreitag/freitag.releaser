@@ -3,6 +3,12 @@
 Changelog
 =========
 
+3.1.1 (unreleased)
+------------------
+
+- Remove the assets command, it's no longer useful.
+  [gforcada]
+
 3.1.0 (2024-09-30)
 ------------------
 
