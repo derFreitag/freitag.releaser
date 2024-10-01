@@ -116,8 +116,6 @@ class FullRelease:
             self.update_buildout()
             self.update_batou()
             self.push_cfg_files()
-            # push assets to delivery servers
-            self.assets()
 
     def get_all_distributions(self):
         """Get all distributions that are found in self.path"""
@@ -449,58 +447,6 @@ class FullRelease:
             push_cfg_files()
         except OSError:
             logger.error('Could not connect to the server!!!')
-
-    def assets(self):
-        """Build freitag.theme assets and send them to delivery VMs"""
-        theme_repo = self._check_theme_distribution()
-        if theme_repo:
-            self._build_and_send_assets(theme_repo)
-
-    def _check_theme_distribution(self):
-        theme = '/'.join([self.path, 'freitag.theme'])
-        if theme not in self.distributions:
-            logger.info(
-                'Frontend assets are not being pushed to delivery VMs, '
-                'as freitag.theme is not being released'
-            )
-            return
-
-        theme_repo = self.buildout.sources.get('freitag.theme')
-        if theme_repo is None:
-            logger.info(
-                'No freitag.theme repository sources found!'
-                '\n'
-                'Assets can not be built!'
-            )
-            return
-        return theme_repo
-
-    def _build_and_send_assets(self, theme_repo):
-        logger.info('About to clone freitag.theme, it takes a while...')
-        with git_repo(theme_repo, shallow=True, depth=1) as repo:
-            logger.info('Cloned!')
-            self._build_assets(repo.working_tree_dir)
-            self._send_assets(repo.working_tree_dir)
-
-    @staticmethod
-    def _build_assets(path):
-        build_path = f'{path}/src/freitag/theme/from_freitag'
-        yarn = ['yarn', '-s', '--no-progress']
-        subprocess.Popen(
-            yarn + ['--frozen-lockfile', '--non-interactive'], cwd=build_path
-        ).communicate()
-        subprocess.Popen(yarn + ['release'], cwd=build_path).communicate()
-        logger.info('Assets build!')
-
-    @staticmethod
-    def _send_assets(path):
-        static_path = f'{path}/src/freitag/theme/static'
-        for server in get_servers('assets'):
-            logger.info(f'About to push assets to {server[1]}')
-            try:
-                push_folder_to_server(static_path, server)
-            except OSError:
-                logger.error('Could not connect to the server!!!')
 
     def update_batou(self):
         """Update the version pins on batou as well"""

@@ -61,20 +61,6 @@ def publish_cfg_files(debug=False):
     push_cfg_files()
 
 
-@named('assets')
-def publish_assets(debug=False):
-    """Push freitag.theme assets to delivery servers
-
-    :param debug: controls how much output is shown to the user
-    :type debug: bool
-    """
-    configure_logging(debug)
-    get_servers('assets')
-    release = FullRelease(path='src')
-    release.distributions = ['src/freitag.theme']
-    release.assets()
-
-
 @named('news')
 def check_newsentries(debug=False):
     """Verify that all news entries are fine
@@ -95,7 +81,6 @@ class Manage:
         commands = [
             full_release,
             publish_cfg_files,
-            publish_assets,
             check_newsentries,
         ]
 
