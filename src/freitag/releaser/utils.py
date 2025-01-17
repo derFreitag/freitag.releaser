@@ -202,8 +202,8 @@ def git_repo(source, shallow=True, depth=100):
     """
     tmp_dir = mkdtemp()
     url = source.url
-    if source.push_url is not None:
-        url = source.push_url
+    if source.pushurl is not None:
+        url = source.pushurl
 
     if shallow:
         repo = Repo.clone_from(
