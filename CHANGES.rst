@@ -16,8 +16,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
-
+- replace `push_url` by `pushurl` as plone.releaser changed it
+  [gforcada]
 
 4.0.0 (2024-10-01)
 ------------------
