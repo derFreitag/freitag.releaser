@@ -36,6 +36,9 @@ directory = "tests"
 name = "Tests"
 showcontent = true
 
+[tool.isort]
+profile = "plone"
+
 [tool.black]
 skip-string-normalization = true
 fast = true
