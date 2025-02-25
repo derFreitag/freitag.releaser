@@ -22,7 +22,8 @@ class TestUtils(unittest.TestCase):
 
         self.remote_repo = self.upstream_repo.clone(mkdtemp())
         self._commit(self.remote_repo, msg='First commit')
-        self.remote_repo.remote().push('master:refs/heads/master')
+        self.remote_repo.create_head('main')
+        self.remote_repo.remote().push('main:refs/heads/main')
 
         self.user_repo = self.upstream_repo.clone(mkdtemp())
 
@@ -30,7 +31,7 @@ class TestUtils(unittest.TestCase):
         self.source = Source(
             protocol='git',
             url=f'file://{self.upstream_repo.working_dir}',
-            branch='master',
+            branch='main',
         )
 
     def tearDown(self):
@@ -61,7 +62,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(commits, 2)
 
         # update the branch
-        update_branch(self.user_repo, 'master')
+        update_branch(self.user_repo, 'main')
 
         # local has two commits now as well
         commits = len([c for c in self.user_repo.iter_commits()])
@@ -135,7 +136,7 @@ class TestUtils(unittest.TestCase):
         git_history = get_compact_git_history(
             self.user_repo,
             tag_name,
-            'master',
+            'main',
         )
         self.assertIn('Forth commit', git_history)
         self.assertIn('Third commit', git_history)
