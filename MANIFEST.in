@@ -1,4 +1,6 @@
+global-exclude *pyc
+include *.md *.rst
 graft src
-graft doc
-exclude .installed.cfg
-include *.rst *.GPL *.cfg
+include pyproject.toml
+recursive-exclude news *
+exclude news *.yml __pycache__

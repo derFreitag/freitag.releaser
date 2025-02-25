@@ -42,3 +42,15 @@ profile = "plone"
 [tool.black]
 skip-string-normalization = true
 fast = true
+
+[tool.check-manifest]
+ignore = [
+    ".editorconfig",
+    ".meta.toml",
+    ".pre-commit-config.yaml",
+    "tox.ini",
+    ".flake8",
+    "mx.ini",
+
+]
+
