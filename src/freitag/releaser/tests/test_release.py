@@ -64,8 +64,8 @@ class BaseTest(unittest.TestCase):
 
     def _commit(self, repo, content='', filename='dummy', msg='Random commit'):
         dummy_file = os.path.join(repo.working_tree_dir, filename)
-        with open(dummy_file, 'w') as afile:
-            afile.write(content)
+        with open(dummy_file, 'w') as a_file:
+            a_file.write(content)
         repo.index.add([dummy_file])
         repo.index.commit(msg)
 
@@ -125,8 +125,8 @@ class TestFullRelease(BaseTest):
         path = f'{self.user_buildout_repo.working_tree_dir}/src'
         # create a file
         os.makedirs(path)
-        with open(f'{path}/random-file', 'w') as afile:
-            afile.write('something')
+        with open(f'{path}/random-file', 'w') as a_file:
+            a_file.write('something')
 
         full_release = FullRelease(path=path)
 
@@ -200,8 +200,8 @@ class TestFullRelease(BaseTest):
 
         # add a file
         file_path = f'{repo_folder}/tmp_file'
-        with open(file_path, 'w') as afile:
-            afile.write('something')
+        with open(file_path, 'w') as a_file:
+            a_file.write('something')
             repo.index.add([file_path])
 
         # full release
@@ -754,8 +754,8 @@ class TestFullRelease(BaseTest):
         )
 
         with wrap_folder(tmp_batou_repo.working_tree_dir):
-            with open('components/plone/versions/versions.cfg') as afile:
-                data = afile.read()
+            with open('components/plone/versions/versions.cfg') as a_file:
+                data = a_file.read()
 
         self.assertIn('der.freitag = 4.3', data)
         self.assertIn('freitag.article = 2.7', data)
