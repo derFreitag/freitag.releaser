@@ -22,15 +22,17 @@ class TestUtils(unittest.TestCase):
 
         self.remote_repo = self.upstream_repo.clone(mkdtemp())
         self._commit(self.remote_repo, msg='First commit')
-        self.remote_repo.remote().push('master:refs/heads/master')
+        self.remote_repo.create_head('main')
+        self.remote_repo.remote().push('main:refs/heads/main')
 
         self.user_repo = self.upstream_repo.clone(mkdtemp())
+        self.user_repo.git.checkout('main')
 
         # create a Source
         self.source = Source(
             protocol='git',
             url=f'file://{self.upstream_repo.working_dir}',
-            branch='master',
+            branch='main',
         )
 
     def tearDown(self):
@@ -57,11 +59,11 @@ class TestUtils(unittest.TestCase):
         # add a commit upstream
         self._commit(self.remote_repo, msg='Second commit')
         self.remote_repo.remote().push()
-        commits = len([c for c in self.upstream_repo.iter_commits()])
+        commits = len([c for c in self.remote_repo.iter_commits()])
         self.assertEqual(commits, 2)
 
         # update the branch
-        update_branch(self.user_repo, 'master')
+        update_branch(self.user_repo, 'main')
 
         # local has two commits now as well
         commits = len([c for c in self.user_repo.iter_commits()])
@@ -132,10 +134,14 @@ class TestUtils(unittest.TestCase):
         self._commit(self.user_repo, msg='Third commit')
         self._commit(self.user_repo, msg='Forth commit')
 
+        self.assertEqual(len(self.user_repo.tags), 1)
+        self.assertEqual(self.user_repo.tags[0].name, 'my-tag')
+        self.assertEqual(len(self.user_repo.heads), 1)
+        self.assertEqual(self.user_repo.heads[0].name, 'main')
         git_history = get_compact_git_history(
             self.user_repo,
             tag_name,
-            'master',
+            'main',
         )
         self.assertIn('Forth commit', git_history)
         self.assertIn('Third commit', git_history)
@@ -165,6 +171,7 @@ class TestUtils(unittest.TestCase):
 
         # use the context manager to check that only some commits are fetched
         with git_repo(self.source, shallow=False) as repo:
+            repo.git.checkout('main')
             commits = [c for c in repo.iter_commits()]
             self.assertEqual(len(commits), total_commits)
 

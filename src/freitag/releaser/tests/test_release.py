@@ -53,7 +53,8 @@ class BaseTest(unittest.TestCase):
             filename='develop.cfg',
             msg='First commit',
         )
-        self.remote_buildout_repo.remote().push('master:refs/heads/master')
+        self.remote_buildout_repo.create_head('main')
+        self.remote_buildout_repo.remote().push('main:refs/heads/main')
 
         self.user_buildout_repo = self.buildout_repo.clone(mkdtemp())
 
@@ -726,7 +727,8 @@ class TestFullRelease(BaseTest):
             versions.write('[versions]')
         tmp_batou_repo.index.add([file_path])
         tmp_batou_repo.index.commit('lalala')
-        tmp_batou_repo.remote().push('master:refs/heads/master')
+        tmp_batou_repo.create_head('main')
+        tmp_batou_repo.remote().push('main:refs/heads/main')
 
         shutil.rmtree(tmp_batou_repo.working_dir)
 
@@ -744,7 +746,7 @@ class TestFullRelease(BaseTest):
             full_release.update_batou()
 
         tmp_batou_repo = remote_batou.clone(mkdtemp())
-        branch = tmp_batou_repo.branches['master']
+        branch = tmp_batou_repo.branches['main']
 
         self.assertEqual(branch.commit.message, 'lalala')
         self.assertEqual(len(branch.commit.stats.files.keys()), 1)
