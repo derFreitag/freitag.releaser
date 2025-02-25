@@ -809,7 +809,7 @@ class TestFullRelease(BaseTest):
         self.assertEqual(branch.commit.message, 'lalala')
         self.assertEqual(len(branch.commit.stats.files.keys()), 1)
         self.assertEqual(
-            branch.commit.stats.files.keys()[0],
+            list(branch.commit.stats.files.keys())[0],
             'components/plone/versions/versions.cfg',
         )
 
