@@ -1,5 +1,3 @@
-.. -*- coding: utf-8 -*-
-
 Changelog
 =========
 
@@ -175,7 +173,7 @@ Bug fixes:
     ready to be released
   - i18n: runs ``bin/i18ndude find-untranslated`` and reports back if there
     are any strings not marked for translation
-  - update_branches: the oposite from vcs_updated,
+  - update_branches: the opposite from vcs_updated,
     rebased develop branch on top of master (which was used to make the release)
 
   [gforcada]

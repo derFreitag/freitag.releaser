@@ -1,11 +1,9 @@
 from freitag.releaser.utils import filter_git_history
 from freitag.releaser.utils import get_compact_git_history
 from freitag.releaser.utils import get_latest_tag
-from freitag.releaser.utils import get_servers
 from freitag.releaser.utils import git_repo
 from freitag.releaser.utils import is_branch_synced
 from freitag.releaser.utils import push_cfg_files
-from freitag.releaser.utils import push_folder_to_server
 from freitag.releaser.utils import update_branch
 from freitag.releaser.utils import wrap_folder
 from freitag.releaser.utils import wrap_sys_argv
@@ -19,7 +17,6 @@ from zest.releaser.utils import ask
 import logging
 import os
 import re
-import subprocess
 import sys
 import time
 
