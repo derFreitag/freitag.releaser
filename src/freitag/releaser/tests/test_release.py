@@ -668,7 +668,9 @@ class TestFullRelease(BaseTest):
                 full_release.ask_what_to_release()
 
         self.assertEqual(full_release.distributions, [])
-        self.assertIn('Is the change log ready for release?', output.captured)
+        self.assertIn(
+            'Is the change log for my.distribution ready for release?', output.captured
+        )
 
     def test_update_buildout(self):
         """Check that repository is updated with commit message"""
