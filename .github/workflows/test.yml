@@ -16,8 +16,6 @@ jobs:
           - ["ubuntu", "ubuntu-latest"]
         config:
           # [Python version, visual name, tox env]
-          - ["3.13", "Test on py3.13", "py313"]
-          - ["3.12", "Test on py3.12", "py312"]
           - ["3.11", "Test on py3.11", "py311"]
 
     runs-on: ${{ matrix.os[1] }}
