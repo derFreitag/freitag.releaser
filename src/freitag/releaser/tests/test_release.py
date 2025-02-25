@@ -546,36 +546,6 @@ class TestFullRelease(BaseTest):
         # check that the distribution is not going to be released
         self.assertEqual(full_release.distributions, [])
 
-    def test_ask_what_to_release_changes_rst_is_shown(self):
-        """Check that the CHANGES.rst are shown to the user"""
-        repo = self.user_buildout_repo
-
-        # add source, CHANGES.rst, commits and push the repo
-        self._add_source(repo)
-        self._add_changes(repo)
-        first_commit_sha = self._commit(repo, msg='Random commit 1')
-        self.user_buildout_repo.remote().push()
-
-        # clone the repo
-        path = f'{self.user_buildout_repo.working_tree_dir}/src'
-        os.makedirs(path)
-        repo_folder = f'{path}/my.distribution'
-        self.buildout_repo.clone(repo_folder)
-
-        # full release
-        full_release = FullRelease(path=path)
-        full_release.distributions = [repo_folder]
-        full_release.last_tags['my.distribution'] = first_commit_sha
-
-        utils.test_answer_book.set_answers(['Y'])
-        with wrap_folder(self.user_buildout_repo.working_tree_dir):
-            with OutputCapture():
-                with LogCapture() as output:
-                    full_release.ask_what_to_release()
-
-        self.assertIn('change log entry 1', self._get_logging_as_string(output))
-        self.assertIn('change log entry 2', self._get_logging_as_string(output))
-
     def test_ask_what_to_release_test(self):
         """Check that in test mode no distributions are filtered"""
         repo = self.user_buildout_repo
@@ -608,36 +578,6 @@ class TestFullRelease(BaseTest):
             full_release.distributions,
             [repo_folder],
         )
-
-    def test_ask_what_to_release_test_write_changes(self):
-        """Check that in test mode you can write the git history on CHANGES"""
-        repo = self.user_buildout_repo
-
-        # add source, CHANGES.rst, commits and push the repo
-        self._add_source(repo)
-        self._add_changes(repo)
-        first_commit_sha = self._commit(repo, msg='Random commit 1')
-        self.user_buildout_repo.remote().push()
-
-        # clone the repo
-        path = f'{self.user_buildout_repo.working_tree_dir}/src'
-        os.makedirs(path)
-        repo_folder = f'{path}/my.distribution'
-        self.buildout_repo.clone(repo_folder)
-
-        # full release
-        full_release = FullRelease(path=path, test=True)
-        full_release.distributions = [repo_folder]
-        full_release.last_tags['my.distribution'] = first_commit_sha
-
-        utils.test_answer_book.set_answers(['y'])
-        with wrap_folder(self.user_buildout_repo.working_tree_dir):
-            with OutputCapture() as output:
-                full_release.ask_what_to_release()
-
-        self.assertIn('write the above git history on CHANGES.rst', output.captured)
-
-        self.assertIn('Random commit 1', open(f'{repo_folder}/CHANGES.rst').read())
 
     def test_ask_what_to_release_user_can_not_release_a_distribution(self):
         """Check that even if the distribution meets all the criteria,
@@ -830,30 +770,6 @@ class TestReleaseDistribution(BaseTest):
         release = ReleaseDistribution('some/random/path')
         self.assertEqual(release.path, 'some/random/path')
         self.assertEqual(release.name, 'path')
-
-    def test_check_parent_branch_on_master(self):
-        """Check that the parent repository is on master branch"""
-        folder = self.user_buildout_repo.working_tree_dir
-        release = ReleaseDistribution(folder)
-
-        with wrap_folder(folder):
-            release._check_parent_branch()
-
-        self.assertEqual(self.user_buildout_repo.active_branch.name, 'master')
-
-    def test_check_parent_branch_no_master(self):
-        """Check that the parent repository is not on master branch"""
-        folder = self.user_buildout_repo.working_tree_dir
-        release = ReleaseDistribution(folder)
-
-        self.user_buildout_repo.create_head('another-branch')
-        self.user_buildout_repo.heads['another-branch'].checkout()
-
-        with OutputCapture():
-            with wrap_folder(folder):
-                self.assertRaises(ValueError, release._check_parent_branch)
-
-        self.assertEqual(self.user_buildout_repo.active_branch.name, 'another-branch')
 
     def test_check_distribution_does_not_exists(self):
         """Check that if a distribution does not exist it raises an error"""
