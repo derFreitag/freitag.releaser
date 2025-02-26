@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 4.0.2 (2025-02-26)
+
+
+### Bug fixes
+
+- re-release @gforcada 
+
 ## 4.0.1 (2025-02-26)
 
 
