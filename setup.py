@@ -12,9 +12,9 @@ def read(filename):
 
 desc = 'Release facilities to ease the management of buildout based projects.'
 long_description = f"""
-{Path('README.rst').read_text()}
+{Path('README.md').read_text()}
 \n\n
-{Path('CHANGES.rst').read_text()}
+{Path('CHANGES.md').read_text()}
 """
 
 setup(
