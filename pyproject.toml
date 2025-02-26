@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "freitag.releaser"
-version = "4.0.1"
+version = "4.0.2.dev0"
 authors = [{ name = "Gil Forcada Codinachs", email = "gil.gnome@gmail.com" }]
 requires-python = ">=3.11"
 description = "Release facilities to ease the management of buildout based projects."
