@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## 4.0.1 (2025-02-26)
+
+
+### Bug fixes
+
+- do not add the CI skip mark on commits @gforcada 
+- overhaul configuration to use something close to `plone.meta` @gforcada 
+
 ## 4.0.1 (2025-01-17)
 
 ### Bug fixes:
