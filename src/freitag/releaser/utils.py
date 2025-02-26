@@ -119,15 +119,7 @@ def push_cfg_files():
     command.append(f'{user}@{server}:{path}')
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
-    print(stdout)  # noqa: T001
-
-
-def push_folder_to_server(folder, server_data):
-    user, server, server_path = server_data
-    command = ['scp', '-r', folder, f'{user}@{server}:{server_path}']
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    print(stdout)  # noqa: T001
+    print(stdout)  # noqa: T201
 
 
 def filter_git_history(changes):
@@ -265,7 +257,7 @@ def get_servers(section):
             connection_strings = servers_config.get(section, 'servers')
             for connection in connection_strings.strip().split('\n'):
                 servers.append(_server_details(connection))
-    except Exception:
+    except ValueError:
         logger.info('Something went wrong trying to get the connection string')
         raise
 
