@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 4.0.3 (2025-04-30)
+
+
+### Bug fixes
+
+- Do not push to servers some outdated cfg files @gforcada 
+
 ## 4.0.2 (2025-02-26)
 
 
