@@ -108,9 +108,7 @@ def get_compact_git_history(repo, tag, base_branch):
 def push_cfg_files():
     files = [
         'versions.cfg',
-        'release.cfg',
         'sources.cfg',
-        'qa.cfg',
     ]
     user, server, path = get_servers('eggs')[0]
 
