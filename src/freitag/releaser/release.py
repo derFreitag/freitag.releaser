@@ -9,6 +9,7 @@ from freitag.releaser.utils import wrap_folder
 from freitag.releaser.utils import wrap_sys_argv
 from git import InvalidGitRepositoryError
 from git import Repo
+from pathlib import Path
 from plone.releaser.buildout import Buildout
 from zest.releaser import bumpversion
 from zest.releaser import fullrelease
@@ -107,6 +108,7 @@ class FullRelease:
 
         if not self.test and len(self.distributions) > 0:
             self.check_branches()
+            self.check_news_entries()
             self.report_whats_to_release()
             self.release_all()
             self._create_commit_message()
@@ -375,6 +377,31 @@ class FullRelease:
                 actual_branch = BRANCH.format(current_branch)
                 raise ValueError(
                     f'{distro} is not on {expected_branch} branch, but on {actual_branch}'
+                )
+
+    def check_news_entries(self):
+        """Check that all distributions to be released, have entries on the news/ folder.
+        """
+        news_entries_suffixes = ('.breaking', '.bugfix', '.feature', '.internal', '.documentation', '.tests')
+        logger.info('')
+        msg = 'Check news entries'
+        logger.info(msg)
+        logger.info('-' * len(msg))
+
+        for distribution_path in self.distributions:
+            dist_name = distribution_path.split('/')[-1]
+            news_path = Path(distribution_path) / 'news'
+
+            for item in news_path.iterdir():
+                if item.name == '.changelog_template.jinja':
+                    continue
+                if item.suffix in news_entries_suffixes:
+                    break
+                if int(item.suffix) and item.name.split('.')[-2] in news_entries_suffixes:
+                    break
+            else:
+                raise ValueError(
+                    f'{dist_name} has no entries in news/ folder'
                 )
 
     def report_whats_to_release(self):
