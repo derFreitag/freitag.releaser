@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 4.1.0 (2026-08-04)
+
+
+### New features
+
+- Check that a distribution to be released has news entries @gforcada 
+
 ## 4.0.3 (2025-04-30)
 
 
