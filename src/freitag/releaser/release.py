@@ -517,7 +517,7 @@ class FullRelease:
 
     def verify_newsentries(self, news_folder):
         valid_entries = []
-        valid_suffixes = ('bugfix', 'feature', 'breaking', 'internal')
+        valid_suffixes = ('bugfix', 'feature', 'breaking', 'internal', 'tests')
         highest_suffix_used = 'bugfix'
         try:
             for news_filename in os.listdir(news_folder):
@@ -545,7 +545,7 @@ class FullRelease:
 
     @staticmethod
     def highest_suffix(current, new):
-        suffixes_ordered = ('breaking', 'feature', 'bugfix')
+        suffixes_ordered = ('breaking', 'feature', 'bugfix', 'tests', 'internal')
         for suffix in suffixes_ordered:
             if current == suffix or new == suffix:
                 return suffix
