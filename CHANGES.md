@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 4.1.1 (2026-09-29)
+
+
+### Bug fixes
+
+- Support Python 3.14 @gforcada 
+
 ## 4.1.0 (2026-08-04)
 
 
