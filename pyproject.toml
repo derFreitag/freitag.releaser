@@ -10,11 +10,10 @@ requires-python = ">=3.14"
 description = "Release facilities to ease the management of buildout based projects."
 keywords = ["releasing", "packaging", "pypi"]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "GPL-2.0-only"
 classifiers = [
   'Development Status :: 5 - Production/Stable',
   'Intended Audience :: Developers',
-  'License :: OSI Approved :: GNU General Public License (GPL)',
   'Programming Language :: Python',
   'Programming Language :: Python :: 3',
   'Programming Language :: Python :: 3 :: Only',
