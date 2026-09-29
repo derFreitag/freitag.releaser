@@ -251,7 +251,7 @@ def get_servers(section):
     try:
         with open('release.cfg') as config_file:
             servers_config = configparser.ConfigParser()
-            servers_config.readfp(config_file)
+            servers_config.read_file(config_file)
             connection_strings = servers_config.get(section, 'servers')
             for connection in connection_strings.strip().split('\n'):
                 servers.append(_server_details(connection))
