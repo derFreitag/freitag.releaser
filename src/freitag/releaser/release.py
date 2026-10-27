@@ -397,7 +397,7 @@ class FullRelease:
                     continue
                 if item.suffix in news_entries_suffixes:
                     break
-                if int(item.suffix) and item.name.split('.')[-2] in news_entries_suffixes:
+                if int(item.suffix[1:]) and item.name.split('.')[-2] in news_entries_suffixes:
                     break
             else:
                 raise ValueError(
